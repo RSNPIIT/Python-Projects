@@ -1,6 +1,4 @@
 # Python-Projects
-A collection of Python projects and mini-projects I build up over time.
-# Python-Projects
 
 🚀 A growing collection of Python projects and mini-apps I build as I explore programming, automation, and fun experiments.
 
