@@ -15,7 +15,7 @@ menu = {
     'egg' : 46
 }
 print("Welcome to Python Restaurant , Pytho is Elated to Welcome you")
-print("This Restaurant belongs to the same chain ass the FOSS , same as Tux Rest. and Buggy Rest.")
+print("This Restaurant belongs to the same chain ass the FOSS , same as Tux Rest. and Bugdroid's Rest.")
 print("The Menu is :\nPizza : 40\nBurger : 50\nSalad : 20\nFries : 15\nPasta : 60\nNoodles : 55\nCoffee : 35\nBiriyani : 90\nFried Rice : 65\nToast : 20\nNuggets : 45\nFish : 64\nEgg : 46")
 print("What would you like to Order ? , आप क्या मंगवाना पसंद करेंगे ? :")
 order = input("Enter your Order Here :")
