@@ -16,3 +16,8 @@ Clone the repository and run any project directly:
 git clone git@github.com:RSNPIIT/Python-Projects.git
 cd Python-Projects
 python3 cafeman.py
+
+## 🥚 Easter Egg
+
+Besides Python projects, this repo includes a small R script (`math_ops.R`)  
+just for fun—a little easter egg showing R as a super underrated language.
