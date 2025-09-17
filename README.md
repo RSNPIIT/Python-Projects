@@ -19,13 +19,13 @@ A collection of my personal Python mini-projects and experiments.
 - Python 3.x  
 - R
 
-## 🚀 Getting Started
-Clone the repository and run any project directly:
-
 ### 🥚 Easter Egg
 
 Besides Python projects, this repo includes a small R script (`math_ops.R`)  
 just for fun—a little easter egg showing R as a super underrated language.
+
+## 🚀 Getting Started
+Clone the repository and run any project directly:
 
 ```bash
 git clone git@github.com:RSNPIIT/Python-Projects.git
