@@ -1,0 +1,10 @@
+# example.yml
+settings:
+  version: 1.0
+  debug: true
+
+users:
+  - name: Ramrup
+    role: admin
+  - name: Guest
+    role: user
