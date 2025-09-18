@@ -1,28 +1,28 @@
-# Python-Projects
+# 🐍 Python-Projects
 
-A collection of my personal Python mini-projects and experiments.
+A growing collection of personal **Python** mini-projects (plus a tiny R script for fun).
 
 ## 📂 Current Projects
 
 ### Python
 - **cafeman.py**  
-  A simple Café Management CLI mini-project written in Python.  
+  Simple café management CLI app.
 - **rent.py**  
-  Rent calculator for hostel/flat rooms.  
+  Rent calculator for hostel/flat rooms.
+- **todoapp.py**  
+  Menu-driven Task Manager that lets you add, delete, and list tasks in an interactive loop.
 
 ### R
 - **math_ops.R**  
-  Simple arithmetic operations in R (sum, product, difference, division, remainder).  
-  *A little easter egg highlighting R as a super underrated language.*
+  Performs basic arithmetic (sum, product, difference, division, remainder).  
+  *Easter egg to celebrate the underrated R language.*
 
 ## 🛠 Tech Stack
-- Python 3.x  
-- R
+- Python 3.x (CPython)
+- R (Rscript)
 
-### 🥚 Easter Egg
-
-Besides Python projects, this repo includes a small R script (`math_ops.R`)  
-just for fun—a little easter egg showing R as a super underrated language.
+## 🥚 Easter Egg
+This repo isn’t just Python—`math_ops.R` keeps R in the mix.
 
 ## 🚀 Getting Started
 Clone the repository and run any project directly:
@@ -30,10 +30,11 @@ Clone the repository and run any project directly:
 ```bash
 git clone git@github.com:RSNPIIT/Python-Projects.git
 cd Python-Projects
+
+# Python apps
 python3 cafeman.py
 python3 rent.py
-# or for R projects
-Rscript math_ops.R a b
-where a is the first number and b is the second number 
+python3 todoapp.py
 
-It uses the CPython compiler and the RLang Compiler
+# R script
+Rscript math_ops.R <a> <b>    # where <a> and <b> are numbers
