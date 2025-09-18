@@ -33,4 +33,7 @@ cd Python-Projects
 python3 cafeman.py
 python3 rent.py
 # or for R projects
-Rscript math_ops.R 12 5
+Rscript math_ops.R a b
+where a is the first number and b is the second number 
+
+It uses the CPython compiler and the RLang Compiler
