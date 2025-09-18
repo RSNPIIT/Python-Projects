@@ -19,3 +19,6 @@ cat("Product: ", prod_result, "\n")
 cat("Difference: ", diff_result, "\n")
 cat("Division: ", div_result, "\n")
 cat("Remainder: ", mod_result, "\n")
+# This file is part of Python-Projects.
+# Copyright (c) 2025 Ramrup Satpati
+# Licensed under the GNU General Public License v3.0 (GPL-3.0).

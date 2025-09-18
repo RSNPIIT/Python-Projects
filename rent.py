@@ -8,3 +8,6 @@ output = (rent + food + bill) / persons
 output_app = (rent + food + bill) // persons 
 print(f"The per resident rent is : {output}")
 print(f"But in order to resolve conflict the approximate rent is : {output_app}")
+# This file is part of Python-Projects.
+# Copyright (c) 2025 Ramrup Satpati
+# Licensed under the GNU General Public License v3.0 (GPL-3.0).

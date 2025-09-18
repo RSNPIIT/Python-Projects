@@ -43,4 +43,6 @@ if key in menu:
 else:
     print(f"Sorry we dont have {order} yet. Please check again later")
 print("Thankyou for Shopping with us")
-        
+        # This file is part of Python-Projects.
+# Copyright (c) 2025 Ramrup Satpati
+# Licensed under the GNU General Public License v3.0 (GPL-3.0).
