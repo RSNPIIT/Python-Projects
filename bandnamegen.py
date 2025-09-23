@@ -11,5 +11,5 @@ while True:
     ch = input("Enter your choice here : ").strip().lower()
     if ch == 'quit':
         print("Exiting the Bang Generator Apk")
-        print(f"Number of possible names generated are : {n}")
+        print(f"The Number of possible names generated are : {n}")
         break
