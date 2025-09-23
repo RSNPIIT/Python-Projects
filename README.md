@@ -1,28 +1,38 @@
 # 🐍 Python-Projects
 
-A growing collection of personal **Python** mini-projects (plus a tiny R script for fun).
+A growing collection of small **Python** mini-projects (plus a tiny R script for fun).
 
-## 📂 Current Projects
+---
+
+## 📂 Projects
 
 ### Python
 - **cafeman.py**  
-  Simple café management CLI app.
+  Command-line café/restaurant manager: lets users place multiple orders, calculates totals, and applies a 10% discount on bills above ₹500.
+- **rockpaperscissor.py**  
+  Interactive Rock–Paper–Scissor game with case-insensitive input, multi-round play, score tracking, streak tracking, and an exit command. (`python3 rockpaperscissor.py`)
 - **rent.py**  
-  Rent calculator for hostel/flat rooms.
+  Simple rent calculator for hostel/flat rooms.
 - **todoapp.py**  
-  Menu-driven Task Manager that lets you add, delete, and list tasks in an interactive loop.
+  Menu-driven task manager to add, delete, and list tasks interactively.
 
 ### R
 - **math_ops.R**  
   Performs basic arithmetic (sum, product, difference, division, remainder).  
-  *Easter egg to celebrate the underrated R language.*
+  *A little Easter-egg salute to the underrated R language.*
+
+---
 
 ## 🛠 Tech Stack
-- Python 3.x (CPython)
-- R (Rscript)
+- **Python 3.x** (CPython) — all scripts are plain Python, no external dependencies.
+- **R** (Rscript) for the small R utility.
 
-## 🥚 Easter Egg
-This repo isn’t just Python—`math_ops.R` keeps R in the mix.
+---
+
+## ⚙️ Development environment / FOSS tools
+This repo is developed using FOSS-first tools (examples: Codium, Chromium, Firefox ESR, Yakuake), because freedom and privacy are a vibe. 🌿
+
+---
 
 ## 🚀 Getting Started
 Clone the repository and run any project directly:
@@ -33,8 +43,9 @@ cd Python-Projects
 
 # Python apps
 python3 cafeman.py
+python3 rockpaperscissor.py
 python3 rent.py
 python3 todoapp.py
 
 # R script
-Rscript math_ops.R <a> <b>    # where <a> and <b> are numbers
+Rscript math_ops.R <a> <b>    # replace <a> and <b> with numbers
