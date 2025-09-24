@@ -11,7 +11,7 @@ while True:
     computer_choice = random.choice(lis).lower()
     
     if user_choice == computer_choice:
-        print(f"Your Choice = {user_choice.strip().lower()} , Computer Choice is : {computer_choice.lower()}\n")
+        print(f"Your Choice = {user_choice} , Computer Choice is : {computer_choice}\n")
         print("Match Tied , Both at Same Case \n")
 
     elif user_choice == "rock":
