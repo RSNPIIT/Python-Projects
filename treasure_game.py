@@ -64,59 +64,60 @@ while True:
             print("Game Over")
             break
     elif ch == 'r':
-    score += 1
-    print("You find an abandoned hut. You enter (cause you’re broke and out of options lol).")
-    print("---Suddenly a Wild Boar Attacks You! You have to fight---")
+        score += 1
+        print("You find an abandoned hut. You enter (cause you are broke and out of options lol).")
+        print("---Suddenly a Wild Boar Attacks You! You have to fight---")
 
-    # Boar randomly chooses its move: 'f' = fist, 'k' = kick
-    baction = random.choice(['f', 'k'])
+        # Boar randomly chooses its move: 'f' = fist, 'k' = kick
+        baction = random.choice(['f', 'k'])
 
-    yaction = input("Press (f) for Fist attack or (k) for Kick attack: ").strip().lower()
+        yaction = input("Press (f) for Fist attack or (k) for Kick attack: ").strip().lower()
 
-    # ---------- Boar fight ----------
-    if yaction == 'f':
-        # Player used fist → always lose
-        print("Boar Attacked You Hard")
-        print("Boar Wins")
-        print("GAME OVER")
-        break
-
-    elif yaction == 'k':
-        # Kick beats fist, but kick vs kick → boar wins
-        if baction == 'f':
-            print("You Smashed the Boar Hard")
-            print("You Win")
-            score += 1
-
-            # ---------- Door choice after victory ----------
-            print("Congratulations! You defeated the boar.")
-            print("Now you find three doors — choose wisely.")
-            cg = input("Choose a Door (R for Red, G for Green, B for Blue): ").strip().lower()
-
-            if cg == 'r':
-                print("You get a slap and find out it was a dream and you overslept.")
-                print("You didn’t lose — yet. GAME OVER")
-                break
-            elif cg in ('g', 'b'):
-                print("You located the treasure in an alternate fashion!")
-                score += 1
-                print(f"You Win. So far you made {score} correct choices.")
-                break
-            else:
-                print("Timeout or wrong choice.")
-                print("Game Over")
-                break
-
-        else:  # boar also kicks
-            print("Both of you kicked, but the boar overpowers you.")
+        # ---------- Boar fight ----------
+        if yaction == 'f':
+            # Player used fist → always lose
+            print("Boar Attacked You Hard")
             print("Boar Wins")
             print("GAME OVER")
             break
 
-    else:
-        print("Timeout or invalid choice.")
-        print("Game Over")
-        break
+        elif yaction == 'k':
+            # Kick beats fist, but kick vs kick → boar wins
+            if baction == 'f':
+                print("Boar Chooses Fist Attack")
+                print("You Smashed the Boar Hard")
+                print("You Win")
+                score += 1
+
+                # ---------- Door choice after victory ----------
+                print("Congratulations! You defeated the boar.")
+                print("Now you find three doors — choose wisely.")
+                cg = input("Choose a Door (R for Red, G for Green, B for Blue): ").strip().lower()
+
+                if cg == 'r':
+                    print("You get a slap and find out it was a dream and you overslept.")
+                    print("You didn’t lose — yet. GAME OVER")
+                    break
+                elif cg in ('g', 'b'):
+                    print("You located the treasure in an alternate fashion!")
+                    score += 1
+                    print(f"You Win. So far you made {score} correct choices.")
+                    break
+                else:
+                    print("Timeout or wrong choice.")
+                    print("Game Over")
+                    break
+
+            else:  # boar also kicks
+                print("Both of you kicked, but the boar overpowers you.")
+                print("Boar Wins")
+                print("GAME OVER")
+                break
+
+        else:
+            print("Timeout or invalid choice.")
+            print("Game Over")
+            break
 
     else:
         print("Wrong Choice --- Timeout --- Your HP Ran out")
