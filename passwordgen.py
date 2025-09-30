@@ -9,9 +9,9 @@ lis_letters = [
 lis_numbers =['0','1','2','3','4','5','6','7','8','9']
 lis_symbols =['@','_','&','#','^','%','*']
 while True:
-    b = abs(int(input("Enter the number of letters you want in your password : ")))
-    c = abs(int(input("Enter the number of numbers (quite a tongue twister aint it) you want in your password : ")))
-    d = abs(int(input("Enter the number of symbols you want in your password : ")))
+    b = abs(int(input("Enter the maximum number of letters you want in your password : ")))
+    c = abs(int(input("Enter the maximum number of numbers (quite a tongue twister aint it) you want in your password : ")))
+    d = abs(int(input("Enter the maximum number of symbols you want in your password : ")))
     num += 1
     letter_num = random.randint(1,b)
     number_num = random.randint(1,c)
