@@ -1,7 +1,6 @@
 import random
 # The Blackjack 0 score is a sentinel value for a two-card 21 (Blackjack).
-# Day 11 Finished --- Thankyou UDEMY Thankyou Dr Angela Yu
-# See its like 3 functions 2 loops and Done 
+# Day 11 Finished --- Thankyou UDEMY and Thankyou Dr Angela Yu
 def deal_card():
     """Returns a random card from the deck (2-10, J,Q,K=10, A=11)."""
     cards = [2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 10, 10, 11]
