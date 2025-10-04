@@ -20,17 +20,17 @@ while flag:
             print(f"Congratulations You Guessed the Number in {i} tries")
             correct = True
             break
-            flag = False
         else:
             print("No Sadly that's Not it , Please Re Enter")
             continue
     if correct == False:
         print("Umm Well it looks like , You Exhausted all your lives")
+        print(f"< The Number was {num} all this time , Understood >")
         print("Wanna Rematch --- Note , the Numbers and the Guesses will change ")
         ch = input("Enter Your Choice Here (Any Key for Yes and a N for a No): ").strip().lower()
         if ch == 'n':
             print(f"So far this has been attempted by you for {times} times")
-            break
+            flag = False
         else:
             continue
     elif correct == True:
