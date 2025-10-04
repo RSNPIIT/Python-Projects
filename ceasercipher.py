@@ -36,12 +36,12 @@ while True:
     print("\n1.For Encoding\n2.For Decoding\n3.To Exit")
     choice = abs(int(input("Enter Your Choice Here : ")))
     if choice == 1:
-        word = input("Enter Your Message Here : ").lower()
+        word = input("Enter Your Message Here : ").title()
         attmpts += 1
         num = abs(int(input("Enter the Value By What You wanna Shift To Encode the Message : ")))
         encoder(word,num)
     elif choice == 2:
-        word = input("Enter Your Message Here : ").lower()
+        word = input("Enter Your Message Here : ").title()
         attmpts += 1
         num = abs(int(input("Enter the Value By which You Wanna Shift (or Rarther DeShift) to Decode the message : ")))
         decoder(word,num)
