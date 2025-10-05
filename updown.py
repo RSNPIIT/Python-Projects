@@ -86,6 +86,8 @@ def comparator(ch,A,B):
 is_game_over = False
 while not is_game_over:
     attmpt += 1
+    account_a = random.choice(data)
+    account_b = random.choice([x for x in data if x != account_a])
     print("\n" + "="*60)
     print(f"| Current Score: {score} | Attempt: {attmpt} |")
     print("="*60)
