@@ -54,6 +54,7 @@ while game_play:
             else:
                 print("*"*30)
                 print(f"------Oops looks like you ran outta lives------\n-------The Number was : {value} all this time ----------")
+                print(f"---------All this time the number was {value}---------")
                 game_over = True
                 break
         else:
