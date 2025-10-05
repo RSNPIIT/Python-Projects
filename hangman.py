@@ -108,10 +108,10 @@ while not game_over:
             game_over = True
             print(f"***************** IT WAS {word} ALL THIS TIME / YOU LOSE *****************")
             print("Sorry You Lose , You Ran Out of Lives")
-    if '_' not in display:
+    elif '_' not in display:
         game_over = True
         print("You Win")
-    if guess in correct_l:
+    elif guess in correct_l:
         lives -= 0
-        print("You have Already Guessed the Word , Guess Anything Else")
+        #print("You have Already Guessed the Word , Guess Anything Else")
     print(stages[6-lives])
