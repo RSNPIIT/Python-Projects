@@ -79,7 +79,7 @@ stages = [
 ]
 word = random.choice(word_list).strip().lower()
 correct_l = []
-#print(word)
+guessed_l = []
 d = ""
 for _ in range(len(word)):
     d += '_'
@@ -89,6 +89,12 @@ game_over = False
 while not game_over:
     print(f"*************{lives}/6 LIVES***********")
     guess = input("Enter Your Guessed Letter Here : ").strip().lower()
+    if guess in guessed_l:
+        print(f"⚠️ You already guessed the letter '{guess}'. Try a new one! (No life lost)")
+        print(stages[6-lives])
+        continue # Skip the rest of the loop and ask for new input
+    guessed_l.append(guess)
+    
     display = ""
 
     for letter in word:
