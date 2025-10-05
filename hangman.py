@@ -88,7 +88,7 @@ lives = 6
 game_over = False
 while not game_over:
     print(f"*************{lives}/6 LIVES***********")
-    guess = input("Enter Your Guess Letter Here : ").strip().lower()
+    guess = input("Enter Your Guessed Letter Here : ").strip().lower()
     display = ""
 
     for letter in word:
