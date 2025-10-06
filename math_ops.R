@@ -1,27 +1,43 @@
 # math_ops.R
-# This file is part of Python-Projects (I Know its a Pun cause the folder has the Name 'Python')
-# Copyright (c) 2025 Ramrup Satpati ((C)RSNPIIT IITM All rights Reserved)
-# Licensed under the GNU General Public License v3.0 (GPL-3.0)
+# Looping interactive calculator in R
+# Exit only when user types 'q' or 'Q'
 
-args <- commandArgs(trailingOnly = TRUE)
-
-if(length(args) < 2){
-  stop("Please provide two numbers as arguments, e.g. Rscript math_ops.R 12 5")
+repeat {
+  # Prompt for numbers
+  num1 <- as.numeric(readline(prompt = "Enter first number (or q to quit): "))
+  if (is.na(num1)) {
+    input <- readline(prompt = "Did you mean to quit? (q to exit, any other key to continue): ")
+    if (tolower(input) == "q") break else next
+  }
+  
+  num2 <- as.numeric(readline(prompt = "Enter second number: "))
+  
+  # Show menu
+  cat("\nChoose an operation:\n")
+  cat("1: Addition\n")
+  cat("2: Subtraction\n")
+  cat("3: Multiplication\n")
+  cat("4: Division\n")
+  cat("5: Modulus (Remainder)\n")
+  cat("q: Quit\n")
+  
+  choice <- readline(prompt = "Enter choice (1-5 or q): ")
+  
+  if (tolower(choice) == "q") {
+    cat("\nExiting calculator. Goodbye!\n")
+    break
+  }
+  
+  choice <- as.integer(choice)
+  
+  # Perform operation
+  result <- switch(choice,
+                   num1 + num2,
+                   num1 - num2,
+                   num1 * num2,
+                   if (num2 != 0) num1 / num2 else "Error: Division by zero",
+                   if (num2 != 0) num1 %% num2 else "Error: Modulus by zero",
+                   "Invalid choice")
+  
+  cat("\nResult: ", result, "\n\n")
 }
-
-num1 <- as.numeric(args[1])
-num2 <- as.numeric(args[2])
-
-sum_result <- num1 + num2
-prod_result <- num1 * num2
-diff_result <- num1 - num2
-div_result <- num1 / num2
-mod_result <- num1 %% num2
-
-cat("Sum: ", sum_result, "\n")
-cat("Product: ", prod_result, "\n")
-cat("Difference: ", diff_result, "\n")
-cat("Division: ", div_result, "\n")
-cat("Remainder: ", mod_result, "\n")
-
-
