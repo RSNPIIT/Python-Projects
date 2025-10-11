@@ -1,5 +1,12 @@
 #UDEMY DAY15 Completed
 import random
+import turtle
+screen = turtle.Screen() 
+pour_turtle = turtle.Turtle()
+pour_turtle.hideturtle()
+pour_turtle.speed(0)
+pour_turtle.penup()
+pour_turtle.goto(0, -100)  
 Menu = {
     'espresso': {
         'ingredients': {
@@ -61,6 +68,20 @@ def is_transaction_successful(money_received , drink_cost):
 
 def make_drink(drink , order_ingredients):
     """ Deduct the said ingredients from the resources """
+    try:
+        pour_turtle.clear()
+        pour_turtle.color("brown")
+        pour_turtle.pendown()
+        pour_turtle.begin_fill()
+        for i in range(100):
+            pour_turtle.forward(2)
+            pour_turtle.left(5)
+        pour_turtle.end_fill()
+        pour_turtle.penup()
+    except turtle.Terminator:
+        # If the screen was closed, skip animation
+        pass
+
     for item in order_ingredients:
         resource[item] -= order_ingredients[item]
     print(f"Here is your {drink}")
@@ -69,7 +90,7 @@ profit = 0
 is_on = True
 while is_on:
     print("Enter the Item you wanna purchase or enter off if you wanna quit or enter report to see the resoirces availaible")
-    ch = input("Enter whatever you thought ,the options are (espresso/latte/americano) : ").strip().lower()
+    ch = input("Enter whatever you thought ,the options are (espresso/latte/cappuchino) : ").strip().lower()
     if ch == 'off':
         print("Thankyou for coming we hope you'll love our coffee")
         is_on = False
