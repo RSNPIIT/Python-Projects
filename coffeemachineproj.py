@@ -1,3 +1,4 @@
+#UDEMY DAY15 Completed
 import random
 Menu = {
     'espresso': {
@@ -89,8 +90,3 @@ while is_on:
         else:
             print("Your Selected Drink is not in Menu \nPlease make an existing choice of itens")
             continue
-
-
-
-
-
