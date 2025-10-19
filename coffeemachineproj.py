@@ -47,7 +47,6 @@ def is_resource_suff(order):
     return True
 
 def process_coins():
-    print("Please Insert Coins")
     total = abs(int(input("How Many Quarters ? : "))) * 0.25
     total += abs(int(input("How Many Dimes ? : ")))* 0.1
     total += abs(int(input("How Many Nickels ? : ")))* 0.05
