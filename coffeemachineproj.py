@@ -102,7 +102,7 @@ while is_on:
     else:
         if ch in Menu:
             drink = Menu[ch]
-            print(drink)
+            #print(drink)
             if is_resource_suff(drink['ingredients']):
                 payment = process_coins()
                 if is_transaction_successful(payment,drink['cost']):
