@@ -96,5 +96,5 @@ while machine_state:
                 if transaction(amt,val['cost']):
                     make_food(choice,val['ingredients'])
         else:
-            print("Selected Choice not in Menu \nPlease Check back later")
+            print("Selected Choice not in Menu \nPlease Come back later")
             continue
