@@ -1,7 +1,7 @@
 #Pong Game by @RSNPIIT (Ramrup Satpati from IITM)
 
 import turtle as t
-import os
+# import os
 
 #Screen
 sc = t.Screen()
@@ -41,7 +41,7 @@ s1 = 0
 s2 = 0
 
 #Sounding Var
-bounce = "~/Music/bounce.wav"
+# bounce = "~/Music/bounce.wav"
 
 #Scoring Pen
 pen = t.Turtle()
