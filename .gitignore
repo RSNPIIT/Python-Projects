@@ -9,3 +9,4 @@ Thumbs.db
 # Virtual environments
 venv/
 .env/
+snake-game-withscore/text.txt
