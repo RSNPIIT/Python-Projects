@@ -1,5 +1,12 @@
 🐍 Python-Projects
 
+![Python](https://img.shields.io/badge/Python-3.8+-blue?logo=python)
+![R](https://img.shields.io/badge/RLang-4.0+-lightblue?logo=r)
+![License](https://img.shields.io/badge/License-GPL--3.0-green)
+![Platform](https://img.shields.io/badge/Platform-Linux%20%7C%20macOS%20%7C%20Windows-lightgrey)
+![Maintained](https://img.shields.io/badge/Maintained-Yes-success)
+
+
 A growing collection of small Python mini-projects (plus the occasional R script) built while exploring different ideas, tools, and programming concepts.
 
 📂 Project Overview
