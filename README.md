@@ -44,9 +44,17 @@ R scripts
 Rscript project_name.R
 # example:
 Rscript math_ops.R
+```
 
 📝 Notes
 
-    These projects are mainly done in Python and R, but they are free to be explored and implemented in any programming language of your choice.
-
+    These projects are mainly built in Python and R, but they are designed to be language-agnostic — the logic, flow, and problem-solving approach can be explored and implemented in any language you love. Code is universal; syntax is just an accent.
+    
     The projects are under the GPL-3 License, which permits anybody to use, modify, and tinker with the code freely, provided that any derivative work is also shared under an open-source license.
+    
+    All Projects Have been done from a student friendly Point of View allowing easy understanding
+    
+    Please Take Your Time to Review the Code and Contribute to the same ,as all my codes were, are and will remain open for collaboration
+    
+---
+© 2025 Ramrup Satpati (aka RSNPIIT) — Built with |🐧 Linux ,🐍 Python3 (Recommended 3.8 and Higher +) ,ℛ RLang (Recommended 4 and Higher) with the love of ❤️ Open Source
