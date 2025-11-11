@@ -22,7 +22,7 @@ class Snake():
         self.lis.append(timmy)
 
     def axtend(self):
-        self.add_position(self.lis[-1].position())
+        self.add_position(self.lis[-1].positionw3())
 
     def move_snake(self):
         for x in range(len(self.lis)-1,0,-1):
@@ -46,4 +46,3 @@ class Snake():
     def right(self):
         if self.head.heading() != left:
             self.head.setheading(0)
-
