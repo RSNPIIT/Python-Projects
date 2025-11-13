@@ -4,7 +4,7 @@ def his():
         if len(lin) == 0:
             print('No History Found\n')
         else:
-            for x in lin:
+            for x in reversed(lin):
                 print(x.strip())
 
 def clear_his():
