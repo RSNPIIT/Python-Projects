@@ -51,21 +51,26 @@ while accumulate:
         continue
     else:
         val2 = float(input("Enter the Second Operand Here : "))
-        ans = all_vals[symbol](val1 , val2)
-        print(f"{val1} {symbol} {val2} = {ans}")
-        attmpt += 1
-        print("Do You Wanna Continue (Note the Values Will Be Auto Accumulated)")
-        ch = input("Enter Y or N , in order to make your choice -- To or Not to accumulate : ").strip().lower()
-        if ch == 'y':
-            print(f"----Your Choice is {ch.title()}----")
-            val1 = ans
+        if ((symbol == '/') or (symbol == '%') or (symbol == '//')) and val2 == 0:
+            print("ERROR : Can't Divide by Zero \n")
             continue
-        elif ch == 'n':
-            print(f"----Your Choice is {ch.title()}----")
-            print(f"So far {attmpt} operations have been performed")
-            accumulate = False
-            break
+        
         else:
-            print("Your Choice is Wrong ,\nEnter the correct choice Please")
-            val1 = ans
-            continue
+            ans = all_vals[symbol](val1 , val2)
+            print(f"{val1} {symbol} {val2} = {ans}")
+            attmpt += 1
+            print("Do You Wanna Continue (Note the Values Will Be Auto Accumulated)")
+            ch = input("Enter Y or N , in order to make your choice -- To or Not to accumulate : ").strip().lower()
+            if ch == 'y':
+                print(f"----Your Choice is {ch.title()}----")
+                val1 = ans
+                continue
+            elif ch == 'n':
+                print(f"----Your Choice is {ch.title()}----")
+                print(f"So far {attmpt} operations have been performed")
+                accumulate = False
+                break
+            else:
+                print("Your Choice is Wrong ,\nEnter the correct choice Please")
+                val1 = ans
+                continue
