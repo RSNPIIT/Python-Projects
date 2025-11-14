@@ -31,7 +31,7 @@ while not game_over:
     #Taking the User Input
     ans = sc.textinput(f'{gu}/50 States Correct' , 'Enter the name of the State :-').title()
 
-    #Checking if the State has been Guesses
+    #Checking if the State has been Guessed
     if ans in ans_st:
         pass
 
