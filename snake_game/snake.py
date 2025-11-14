@@ -22,7 +22,7 @@ class Snake():
         self.lis.append(timmy)
 
     def axtend(self):
-        self.add_position(self.lis[-1].positionw3())
+        self.add_position(self.lis[-1].position())
 
     def move_snake(self):
         for x in range(len(self.lis)-1,0,-1):
