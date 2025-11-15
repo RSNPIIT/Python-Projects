@@ -21,7 +21,6 @@ gu = 0
 data = pd.read_csv('50_states.csv')
 data_ser = data.state.to_list()
 ans_st = []
-miss = []
 
 #Game Loop
 game_over = False
@@ -74,9 +73,11 @@ print("Sample Summary :-\n")
 print(f'Final Score : {gu}')
 print(f'Percent Accuracy : {round((gu/50)*100 , 2)}%')
 
-for s in data_ser:
-    if s not in ans_st:
-        miss.append(s)
+miss = [s for s in data_ser if s not in ans_st]
+
+# for s in data_ser:
+#     if s not in ans_st:
+#         miss.append(s)
 
 print(f"You missed {len(miss)} states")
 print("Missed States :-\n")
