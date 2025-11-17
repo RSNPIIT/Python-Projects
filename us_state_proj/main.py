@@ -4,7 +4,7 @@ import pandas as pd
 #Screen Setup
 sc = t.Screen()
 sc.title("U.S. States Game")
-img = "blank_states_img.gif"
+img = 'blank_states_img.gif'
 sc.addshape(img)
 t.shape(img)
 
