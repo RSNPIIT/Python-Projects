@@ -1,0 +1,39 @@
+💡 About Myself :-> :
+
+I'm Ramrup Satpati, an undergraduate student at IIT Madras with a deep passion for tech-driven innovation, interdisciplinary learning, and creating meaningful impact through code, design, and leadership. Currently, I also serve as a 2025 Campus Partner at Perplexity, representing IIT Madras in this global initiative.
+
+With 70+ certifications to my name from global leaders like Microsoft, NVIDIA, Dell, HP, and impact-driven institutions like UNICEF and the United Nations, I’ve built a diverse portfolio that reflects both technical depth and social awareness. My learning journey includes platforms like Tutedude, Simplilearn, HP Life, Intellipaat, NPTEL, Forage, and GeeksforGeeks, because I believe in diversifying across branches rather than limiting myself to one field.
+
+🔧 What I bring to the table:
+
+Strong foundation in Python, SQL, AI/ML, Data Science, and Data Structures & Algorithms
+
+Experience building full-stack web applications using Flask, MERN stack, and SQLite
+
+Curiosity and practical understanding of cybersecurity, ethical hacking, and UI/UX design
+
+Excellent communication skills by virtue of being a polyglot (fluent in Bengali, Hindi, Odia, Assamese, English, and Sanskrit)
+
+Interest and exposure in Financial Modeling, Risk Management, and Stock Market Analytics
+
+👨‍💻 Industry Experience
+
+Backend Intern at Solidron Pvt. Ltd., contributing to scalable backend systems
+
+Head Member (Bihar–Jharkhand Region), leading outreach and coordination efforts with impact
+
+Lead Crew Member and Lead Discord Manager at Aspire Institute DLP Leadership Program, building and leading with purpose
+
+Campus Partner at Perplexity (2025), IIT Madras representative in a global leadership initiative
+
+Member of Saranda House, IITM BS, actively participating in academic and cultural life with experience in several hackathons, designathons, and ideathons
+
+Professional Objective:
+"To leverage my technical expertise, problem-solving ability, and passion for innovation to build impactful solutions in software development and data-driven technologies. I aim to contribute to projects that combine creativity and technology, while continuously learning and growing into a role where I can make a meaningful difference for both the organization and society."
+
+🌱 I’m constantly evolving — blending engineering, analytics, and creativity to build solutions that matter. Whether in tech, finance, or leadership, I strive to leave every space better than I found it.
+
+Let’s connect — I’m always up for knowledge-sharing, collaboration, or just a great conversation!
+
+
+This Folder is meant to be accountable , to serve as a window of opportunity for me and the world at large 
