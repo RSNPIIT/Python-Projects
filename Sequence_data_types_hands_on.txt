@@ -1,0 +1,297 @@
+# Initializing strings using different quote types
+
+single_quote_str = 'Hello Python!'
+print(f"Single Quoted:{single_quote_str}")
+
+double_quote_str = "Data Structures are fun!"
+print(f"Double Quoted:{double_quote_str}")
+
+
+multi_line_str = """This is a
+multi-line
+string."""
+print(f"Multi-line: \n{multi_line_str}")
+
+
+multi_line_str = """This is a \
+multi-line \
+string."""
+print(f"Multi-line: \n{multi_line_str}")
+
+str1 = "Python is a powerful programming language.\nIt is widely used in data science and web development."
+print(str1)
+
+str2 = r"Python is a powerful programming language.\nIt is widely used in data science and web development."
+print(str2)
+
+# Initialize using str()
+num = 123
+string_num = str(num)
+print(num,type(num),";",string_num,type(string_num)) # Output: "123"
+
+print(dir(str2))
+
+print(help(str2.upper))
+
+language = "Python"
+upper_text = language.upper()
+print(upper_text)
+
+
+lower_text = upper_text.lower()
+print(lower_text)
+
+print(lower_text.replace('p','P'))
+
+print("Length of lower_text is: ",len(lower_text))
+
+h = print("GM")
+
+print(h)
+
+x = None
+length = len(x)  # This will result in a TypeError
+
+first_letter, last_letter = language[0], language[-1]
+print(first_letter, last_letter)
+
+first_four_letters = upper_text[:4] # name_uppercase[0:4]
+last_four_letters = upper_text[-2::-1] #name_uppercase[4:len(name_uppercase)]
+print(first_four_letters, last_four_letters)
+
+language = "Python"
+print(language, id(language))
+language += " Programming;"
+print(language, id(language))
+
+language = "Python"
+language *=3
+
+print(language)
+
+samplestr = 'Python'   # getting substring
+samplestr[slice(4)]
+
+samplestr[slice(1,6,2)]  # getting substring
+
+# Initializing lists with different types of elements
+empty_list = []                 # An empty list
+numbers = [1, 2, 3, 4, 5]       # A list of integers
+mixed = [1, "apple", 3.14, True]  # Mixed data types
+nested = [[1, 2], [3, 4], [5, 6]] # A list of lists
+
+
+print(f"Empty List: {empty_list}")
+print(f"Numbers: {numbers}")
+print(f"Mixed: {mixed}")
+print(f"Nested: {nested}")
+
+
+string_value = "hello"
+char_list = list(string_value)
+print(char_list)
+
+
+value = 7
+numbers.append(value) # Appends 7 to the end of the list 'numbers'
+print(numbers)
+
+mixed.reverse() # Reverses the contents of the list, in-place
+print(mixed)
+
+print(len(mixed)) # Prints the length (number of elements) of the list
+
+second_item = mixed[2]
+third_item_from_last = mixed[-2]
+print(second_item, third_item_from_last)
+
+first_three_item = mixed[:3]
+last_three_item = mixed[:-4:-1]
+print(first_three_item, last_three_item)
+
+lstSample = [50,100,'C','team','India']   # list
+
+lstSample.index('team')   # to find the index of element 'team'
+
+lstSample.index('India')
+
+print(mixed)
+
+mixed.insert(2,'New Zealand')
+
+print(f"items = {mixed}")
+
+mixed.remove('Australia')
+
+print(f"After removing: items= {mixed}")
+
+
+
+mixed.pop(2)
+
+print(f"After popping out 2nd element: items= {mixed}")
+
+
+l1 = [1, 3, 5, 7]
+print(l1, id(l1))
+l1 += [2, 4, 6, 8]
+print(l1, id(l1))
+
+account_balance = (10302, 57059, 8030, 14688, 103023, 28734, 57059, 8030, 14688) # Tuple Packing
+print(account_balance, type(account_balance))
+print(len(account_balance))
+
+account_holders = ('India', ['Stella', 'Rohit', 'Jessi'])
+print(account_holders, type(account_holders))
+print(len(account_holders))
+
+print(account_balance.index(10302))
+
+account_details = ('Virat', 32, 1234)
+name, age, balance = account_details
+
+print(name)
+print(age)
+print(balance)
+
+first_account_balance = account_balance[0]
+last_account_balance = account_balance[-1]
+print(first_account_balance, last_account_balance)
+
+first_four_accounts_balance = account_balance[1:5]
+last_four_accounts_balance = account_balance[4:-1:]
+print(first_four_accounts_balance, last_four_accounts_balance)
+
+a=(4)
+type(a)
+a=(4,)
+type(a)
+
+tup = 1, 2, 3
+print(tup, id(tup))
+tup += (4,)
+print(tup, id(tup))
+
+car_details = {
+               "Brand": "Hyundai",
+               "Model": "i20",
+               2: 821695
+              }
+
+car_details2 = dict([
+    ("Brand", "Hyundai"),
+    ("Model", "i20"),
+    (2, 821695)
+])
+
+
+print(car_details["Brand"])
+print(car_details2[2])
+
+car_details.get("Brand")
+
+
+print(car_details.keys())
+
+print(car_details.values())
+
+print(car_details.items())
+
+print(car_details.get('name'))
+
+print(car_details.get('name', 0))
+
+ car_details.items()
+
+for key,val in car_details.items():
+  print(key,":",val)
+
+value = car_details.pop('Model')
+print(value)
+
+key, value = car_details.popitem()
+print(key)
+print(value)
+print(car_details)
+
+car_details.update({"Price": "1135687"})
+print(car_details)
+
+car_details["milage"] = 19
+print(car_details["milage"])
+
+car_details
+
+fruits_stock = {"Apple", "Banana", "Watermelon", "Banana", "Guava", "Apple"}
+print(fruits_stock)
+
+empty_set = {}
+
+# Creates a dictionary not a set
+print(type(empty_set))
+
+empty_set = set()
+print(type(empty_set))
+
+fruits_stock.add("Strawberry")
+print(fruits_stock)
+
+fruits_stock.update(['Mango','Musk Melon'])
+
+print(fruits_stock,type(fruits_stock))
+
+fruits_stock.clear()
+print(fruits_stock)
+
+a={"apple","banana"}
+b={"banana","strawberry"}
+print(a|b)
+
+a.union(b)
+
+#Indexing
+a[1]       # TypeError: 'set' object does not support indexing
+
+#Slicing
+a[1:2]                  # TypeError: 'set' object is not subscriptable
+
+# Basic range with only stop (start defaults to 0, step defaults to 1)
+r1 = range(5)  # 0, 1, 2, 3, 4
+r1
+
+for i in r1:
+    print(i)
+
+# Range with start and stop
+r2 = range(2, 7) # 2, 3, 4, 5, 6
+r2
+for i in r2:
+    print(i)
+
+# Range with start, stop, and step
+r3 = range(1,12,2)
+print(r3)
+for i in r3:
+    print(i)
+
+import array
+
+
+int_array = array.array('i', [1, 2, 3, 4, 5])    # 'i' stands for integer
+float_array = array.array('f', [1.1, 2.2, 3.3])  # 'f' stands for float
+
+
+print(int_array)
+print(float_array)
+
+print(int_array[0])
+print(float_array[-1])
+
+
+int_array[1] = 200
+print(int_array)
+
+
+int_array.append(6)
+print(int_array)
+
