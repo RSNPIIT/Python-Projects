@@ -14,12 +14,15 @@ tex = '✓'
 tim = None
 # ---------------------------- TIMER RESET ------------------------------- # 
 def reset_timer():
-    sc.after_cancel(tim)
-    cv.itemconfig(ti , text = "00:00")
-    t_l.config(text = 'Timer')
-    c_m.config(text = '')
-    global reps
-    reps = 0
+    global tim , reps
+    if tim is not None:
+        sc.after_cancel(tim)
+        cv.itemconfig(ti , text = "00:00")
+        t_l.config(text = 'Timer')
+        c_m.config(text = '')
+        reps = 0
+    else:
+        print("\n--Error--\n")
 
 # ---------------------------- TIMER MECHANISM ------------------------------- # 
 def start_timer():
