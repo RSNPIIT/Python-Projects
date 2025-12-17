@@ -36,20 +36,35 @@ while True:
     attmpt += 1
     try:
         web_code = abs(int(input("Enter the HTTP Code You Wanna Test :- ")))
+   
+    except KeyboardInterrupt:
+        print("\n\nInterrupted by user (Ctrl+C)")
+        print(f"Number of Attempts are {attmpt}")
+        print("Exit Successful\nPlease Come Back\n")
+        break
+   
     except ValueError as e:
         print("Wrong Input\nPlease input a number\n")
         continue
+   
     else:
         print(give_match(web_code))
     
-    tell_me = input("Wanna Continue [Y/N]\nYou can test multiple situations :- ").strip().lower()
-    if tell_me in ['no','n','nyet','nien','quit','exit']:
-        print(f"Number of Attempts are {attmpt}\nExit Successfull\nPlease Come Back\n")
+    try:
+        tell_me = input("Wanna Continue [Y/N]\nYou can test multiple situations :- ").strip().lower()
+
+    except KeyboardInterrupt:
+        print("Exiting the Project Cleanly\n")
         break
-    elif tell_me in ['yes','y','da','ja']:
-        print("\n--Continuing--\n")
-        continue
+    
     else:
-        print(f"Number oft Attempts are {attmpt}\nExit Successfull\nPlease Come Back\n")
-        break
+        if tell_me in ['no','n','nyet','nien','quit','exit']:
+            print(f"Number of Attempts are {attmpt}\nExit Successfull\nPlease Come Back\n")
+            break
+        elif tell_me in ['yes','y','da','ja']:
+            print("\n--Continuing--\n")
+            continue
+        else:
+            print(f"Number oft Attempts are {attmpt}\nExit Successfull\nPlease Come Back\n")
+            break
 
