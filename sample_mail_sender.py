@@ -1,3 +1,14 @@
+"""
+Sample SMTP email sender using smtplib.
+
+IMPORTANT:
+- This is a demo script.
+- Do NOT hard-code credentials.
+- Use environment variables (EMAIL_USER, EMAIL_PASS).
+- Gmail requires App Passwords with 2FA enabled.
+"""
+#The Python Code starts here ->
+
 #Importing the Smtp Library
 import smtplib as sm
 my_em = "sample user's@gmail.com"
