@@ -32,6 +32,8 @@ sunset = int(data["results"]["sunset"].split("T")[1].split(":")[0])
 
 #Replace the Message File With a name in the List and then Send them the Email
 while True:
+    ti.sleep(60)  #So that this will test every one minute
+    
     #Fetching Values From the ISS Api
     res = rq.get(url= URL)
     res.raise_for_status()
@@ -39,8 +41,6 @@ while True:
 
     iss_lat = float(data["iss_position"]["latitude"])
     iss_long = float(data["iss_position"]["longitude"])
-
-    ti.sleep(60)  #So that this will test every one minute
 
     time_now = dt.datetime.now().hour
 
