@@ -1,41 +1,41 @@
-💡 About Myself :-> :
+About Me
+--------
 
-Please its a humble request to kindly connect with me on LinkedIN ->  URL : https://www.linkedin.com/in/ramrup-satpati-683970341/
+I kindly invite you to connect with me on LinkedIn:
+https://www.linkedin.com/in/ramrup-satpati-683970341/
 
-I'm Ramrup Satpati, an undergraduate student at IIT Madras with a deep passion for tech-driven innovation, interdisciplinary learning, and creating meaningful impact through code, design, and leadership. Currently, I also serve as a 2025 Campus Partner at Perplexity, representing IIT Madras in this global initiative.
+My name is Ramrup Satpati, and I am an undergraduate student at IIT Madras with a strong interest in technology, interdisciplinary learning, and building solutions that create meaningful impact. I enjoy exploring ideas at the intersection of engineering, analytics, design, and leadership.
 
-With 70+ certifications to my name from global leaders like Microsoft, NVIDIA, Dell, HP, and impact-driven institutions like UNICEF and the United Nations, I’ve built a diverse portfolio that reflects both technical depth and social awareness. My learning journey includes platforms like Tutedude, Simplilearn, HP Life, Intellipaat, NPTEL, Forage, and GeeksforGeeks, because I believe in diversifying across branches rather than limiting myself to one field.
+Alongside my academic journey, I currently serve as a Campus Partner (2025) at Perplexity, representing IIT Madras as part of a global initiative focused on innovation and knowledge accessibility.
 
-🔧 What I bring to the table:
+Over time, I have earned 70+ certifications from organizations such as Microsoft, NVIDIA, Dell, HP, UNICEF, and the United Nations, reflecting both technical learning and social awareness. My learning journey spans multiple platforms including NPTEL, GeeksforGeeks, Forage, HP Life, Simplilearn, Tutedude, Intellipaat, and others. I believe in exploring multiple domains deeply rather than restricting myself to a single discipline.
 
-Strong foundation in Python, SQL, AI/ML, Data Science, and Data Structures & Algorithms
+Technical & Professional Interests
+----------------------------------
+- Strong foundation in Python, SQL, AI/ML, Data Science, and Data Structures & Algorithms
+- Experience developing backend and full-stack applications using Flask, MERN stack, and SQLite
+- Practical exposure to cybersecurity fundamentals, ethical hacking concepts, and UI/UX design
+- Interest in financial modeling, risk management, and stock market analytics
+- Comfortable working in Linux-based environments and open-source ecosystems
 
-Experience building full-stack web applications using Flask, MERN stack, and SQLite
+Experience & Engagement
+-----------------------
+- Backend Intern at Solidron Pvt. Ltd., contributing to scalable backend systems
+- Campus Partner at Perplexity (2025), IIT Madras
+- Head Member (Bihar–Jharkhand Region), involved in outreach and coordination initiatives
+- Lead Crew Member and Lead Discord Manager at Aspire Institute DLP Leadership Program
+- Member of Saranda House, IIT Madras BS program, with participation in hackathons, designathons, and ideathons
 
-Curiosity and practical understanding of cybersecurity, ethical hacking, and UI/UX design
+Communication & Collaboration
+-----------------------------
+I am a polyglot and communicate comfortably in Bengali, Hindi, Odia, Assamese, English, and Sanskrit. I value clear communication, collaborative problem-solving, and learning from diverse perspectives.
 
-Excellent communication skills by virtue of being a polyglot (fluent in Bengali, Hindi, Odia, Assamese, English, and Sanskrit)
+Professional Objective
+----------------------
+To apply my technical skills, analytical thinking, and curiosity to build reliable and impactful software solutions. I aim to grow in environments that value continuous learning, responsible innovation, and meaningful contributions to both organizations and society.
 
-Interest and exposure in Financial Modeling, Risk Management, and Stock Market Analytics
+Closing Note
+------------
+I see this folder and repository as a space of accountability — a transparent record of learning, experimentation, and growth. It is intended to serve as a window of opportunity, both for myself and for anyone interested in collaborating, learning together, or exchanging ideas.
 
-👨‍💻 Industry Experience
-
-Backend Intern at Solidron Pvt. Ltd., contributing to scalable backend systems
-
-Head Member (Bihar–Jharkhand Region), leading outreach and coordination efforts with impact
-
-Lead Crew Member and Lead Discord Manager at Aspire Institute DLP Leadership Program, building and leading with purpose
-
-Campus Partner at Perplexity (2025), IIT Madras representative in a global leadership initiative
-
-Member of Saranda House, IITM BS, actively participating in academic and cultural life with experience in several hackathons, designathons, and ideathons
-
-Professional Objective:
-"To leverage my technical expertise, problem-solving ability, and passion for innovation to build impactful solutions in software development and data-driven technologies. I aim to contribute to projects that combine creativity and technology, while continuously learning and growing into a role where I can make a meaningful difference for both the organization and society."
-
-🌱 I’m constantly evolving — blending engineering, analytics, and creativity to build solutions that matter. Whether in tech, finance, or leadership, I strive to leave every space better than I found it.
-
-Let’s connect — I’m always up for knowledge-sharing, collaboration, or just a great conversation!
-
-
-This Folder is meant to be accountable , to serve as a window of opportunity for me and the world at large 
+I am always open to meaningful conversations, collaboration, and knowledge-sharing.

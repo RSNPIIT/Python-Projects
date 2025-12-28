@@ -7,7 +7,7 @@ import smtplib as sm
 FILE = 'tosend.csv'
 LIS = [1,2,3]
 r_n = r.choice(LIS)
-FILEPATH = f'letter_templates/letter_{r_n}'
+FILEPATH = f'letter_templates/letter_{r_n}.txt'
 TEXT = '[Name]'
 HOST = 'smtp.gmail.com'
 EMAIL = 'sampleuser@gmail.com'
