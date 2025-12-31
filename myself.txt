@@ -1,41 +1,48 @@
 About Me
---------
 
-I kindly invite you to connect with me on LinkedIn:
+I invite you to connect with me on LinkedIn:
 https://www.linkedin.com/in/ramrup-satpati-683970341/
 
-My name is Ramrup Satpati, and I am an undergraduate student at IIT Madras with a strong interest in technology, interdisciplinary learning, and building solutions that create meaningful impact. I enjoy exploring ideas at the intersection of engineering, analytics, design, and leadership.
+My name is Ramrup Satpati, and I am an undergraduate student at IIT Madras with a strong curiosity for technology and problem-solving. I enjoy learning across disciplines and working on ideas that combine engineering, data, design, and thoughtful execution to create real-world impact.
 
-Alongside my academic journey, I currently serve as a Campus Partner (2025) at Perplexity, representing IIT Madras as part of a global initiative focused on innovation and knowledge accessibility.
+Alongside my academics, I currently serve as a Campus Partner (2025) at Perplexity, representing IIT Madras as part of a global initiative focused on improving access to knowledge and encouraging innovation.
 
-Over time, I have earned 70+ certifications from organizations such as Microsoft, NVIDIA, Dell, HP, UNICEF, and the United Nations, reflecting both technical learning and social awareness. My learning journey spans multiple platforms including NPTEL, GeeksforGeeks, Forage, HP Life, Simplilearn, Tutedude, Intellipaat, and others. I believe in exploring multiple domains deeply rather than restricting myself to a single discipline.
+Over time, I have completed 70+ certifications from organizations such as Microsoft, NVIDIA, Dell, HP, UNICEF, and the United Nations. These reflect both my technical learning and my interest in social awareness. I actively learn through platforms such as NPTEL, GeeksforGeeks, Forage, HP Life, Simplilearn, Tutedude, and Intellipaat. I believe in exploring multiple fields with depth rather than limiting myself to a single domain.
 
 Technical & Professional Interests
-----------------------------------
-- Strong foundation in Python, SQL, AI/ML, Data Science, and Data Structures & Algorithms
-- Experience developing backend and full-stack applications using Flask, MERN stack, and SQLite
-- Practical exposure to cybersecurity fundamentals, ethical hacking concepts, and UI/UX design
-- Interest in financial modeling, risk management, and stock market analytics
-- Comfortable working in Linux-based environments and open-source ecosystems
+
+Strong working knowledge of Python, SQL, AI/ML, Data Science, and Data Structures & Algorithms
+
+Experience building backend and full-stack applications using Flask, the MERN stack, and SQLite
+
+Basic hands-on exposure to cybersecurity concepts, ethical hacking fundamentals, and UI/UX design
+
+Interest in financial analysis, risk management, and stock market analytics
+
+Comfortable working in Linux-based environments and open-source ecosystems
 
 Experience & Engagement
------------------------
-- Backend Intern at Solidron Pvt. Ltd., contributing to scalable backend systems
-- Campus Partner at Perplexity (2025), IIT Madras
-- Head Member (Bihar–Jharkhand Region), involved in outreach and coordination initiatives
-- Lead Crew Member and Lead Discord Manager at Aspire Institute DLP Leadership Program
-- Member of Saranda House, IIT Madras BS program, with participation in hackathons, designathons, and ideathons
+
+Backend Intern at Solidron Pvt. Ltd., contributing to backend development and system scalability
+
+Campus Partner (2025) at Perplexity, IIT Madras
+
+Head Member (Bihar–Jharkhand Region), supporting outreach and coordination activities
+
+Lead Crew Member and Lead Discord Manager at Aspire Institute DLP Leadership Program
+
+Member of Saranda House, IIT Madras BS program, with active participation in hackathons, designathons, and ideathons
 
 Communication & Collaboration
------------------------------
-I am a polyglot and communicate comfortably in Bengali, Hindi, Odia, Assamese, English, and Sanskrit. I value clear communication, collaborative problem-solving, and learning from diverse perspectives.
+
+I communicate comfortably in Bengali, Hindi, Odia, Assamese, English, and Sanskrit. I value clarity, teamwork, and learning through discussion with people from diverse backgrounds.
 
 Professional Objective
-----------------------
-To apply my technical skills, analytical thinking, and curiosity to build reliable and impactful software solutions. I aim to grow in environments that value continuous learning, responsible innovation, and meaningful contributions to both organizations and society.
+
+To apply my technical skills, analytical thinking, and curiosity to build reliable and meaningful software solutions. I aim to grow in environments that encourage continuous learning, responsible innovation, and genuine impact.
 
 Closing Note
-------------
-I see this folder and repository as a space of accountability — a transparent record of learning, experimentation, and growth. It is intended to serve as a window of opportunity, both for myself and for anyone interested in collaborating, learning together, or exchanging ideas.
+
+This folder and repository serve as a personal record of learning, experimentation, and growth. It is a space for accountability and transparency—both for myself and for anyone interested in collaborating, learning together, or exchanging ideas.
 
 I am always open to meaningful conversations, collaboration, and knowledge-sharing.
