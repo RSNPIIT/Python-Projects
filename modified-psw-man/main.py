@@ -1,8 +1,9 @@
 import tkinter as tk
-import random as r  #Cause R is Python's Friend
+import random as r  
 from tkinter import messagebox as msg
 import pyperclip as cl
-import json as js #HAHA HAHA JS refrence (Cause JS is Temu Python)
+import json as js
+
 FILENAME = 'data.json'
 
 let = [
