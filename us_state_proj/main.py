@@ -35,7 +35,7 @@ while not game_over:
         pass
 
     #Checking if the user forcefully Exits
-    elif ans is None or ans.lower().strip() == 'exit' or ans.lower().strip() == 'quit' or ans.lower().strip() == 'e' or ans.lower().strip() == 'q':
+    elif ans is None or ans.lower().strip() in ['quit' , 'exit' , 'q' , 'e']:
         game_over = True
         break
 
