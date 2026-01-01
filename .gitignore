@@ -1,16 +1,14 @@
-# Byte-compiled / cache
+# Python bytecode (anywhere)
+*.pyc
 __pycache__/
-*.py[cod]
 
-# OS files
-.DS_Store
-Thumbs.db
-
-# Virtual environments
-venv/
+# Virtual environments (anywhere)
 .env/
-snake-game-withscore/text.txt
-snake-game-withscore/text.txt
-read_txtlines/ReadyToSend/
-india_project/venv/
+.venv/
+venv/
+
+# KDE / Linux metadata (anywhere)
 .directory
+
+# Editor / IDE configs
+.vscode/
