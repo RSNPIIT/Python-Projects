@@ -106,9 +106,9 @@ def dont_it():
                 nib %= len(LETTERS)
                 nval = LETTERS[nib]
                 new_word += nval
-        nval = nval.title()
+        new_word = new_word.title()
         el.delete(0,tk.END)
-        el.insert(0 , nval)
+        el.insert(0 , new_word)
         cl.copy(new_word)
     restore()
 
