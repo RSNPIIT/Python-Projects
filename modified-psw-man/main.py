@@ -37,7 +37,7 @@ def generate():
     e3.insert(0 , string = st)
     cl.copy(st)
 
-#-----------------------------SEARCCH ITEMS ---------------------------------#
+#-----------------------------SEARCH ITEMS ---------------------------------#
 def search_json():
     web = e1.get()
     try:
