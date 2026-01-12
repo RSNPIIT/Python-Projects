@@ -1,0 +1,15 @@
+Report: Automated Habit Tracking Using the Pixela REST API
+
+This Python script implements a basic but complete workflow for automated habit tracking using the Pixela REST API. The objective of the program is to programmatically create a user account, define a graph for tracking activity, and record daily progress in the form of “pixels” representing quantitative data (in this case, coding commits).
+
+The script begins by importing the required libraries: requests for handling HTTP communication and datetime for date manipulation. Several static variables are then defined, including the username, authentication token, base API URL, and graph identifier. These values are reused throughout the script to maintain consistency and reduce duplication.
+
+User creation is handled by issuing a POST request to the /v1/users endpoint with a JSON payload containing authentication credentials and mandatory agreement flags. The response is printed both as raw text and, when possible, as parsed JSON to provide transparency into the API’s behavior and to aid debugging.
+
+Next, the script creates a graph associated with the user. The graph is configured with a unique identifier, descriptive name, unit of measurement (“commit”), numerical type (float), and color. Authentication is provided via a custom HTTP header (X-USER-TOKEN), as required by Pixela. This step establishes the data schema that will be enforced for all future pixel submissions.
+
+To log daily activity, the script constructs a date string in the strict YYYYMMDD format expected by Pixela. Manual zero-padding logic is used to ensure single-digit months and days are correctly formatted. A pixel payload is then assembled with the computed date and a fixed quantity value.
+
+Finally, the script submits the pixel data to the graph-specific endpoint. Status codes and response bodies are printed to confirm successful execution. A notable limitation, explicitly documented in the comments, is the potential visibility mismatch caused by Pixela’s use of Japan Standard Time (JST) while the script derives dates from local system time.
+
+Overall, this script demonstrates end-to-end interaction with a RESTful API, including authentication, resource creation, data validation, and error handling, making it a practical foundation for habit tracking automation.
