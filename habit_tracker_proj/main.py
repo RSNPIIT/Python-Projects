@@ -38,11 +38,11 @@ if now.day < 10 and now.day > 0:
     dy = f'0{now.day}'
 else:
     dy = now.day
-
+DT_val_mod = f'{now.year}-{mnt}-{dy}'
 DT_VAL = f'{now.year}{mnt}{dy}'
 
 ADD_PR = {
-    'date' : now.strftime('%Y%m%d'), #In Place of this strftime this can be 
+    'date' : now.strftime('%Y%m%d'), #In Place of this strftime this can be DT_VAL AS WELL
     'quantity' : '10'
 }
 
@@ -72,5 +72,31 @@ print(f'\n{d_v.status_code}\n')
 print(f'\n{d_v.text}\n')
 try:
     print(f'\n{d_v.json()}\n')
+except ValueError as v:
+    print("Value is not JSON Type")
+
+#Opt :- There can be a new date
+# dt_n = dt.datetime(year = 2025 , month = 12 , day = 31)
+
+#Modifying the Set Value -> HTTP Put
+PUT_END = f'{URL}/{U_NAME}/graphs/{GR_ID}/{now.strftime("%Y%m%d")}'
+New_d = {
+    'quantity' : '15'
+}
+rej = rq.put(url = PUT_END , json = New_d , headers = hdrs)
+print(f'\n{rej.status_code}\n')
+print(f'\n{rej.text}\n')
+try:
+    print(f'\n{rej.json()}\n')
+except ValueError as v:
+    print("Value is not JSON Type")
+
+#Deleting a Set Value -> HTTP Delete Method
+DEL_END = f'{URL}/{U_NAME}/graphs/{GR_ID}/{now.strftime("%Y%m%d")}'
+del_res = rq.delete(url = DEL_END , headers = hdrs)
+print(f'\n{del_res.status_code}\n')
+print(f'\n{del_res.text}\n')
+try:
+    print(f'\n{del_res.json()}\n')
 except ValueError as v:
     print("Value is not JSON Type")
