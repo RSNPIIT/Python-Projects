@@ -42,7 +42,7 @@ else:
 DT_VAL = f'{now.year}{mnt}{dy}'
 
 ADD_PR = {
-    'date' : DT_VAL,
+    'date' : now.strftime('%Y%m%d'), #In Place of this strftime this can be 
     'quantity' : '10'
 }
 
