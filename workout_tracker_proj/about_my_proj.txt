@@ -1,0 +1,9 @@
+WORKOUT TRACKING AUTOMATION -- MY NEWEST Project
+
+This mini project focuses on automating the process of logging daily workout activities in a structured and persistent manner. Instead of manually entering exercise details into a spreadsheet, the project allows a user to describe their workout in natural language and automatically converts that description into meaningful workout data.
+
+The workflow begins with a simple text-based exercise input such as “ran 15 kilometres.” This input is processed to extract important details including the type of exercise performed, the duration of the activity, and the estimated number of calories burned. These details are then organized into a clean, structured format.
+
+Once the workout information is prepared, it is automatically stored in a Google Sheet. Each workout entry is added as a new row, ensuring that workout history is maintained over time without manual intervention. This creates a personal workout log that can be reviewed, analyzed, or extended later.
+
+The project emphasizes automation, accuracy, and reliability. It removes repetitive manual work, reduces human error in data entry, and demonstrates how different services can work together to solve a real-life problem. The final result is a smooth, end-to-end system where a simple human-readable input is transformed into a permanent, well-organized workout record.
