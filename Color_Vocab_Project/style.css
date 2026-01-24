@@ -1,0 +1,38 @@
+*{
+    background-color: bisque;
+}
+
+h1{
+    font-weight: bolder;
+}
+
+img{
+    width: 200px;
+    height: 200px;
+    border: 5px solid black;
+    padding: 5px;
+}
+
+#red{
+    color: red;
+}
+
+#blue{
+    color: blue;
+}
+
+#orange{
+    color: orange;
+}
+
+#yellow{
+    color: yellow;
+}
+
+#green{
+    color: green;
+}
+
+.color-title{
+    font-weight: normal;
+}
