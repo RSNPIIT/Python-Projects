@@ -26,16 +26,15 @@ def time_goes(x):
         timmy.write(f"---> {mint} : {sec} <---",font = STYLE , align = POS )
         ti.sleep(1)
         x -= 1
-    sc.exitonclick()
     clear_all()
 
 #User Input Function..
 def user_inp():
     try:
-        wrkt = abs(int(input("Enter the Working Time Here(in mins) : ")))*60
-        brkt = abs(int(input("Enter the Break Time Here(in mins) : ")))*60
+        wrkt = abs(int(input("Enter the Working Time Here(in mins) : ")))* 60
+        brkt = abs(int(input("Enter the Break Time Here(in mins) : ")))* 60
         ses = abs(int(input("Enter the Number of Sessions Here : ")))
-    except KeyboardInterruptError as ke:
+    except KeyboardInterrupt as ke:
         print("Exiting Nicely --")
         exit()
     except ValueError as v:
@@ -53,7 +52,8 @@ def user_inp():
         time_goes(wrkt)
         print("Break Time ->")
         time_goes(brkt)
-    
+    sc.exitonclick()
+
 #Setting Up the Screen and Turtle Object    
 sc = t.Screen()
 sc.title("TIMER")
