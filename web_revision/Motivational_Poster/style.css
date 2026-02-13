@@ -1,0 +1,27 @@
+h1{
+    font-family: 'Libre Baskerville', serif;
+    border: 2px solid blanchedalmond;
+    text-align: center;
+    color: brown;
+    background-color: wheat;
+}
+div{
+    margin-left: 600px;
+    padding: 10px;
+    height: 500px;
+    width: 500px;                   
+    border: 6px solid gold;
+    border-radius: 10%;
+    background-color: black
+}
+img{
+    margin-left: 125px;
+    border: 2px solid blueviolet;
+    height: 250px;
+    width: 250px;
+}
+h3{
+    margin-left: 125px;
+    color: white;
+    background-color: black;
+}
