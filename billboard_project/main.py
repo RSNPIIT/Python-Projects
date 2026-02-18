@@ -4,6 +4,7 @@ import time as ti
 from bs4 import BeautifulSoup as bs
 
 #Taking Inputs
+def scraper():
 now = dt.datetime.now()
 
 try:
