@@ -68,3 +68,47 @@ htmlcov/
 # =========================
 *.sqlite3
 *.db
+
+# =========================
+# macOS Junk
+# =========================
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.Spotlight-V100
+.Trashes
+.fseventsd
+.DocumentRevisions-V100
+.TemporaryItems
+
+# =========================
+# Linux Junk
+# =========================
+*~
+.directory
+.Trash-*
+.nfs*
+.cache/
+
+# =========================
+# KDE / GNOME
+# =========================
+.kde/
+.gnome/
+.goutputstream-*
+
+# =========================
+# Windows Junk
+# =========================
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+*.lnk
+
+# =========================
+# BSD Junk
+# =========================
+.Trash/
+.snap/
