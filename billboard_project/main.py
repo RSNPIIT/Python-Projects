@@ -34,7 +34,7 @@ elif day == 0 or mon == 0:
     print(f"Wrong Month and Day Input Given")
     exit()
 
-val = f'{yr}-{mn}-{day}'
+val = f'{yr}-{mon}-{day}'
 
 if not val:
     print("\nError :-> The Date Given is wrong or has incorrect formatting")
