@@ -1,14 +1,70 @@
-# Python bytecode (anywhere)
-*.pyc
+# =========================
+# Python Bytecode
+# =========================
 __pycache__/
+*.py[cod]
+*$py.class
 
-# Virtual environments (anywhere)
+# =========================
+# Virtual Environments
+# =========================
 .env/
 .venv/
 venv/
+env/
+ENV/
 
-# KDE / Linux metadata (anywhere)
+# =========================
+# Environment Variables
+# =========================
+.env
+.env.*
+
+# =========================
+# Spotipy Token Cache
+# =========================
+token.txt
+
+# =========================
+# Distribution / Packaging
+# =========================
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# =========================
+# Logs
+# =========================
+*.log
+
+# =========================
+# OS Files
+# =========================
 .directory
+.DS_Store
+Thumbs.db
 
-# Editor / IDE configs
+# =========================
+# IDE / Editor
+# =========================
 .vscode/
+.idea/
+
+# =========================
+# Jupyter (if ever used)
+# =========================
+.ipynb_checkpoints/
+
+# =========================
+# Coverage / Testing
+# =========================
+.coverage
+htmlcov/
+.pytest_cache/
+
+# =========================
+# SQLite / Local DB (if added later)
+# =========================
+*.sqlite3
+*.db
