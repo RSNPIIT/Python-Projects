@@ -46,10 +46,19 @@ while max(plr_scores) < max_v:
                 scr += val
                 print(f"You Rolled a {val}")
             
-            print(f"Current Score : {scr}\n")
-            
+            print(f"Turn Score : {scr}\n")
+
+
         plr_scores[i] += scr
-        print(f"Total Score of Player {i+1}: {plr_scores[i]}\n")
+        
+        if plr_scores[i] >= max_v:
+            print(f"Player {i+1} hits the max upper limit {max_v} and wins so game has to end yo !!\n")
+            break
+
+        print(f"Cumulative Score of the Player {i+1} is {plr_scores[i]}\n")
+    
+    if max(plr_scores) > max_v:
+        break
 
 max_val = max(plr_scores)
 win_idx = plr_scores.index(max_val)
