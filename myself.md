@@ -5,9 +5,7 @@ I invite you to connect with me on LinkedIn:
 
 My name is **Ramrup Satpati**, and I am an undergraduate student at **IIT Madras**. I am deeply interested in technology, problem-solving, and learning across disciplines. I enjoy working on ideas that sit at the intersection of engineering, data, design, and practical impact.
 
-Alongside my academics, I currently serve as a **Campus Partner (2025) at Perplexity**, representing IIT Madras in a global initiative focused on improving access to knowledge and encouraging innovation.
-
-Over time, I have completed **70+ certifications** from organizations such as Microsoft, NVIDIA, Dell, HP, UNICEF, and the United Nations. These reflect both my technical learning and my interest in social awareness. I actively learn through platforms including NPTEL, GeeksforGeeks, Forage, HP Life, Simplilearn, Tutedude, and Intellipaat. I believe in exploring multiple domains with depth rather than restricting myself to a single field.
+Over time, I have completed **1000+ certifications** from organizations such as Microsoft, NVIDIA, Dell, HP, UNICEF, and the United Nations. These reflect both my technical learning and my interest in social awareness. I actively learn through platforms including NPTEL, GeeksforGeeks, Forage, HP Life, Simplilearn, Tutedude, and Intellipaat. I believe in exploring multiple domains with depth rather than restricting myself to a single field.
 
 ---
 
