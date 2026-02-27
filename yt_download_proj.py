@@ -7,6 +7,7 @@ from tkinter import filedialog as fld
 def download_vid(url , save_pat):
     try:
         yt = YouTube(url)
+        print(f"Title : {yt.title}")
         stre = yt.streams.filter(progressive = True , file_extension = 'mp4')
         hig_stre = stre.get_highest_resolution()
         hig_stre.download(output_path = save_pat)
