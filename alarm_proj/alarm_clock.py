@@ -12,7 +12,7 @@ def alarm(seconds):
         minutes_left = time_left // 60
         seconds_left = time_left % 60
         o.system('cls' if o.name == 'nt' else 'clear')
-        print(f"Alarm Will Sound in =======> ======>{minutes_left:02d}  : {seconds_left:02d}")
+        print(f"Alarm Will Sound in =======> ======> {minutes_left:02d}  : {seconds_left:02d}")
     
     #Note this will work only for Linux and BSD based systems not on Windows and Mac
     o.system("aplay ~/Music/alarm.wav")
