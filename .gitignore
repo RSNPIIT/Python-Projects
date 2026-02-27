@@ -112,3 +112,12 @@ $RECYCLE.BIN/
 # =========================
 .Trash/
 .snap/
+
+# =========================
+#Other Unrequired things
+# =========================
+Beautiful_Soup/*.html
+Web_Scraping/*.html
+/*.mp3
+/*.mp4
+/*.wav
