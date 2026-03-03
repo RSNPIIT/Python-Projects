@@ -1,84 +1,53 @@
-print("Beta Version Built By Ramrup (C) IITM")
-print("Welcome to my Quiz Game Apk")
-print("Enter your Name or Alias to proceed further")
-name = input("Enter your Name or Alias : ")
-ch = input(f"Hello {name}, nice to meet you , Do you wanna play the quiz game ? (Y/N): ").strip().lower()
+import time as ti
+import os as o
+
+questions = (
+    "How Many Elements in the Periodic Table ? " , 
+    "Which animal lays the largest eggs ? " , 
+    "What's the Most Abundant Gas in the Earth's Atmosphere ? " ,
+    "How many bones are there in the human body ? ",
+    "What's the hottest planet in the solar system ? "
+)
+
+options = (
+    ("A = 116" , "B = 118" , "C = 119" , "D = 120") , 
+    ("A = Ostrich" , "B = Bald Eagle" , "C = Chimera" , "D = Arctic Tern") , 
+    ("A = Hydrogen" , "B = Nitrogen" , "C = Carbon Dioxide" , "D = Oxygen") , 
+    ("A = 201" , "B = 202" , "C = 207" , "D = 206"),
+    ("A = Mercury" , "B = Jupiter" , "C = Venus" , "D = Mars")
+    )
+
+answers = ("B" , "A" , "B" , "D" , "C")
+guesses = []
 score = 0
-attmpt = 0
-if ch == 'n':
-    print(f"Nevertheless {name} We wish you come back again soon , Adios")
-    exit()
-while True :
-    ascore = 0
-    astreak = 0
-    print("Question 1")
-    ans1 = input("What's the Full Form of CPU ? : ").lower()
-    if ans1 == 'central processing unit':
-        ascore += 1
-        score += 1
-        astreak += 1
-        print("Correct Answer\n")
-    else:
-        astreak = 0
-        print("Incorrect Answer\n")
+q_num = 0
 
-    print("Question 2")
-    ans2 = input("What's the Full Form of GPU ? : ").lower()
-    if ans2 == 'graphics processing unit':
-        ascore += 1
+print("Welcome to Ramrup's Quiz Game ----- \nCopyleft Tux Corp ")
+for q in questions:
+    print("="*60)
+    print(f'{q}')
+    for opt in options[q_num]:
+        print(f'{opt}')
+    print("="*60)
+    try:
+        gues = input("Enter A/B/C/D here :- ").strip().upper()
+    except (KeyboardInterrupt , EOFError) as kb:
+        print("\nSkipping ......\n")
+        ti.sleep(1)
+        o.system('cls' if o.name == 'nt' else 'clear')
+        exit()
+    guesses.append(gues)
+    if gues == answers[q_num]:
         score += 1
-        astreak += 1
-        print("Correct Answer\n")
+        print("Yup Its Correct --Great")
     else:
-        astreak = 0
-        print("Incorrect Answer\n")
-
-    print("Question 3")
-    ans3 = input("What's the Full Form of RAM ? : ").lower()
-    if ans3 == 'random access memory':
-        score += 1
-        ascore += 1
-        astreak += 1
-        print("Correct Answer\n")
-    else:
-        astreak = 0
-        print("Incorrect Answer\n")
-
-    print("Question 4")
-    ans4 = input("What's the Full Form of ROM ? : ").lower()
-    if ans4 == 'read only memory':
-        score += 1
-        ascore += 1
-        astreak += 1
-        print("Correct Answer\n")
-    else:
-        astreak = 0
-        print("Incorrect Answer\n")
-    attmpt += 1
-    temp = astreak
-
-    print(f"Congrats {name} your Score at the end of the Round is {ascore} points ")
-    print(f"Congrats {name} You have {astreak} no of streaks of correct answers ")
-    print(f"Congrats {name} you Answered {(ascore/4)*100}% questions correctly ")
-    if ascore == 4:
-        print("Outstanding Effort")
-    elif ascore == 3:
-        print("Almost There ,Keep Trying")
-    elif ascore == 2:
-        print("Close but no cigar")
-    elif ascore == 1:
-        print("Keep Grinding You'll make it in time , I trust you")
-    else :
-        print("Don't be demotivated , Failure is the stepping stone to success")
+        print(f"Aah Unfortunately its Wrong\n{answers[q_num]} is the correct answer")
     
-    print(f"Hey {name} wannna stop or play more ?\n")
-    var = input("Enter your choice (Type any key for continuing or N if you wanna quit) : ").strip().lower()
-    if var == 'n':
-        print(f"Thankyou for playing the quiz and indeed it's a pleasure to meet you {name}")
-        print(f"The number of attempts taken are : {attmpt}")
-        print(f"The total score accumulated over all rounds are : {score} points")
-        print(f"The percentage or average accuracy is {round((score/(attmpt*4))*100, 2)} points")
-        print(f"Finally over all rounds you have {temp} number of Correct Answers in a Row")
-        break
-    else:
-        continue
+    q_num += 1
+
+acc = round((score / len(answers)) * 100 , 3)
+print(f"Summary -> \nScore -> {score} // {len(answers)} \nAccuracy -> {acc}%\n")
+if score >= 3:
+    print("\nWohoo youre a star.......")
+elif score == 0:
+    print("\nDont be (D3)M*+!v@t3d \nL3+s Go again after a through revision")
