@@ -71,7 +71,7 @@ def calc_it():
       
         ch = msg.askokcancel(title = "NOT3", message = f"Are You sure you want to save to file\nPrincipal = ₹{prn}\nRate = {rt*100}\nTime (in yrs) = {tim}\nAnnual Num. = {anc}\nC.I. = ₹{ci}\nAmount = ₹{amt}")
         cl.copy(f"Amount : {amt}\nCompound Interest is : {ci}\n")
-        
+
         if ch:
             lb6.config(text = f"₹ {amt}")
             lb8.config(text = f"₹ {ci}")
@@ -147,7 +147,7 @@ lb3.pack(padx = 10 , pady = 10 , side = SIDE)
 ent2 = ttk.Entry(master = fr2 , width = 40)
 ent2.pack(padx = 10 , pady = 10 , side = SIDE)
 
-fr3 = ttk.Entry(master = sc , style = "b.TFrame")
+fr3 = ttk.Frame(master = sc , style = "b.TFrame")
 fr3.pack(pady = 10)
 
 lb3 = ttk.Label(master = fr3 , style = "c.TLabel" , text = "Enter the Number of times annually calc. -> ")
