@@ -11,6 +11,9 @@ class Circle():
 
 try:
     ra = abs(float(input("Enter the Radius Here :")))
+except (KeyboardInterrupt, EOFError):
+    print("\nProgram stopped by user or end of input.\n")
+    exit()
 except ValueError as v:
     print("\nNon Integral Values Given\n")
     exit()
