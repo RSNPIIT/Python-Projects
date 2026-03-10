@@ -1,0 +1,2 @@
+For Principal -> ₹40.0 || Rate -> 1.0% || Time -> 1 year(s) || Number of times -> 1 times in a year || The C.I is ₹40.0 || The Amt. is ₹80.0
+For Principal -> ₹450.0 || Rate -> 1.0% || Time -> 1 year(s) || Number of times -> 1 times in a year || The C.I is ₹4.5 || The Amt. is ₹454.5
