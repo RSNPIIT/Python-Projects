@@ -1,3 +1,6 @@
+import time as ti
+import os as o
+
 class Circle():
     def __init__(self , rad):
         self.pi = 3.141
@@ -12,7 +15,10 @@ class Circle():
 try:
     ra = abs(float(input("Enter the Radius Here :")))
 except (KeyboardInterrupt, EOFError):
-    print("\nProgram stopped by user or end of input.\n")
+    print("\nProgram stopped by user or end of input.\nExitting")
+    ti.sleep(1)
+    o.system('cls' if o.name == 'nt' else 'clear')
+    print("\nDone .....\n")
     exit()
 except ValueError as v:
     print("\nNon Integral Values Given\n")
