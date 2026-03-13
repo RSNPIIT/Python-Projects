@@ -26,6 +26,6 @@ except ValueError as v:
 else:
     myX = Circle(ra)
     print(f"The Area is : {myX.area()} ")
-    print(f"The Area is : {myX.per()} ")
+    print(f"The Circumference is : {myX.per()} ")
 finally:
     print("This is the Circle")
