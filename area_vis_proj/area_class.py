@@ -39,7 +39,7 @@ else:
     ti.sleep(1)
     print("\nDone")
 
-    if ra < 50 and ra > 180:
+    if ra < 50 or ra > 180:
         msg.showinfo(title = 'WARNING' , message = 'The Radius is Either Too Low or Too High to Display in a short virtual screen\n')
         exit()
     else:
