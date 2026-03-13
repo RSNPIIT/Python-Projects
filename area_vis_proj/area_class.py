@@ -1,6 +1,7 @@
 import turtle as t
 import time as ti
 import os as o
+from tkinter import messagebox as msg
 
 class Circle():
     def __init__(self , rad):
@@ -38,16 +39,21 @@ else:
     ti.sleep(1)
     print("\nDone")
 
-    sc = t.Screen()
-    sc.setup(800 , 800)
-    sc.title('Circle Visualizing')
-    sc.bgcolor('black')
+    if ra < 50 and ra > 180:
+        msg.showinfo(title = 'WARNING' , message = 'The Radius is Either Too Low or Too High to Display in a short virtual screen\n')
+        exit()
+    else:
+        sc = t.Screen()
+        sc.setup(800 , 800)
+        sc.title('Circle Visualizing')
+        sc.bgcolor('black')
 
-    timmy = t.Turtle()
-    timmy.color("yellow")
-    timmy.pensize(3)
-    timmy.circle(ra)
+        timmy = t.Turtle()
+        timmy.color("yellow")
+        timmy.pensize(3)
+        timmy.circle(ra)
 
-    sc.exitonclick()
+        sc.exitonclick()
+        msg.showinfo(title = 'WARNING' , message = 'The Animation Has been completed thanyou very much\n')
 finally:
-    print("This is the Circle")
+    print("\nThis is the Circle\nAnimated by Ramrup Satpati aka RSNPIIT from IIT Madras")
