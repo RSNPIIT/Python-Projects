@@ -52,7 +52,7 @@ Thumbs.db
 .idea/
 
 # =========================
-# Jupyter (if ever used)
+# Jupyter 
 # =========================
 .ipynb_checkpoints/
 
@@ -64,7 +64,7 @@ htmlcov/
 .pytest_cache/
 
 # =========================
-# SQLite / Local DB (if added later)
+# SQLite / Local DB
 # =========================
 *.sqlite3
 *.db
@@ -83,7 +83,7 @@ htmlcov/
 .TemporaryItems
 
 # =========================
-# Linux Junk
+# Linux Metadata
 # =========================
 *~
 .directory
@@ -92,7 +92,7 @@ htmlcov/
 .cache/
 
 # =========================
-# KDE / GNOME
+# KDE / GNOME Metadata
 # =========================
 .kde/
 .gnome/
@@ -121,3 +121,12 @@ $RECYCLE.BIN/
 */*.css
 */*.wav
 */*.mp4
+
+# =========================
+# Media & Web Files
+# =========================
+*.html
+*.mp3
+*.css
+*.wav
+*.mp4
