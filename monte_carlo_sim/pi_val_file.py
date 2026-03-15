@@ -1,5 +1,6 @@
 import random as r
 import datetime as dt
+import math as m
 import time as ti
 import os as o
 
@@ -15,8 +16,10 @@ def get_pizza(attmpts):
         if x**2 + y**2 <= 1:
             hits += 1
     
-    pival = 4 * (hits / attmpts)
-    return pival
+    pival = round(4 * (hits / attmpts) , 8)
+    err = 1 / (attmpts) ** 0.5
+    diff = (m.pi - pival)
+    return pival , err , diff
 
 try:
     att = abs(int(input("Enter the Number of times you wanna test : ")))
@@ -37,7 +40,8 @@ except ValueError as v:
     o.system('cls' if o.name == 'nt' else 'clear') 
     exit()
 else:
-    pi_v = get_pizza(att)
-    print(f"Congratulations\nAfter {att} attempts\nPi Has been Served with value {pi_v}")
+    pi_v , er , dif = get_pizza(att)
+    pi = round(m.pi , 8)
+    print(f"Congratulations\nThe Status :-\nAttempts :-> {att}\nError (calculated as inversely prop to root of the attempts number) :-> {er}\nPi Calculated value :-> {pi_v}\nPi Stored Value is :-> {pi}\nDiffernce from the actual pi (in Python's Math Lib.) is :-> {dif}\n")
 finally:
     print(f"\nI thank GitHub for the idea behind the code -- Original code was written in Ruby\nHappy PI Day {yr}")
