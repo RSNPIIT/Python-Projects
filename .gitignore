@@ -116,9 +116,7 @@ $RECYCLE.BIN/
 # =========================
 #Other Unrequired things
 # =========================
-Beautiful_Soup/*.html
-Web_Scraping/*.html
-/*.mp3
-/*.mp4
-/*.wav
-/*.mp4
+*/*.html
+*/*.mp3
+*/*.wav
+*/*.mp4
