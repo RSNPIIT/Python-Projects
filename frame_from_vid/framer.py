@@ -14,7 +14,6 @@ def capture(vid):
         suc, image = vid_bj.read()
 
         if image is None:
-            suc = False
             break
 
         c.imwrite(f"Frame{co:05d}.jpg" , image)
