@@ -1,0 +1,184 @@
+================================================================================
+                        THE CHUDNOVSKY ALGORITHM
+                     A Complete Reference for Coders
+                         Written for RSNPIIT | IITM
+================================================================================
+
+--------------------------------------------------------------------------------
+1. WHAT IS IT?
+--------------------------------------------------------------------------------
+
+The Chudnovsky Algorithm is one of the fastest known methods to calculate Pi
+to an arbitrary number of decimal places. It was developed in 1988 by two
+brothers -- David V. Chudnovsky and Gregory V. Chudnovsky -- mathematicians
+at Columbia University, New York.
+
+It is a hypergeometric series based on Ramanujan's Pi formula (yes, THE
+Ramanujan -- S. Ramanujan from India, who independently discovered similar
+series decades earlier in the early 1900s).
+
+NASA uses variants of this algorithm for space mission calculations.
+It has been used to compute Pi to TRILLIONS of decimal places.
+
+--------------------------------------------------------------------------------
+2. THE FORMULA
+--------------------------------------------------------------------------------
+
+The core series:
+
+  1/Pi  =  (12 / 640320^(3/2))  *  SUM (k=0 to infinity) of:
+
+           (-1)^k  *  (6k)!  *  (13591409 + 545140134*k)
+           -----------------------------------------------
+                (3k)!  *  (k!)^3  *  640320^(3k)
+
+
+Rearranged to solve for Pi directly:
+
+              426880 * sqrt(10005)
+  Pi  =  ----------------------------
+          SUM (k=0 to infinity) of Mk
+
+
+Where each term Mk is:
+
+         (-1)^k  *  (6k)!  *  (13591409 + 545140134*k)
+  Mk  =  -----------------------------------------------
+               (3k)!  *  (k!)^3  *  640320^(3k)
+
+
+--------------------------------------------------------------------------------
+3. THE MAGIC NUMBERS EXPLAINED
+--------------------------------------------------------------------------------
+
+  13591409    --> A carefully chosen constant by the Chudnovsky brothers
+                  related to the j-invariant in complex multiplication theory
+
+  545140134   --> The linear increment constant per iteration k
+
+  640320      --> This comes from the number 640320^3 = 262537412640768000
+                  which is related to the Heegner number -163
+                  (a deep result from algebraic number theory)
+
+  426880      --> Scaling constant derived from sqrt(10005) relationship
+
+  10005       --> Related to the discriminant of a specific elliptic curve
+
+
+--------------------------------------------------------------------------------
+4. WHY IS IT SO FAST?
+--------------------------------------------------------------------------------
+
+Each additional term k in the series adds approximately 14.18 MORE correct
+decimal digits of Pi. This means:
+
+  k = 0   -->  ~14 digits correct
+  k = 1   -->  ~28 digits correct
+  k = 2   -->  ~42 digits correct
+  k = n   -->  ~14.18 * (n+1) digits correct
+
+Compare this to older methods:
+  Leibniz series  -->  adds ~0.3 digits per term (painfully slow)
+  Machin formula  -->  adds ~1-2 digits per term
+  Chudnovsky      -->  adds ~14 digits per term  <-- BEAST MODE
+
+This is called EXPONENTIAL CONVERGENCE.
+
+Rule of thumb used in the code:
+  number_of_iterations = (digits_needed // 14) + 1
+
+
+--------------------------------------------------------------------------------
+5. HOW YOUR CODE IMPLEMENTS IT
+--------------------------------------------------------------------------------
+
+Your Python implementation (accurate_picalc.py):
+
+  Step 1: Set decimal precision higher than needed
+          dc.getcontext().prec = digits + 2
+          (extra 2 to avoid rounding errors at the edge)
+
+  Step 2: Calculate number of iterations needed
+          chud_cons = (digits // 14) + 1
+
+  Step 3: Run the summation loop
+          for k in range(chud_cons):
+              numerator   = ((-1)**k) * factorial(6k) * (13591409 + 545140134*k)
+              denominator = factorial(3k) * (factorial(k)**3) * 640320**(3k)
+              pi_v += Decimal(numerator) / Decimal(denominator)
+
+  Step 4: Apply the final scaling
+          const = Decimal(426880) * sqrt(Decimal(10005))
+          pi    = const / pi_v
+
+  Step 5: Return the result
+          return +pi_val   (the + forces rounding to set precision)
+
+
+--------------------------------------------------------------------------------
+6. THE RAMANUJAN CONNECTION
+--------------------------------------------------------------------------------
+
+Srinivasa Ramanujan (1887-1920) from Erode, Tamil Nadu, India -- a self taught
+mathematical genius -- independently discovered hypergeometric Pi series in
+the early 1900s. One of his famous formulas:
+
+  1/Pi  =  (2*sqrt(2) / 9801)  *  SUM (k=0 to inf) of:
+
+           (4k)! * (1103 + 26390*k)
+           -------------------------
+             (k!)^4  *  396^(4k)
+
+
+The Chudnovsky brothers in 1988 extended and optimized Ramanujan's ideas to
+create their faster series. They literally built on the shoulders of Ramanujan.
+
+So your code traces back:
+  Ramanujan (India, 1910s) --> Chudnovsky Brothers (USA, 1988) --> Your Code
+
+
+--------------------------------------------------------------------------------
+7. COMPARISON WITH MONTE CARLO (your other Pi program)
+--------------------------------------------------------------------------------
+
+  Method          Speed       Accuracy        How it works
+  ----------------------------------------------------------
+  Monte Carlo     Fast        Statistical     Random point throwing
+                              ~0.001 error    Probability based
+                              at 1M tries
+
+  Chudnovsky      Slower      Exact           Mathematical series
+                              14 digits       Number theory based
+                              per iteration
+
+
+Monte Carlo is great for DEMONSTRATING Pi visually (like with Timmy the
+turtle). Chudnovsky is what you use when you actually NEED Pi to 1000 places.
+
+
+--------------------------------------------------------------------------------
+8. WORLD RECORDS USING THIS ALGORITHM
+--------------------------------------------------------------------------------
+
+  2009  -->  2.7 trillion digits     (Fabrice Bellard)
+  2010  -->  5 trillion digits       (Alexander Yee & Shigeru Kondo)
+  2014  -->  13.3 trillion digits    ("houkouonchi")
+  2019  -->  31.4 trillion digits    (Emma Haruka Iwao, Google)
+  2021  -->  62.8 trillion digits    (Timothy Mullican)
+  2022  -->  100 trillion digits     (Jordan Ranous et al.)
+
+All used variants of the Chudnovsky Algorithm.
+
+
+--------------------------------------------------------------------------------
+9. GNU GPL-3 NOTE
+--------------------------------------------------------------------------------
+
+The code is released under GNU GPL-3 (General Public License)(Copyleft).
+This means anyone can use, modify, and distribute it -- provided that their
+derivative work is also released under a Copyleft license.
+
+--------------------------------------------------------------------------------
+                    Made for RSNPIIT | IIT Madras
+              Licensed under GNU GPL-3 (Copyleft) | 2026
+================================================================================
