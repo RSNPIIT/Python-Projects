@@ -94,6 +94,8 @@ def calc_it():
         cl.copy(the_fin)
         en4.delete(0 , tk.END)
         en4.insert(0 , f'{the_fin}')
+        en5.delete(0 , tk.END)
+        en5.insert(0 , f'{round(the_r , 3)}')
 
 #The Function to save the Notational Value and Exchange Rate Here
 def save_it():
@@ -102,8 +104,9 @@ def save_it():
         val2 = en2.get().strip().upper()
         val3 = round(float(en3.get()) , 3)
         val4 = round(float(en4.get()) , 3)
+        val5 = round(float(en5.get()) , 3)
         
-        if not val1 or not val2 or not val3 or not val4:
+        if not val1 or not val2 or not val3 or not val4 or not val5:
             msg.showinfo(title = "WARNING", message = "This Function Cant take the Empty Inputs\nPlease Enter again...\n")
             return
         
@@ -117,7 +120,7 @@ def save_it():
         confi = msg.askokcancel(title = 'NOTICE' , message = "Do You Wanna Save the Data to the file\n")
         if confi:
             with open(FILEKM , MODER) as f:
-                f.write(f'Base Currency :- {val1} || Quote Currency :- {val2} || Notational Value :- {val3} || Exchange Rate :- {val4}\n')
+                f.write(f'Base Currency :- {val1} || Quote Currency :- {val2} || Notational Value :- {val3} || Exchange Rate :- {val5} || Converted Amount :- {val4}\n')
             msg.showinfo(title = "SUCCESS+" , message = "Added to the File \nIn Case the File wasnt Initialized it is (R3)Created\n")
         else:
             msg.showinfo(title = "DONE" , message = "The Data has been discarded from adding to the text file\n")
@@ -127,6 +130,7 @@ def save_it():
         en2.delete(0 , tk.END)
         en3.delete(0 , tk.END)
         en4.delete(0 , tk.END)
+        en5.delete(0 , tk.END)
         
 #Creating the UI of the Screen
 sc = tdk.Window(themename = THEMEN)
@@ -186,14 +190,24 @@ en3.pack(padx = 10 , pady = 10 , side = SIDE)
 bu3 = tk.Button(master = sc , width = 20 , text = "Calculate+" , command = calc_it)
 bu3.pack(pady = 10)
 
-#The Final Frame where we display the result
+#The Frame to display the Exchange Rate
 fr4 = ttk.Frame(master = sc , style = "b.TFrame")
 fr4.pack(pady = 10)
 
-lbd = ttk.Label(text = f"As of {foe} I.S.T. the Exchange Rate is ->" , style = "k.TLabel" , master = fr4)
+lbh = ttk.Label(text = f"As of {foe} I.S.T. the Exchange Rate is ->" , style = "k.TLabel" , master = fr4)
+lbh.pack(pady = 10 , padx = 10 , side = SIDE)
+
+en5 = ttk.Entry(master = fr4 , width = 40)
+en5.pack(padx = 10 , pady = 10 , side = SIDE)
+
+#The Final Frame where we display the result
+fr5 = ttk.Frame(master = sc , style = "b.TFrame")
+fr5.pack(pady = 10)
+
+lbd = ttk.Label(text = f"As of {foe} I.S.T. the Converted Amount is ->" , style = "k.TLabel" , master = fr5)
 lbd.pack(pady = 10 , padx = 10 , side = SIDE)
 
-en4 = ttk.Entry(master = fr4 , width = 40)
+en4 = ttk.Entry(master = fr5 , width = 40)
 en4.pack(padx = 10 , pady = 10 , side = SIDE)
 
 #The Last Button to Save the amounts to a txt file format

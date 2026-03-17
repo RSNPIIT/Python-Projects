@@ -1,1 +1,1 @@
-Base Currency :- INR || Quote Currency :- USD || Notational Value :- 1200.0 || Exchange Rate :- 12.984
+Base Currency :- GBP || Quote Currency :- USD || Notational Value :- 1500.0 || Exchange Rate :- 1.33 || Converted Amount :- 1995.45
