@@ -134,7 +134,7 @@ def save_it():
         
 #Creating the UI of the Screen
 sc = tdk.Window(themename = THEMEN)
-sc.geometry('1000x1000')
+sc.geometry('1500x1500')
 sc.title("₡U₹₹3П₡У APP")
 sc.config(padx = 50 , pady = 50 , bg = BLACK)
 
