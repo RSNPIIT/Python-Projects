@@ -1,0 +1,85 @@
+================================================================================
+           Collatz Conj. (Kakutani Math Problem)
+================================================================================
+
+Author  : Ramrup Satpati (aka RSNPIIT), IIT Madras
+Licence : GNU General Public License 3.0 (GPL-3)
+
+--------------------------------------------------------------------------------
+ABOUT THE PROGRAM
+--------------------------------------------------------------------------------
+
+This program is an implementation of the famous Collatz Conjecture, also known
+as the Kakutani Problem, the 3n+1 Problem, or the Syracuse Problem.
+
+The user is prompted to enter a positive integer. The program then applies the
+following rules repeatedly until the number reaches 1:
+
+    - If the number is EVEN  -->  divide it by 2
+    - If the number is ODD   -->  multiply by 3 and add 1
+
+The program tracks and displays:
+    * Each step and its resulting number
+    * The total number of steps taken to reach 1
+    * The peak (highest) value reached during the sequence
+
+--------------------------------------------------------------------------------
+THE CONJECTURE
+--------------------------------------------------------------------------------
+
+The Collatz Conjecture states that no matter what positive integer you start
+with, you will ALWAYS eventually reach 1. Despite its simple rules, this
+conjecture has never been formally proven for all integers, making it one of
+the most famous unsolved problems in mathematics.
+
+    "Mathematics is not yet ready for such problems." — Paul Erdos
+
+--------------------------------------------------------------------------------
+INPUT HANDLING
+--------------------------------------------------------------------------------
+
+The program is built with robust input validation:
+    * Handles non-integer values gracefully
+    * Blocks keyboard interrupts and EOF signals (for security)
+    * Rejects zero as a starting value
+    * Accepts only positive integers (negatives are converted via abs())
+
+--------------------------------------------------------------------------------
+EXAMPLE
+--------------------------------------------------------------------------------
+
+    Enter a Number Here : 6
+
+    In Step -> 1 | The Num is -> 3
+    In Step -> 2 | The Num is -> 10
+    In Step -> 3 | The Num is -> 5
+    In Step -> 4 | The Num is -> 16
+    In Step -> 5 | The Num is -> 8
+    In Step -> 6 | The Num is -> 4
+    In Step -> 7 | The Num is -> 2
+    In Step -> 8 | The Num is -> 1
+
+    The Status is :->
+    Starting Number -> 6
+    Steps taken to fall to 1 is -> 8
+    With the Peak being -> 16
+
+--------------------------------------------------------------------------------
+LICENSE NOTICE
+--------------------------------------------------------------------------------
+
+Copyright (C) Ramrup Satpati (RSNPIIT), IIT Madras.
+
+This program is free software: you can redistribute it and/or modify it under
+the terms of the GNU General Public License as published by the Free Software
+Foundation, either version 3 of the License, or (at your option) any later
+version.
+
+This program is distributed in the hope that it will be useful, but WITHOUT
+ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License along with
+this program. If not, see <https://www.gnu.org/licenses/>.
+
+================================================================================
