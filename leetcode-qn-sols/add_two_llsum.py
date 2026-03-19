@@ -1,8 +1,4 @@
-# Definition for singly-linked list.
-# class ListNode:
-#     def __init__(self, val=0, next=None):
-#         self.val = val
-#         self.next = next
+# The Question is to add the sum of two Linked List
 
 class Solution:
     def addTwoNumbers(self, l1: Optional[ListNode], l2: Optional[ListNode]) -> Optional[ListNode]:
@@ -29,3 +25,10 @@ class Solution:
             if l2: l2 = l2.next
 
         return dummy.next
+
+sol = Solution()
+l1 = build_list([9, 9])
+l2 = build_list([1])
+result = sol.addTwoNumbers(l1, l2)
+print("The Result is :-\n")
+print_list(result)

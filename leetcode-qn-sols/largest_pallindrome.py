@@ -1,3 +1,5 @@
+# The Question is to find the largest pallindromal substring
+
 class Solution:
     def longestPalindrome(self, s: str) -> str:
         #Sollution for Empty String
@@ -21,3 +23,7 @@ class Solution:
                 l -= 1
                 r += 1
         return long_er
+
+ghs = input("Enter the string whose pallindrome you wanna find :-> ").strip().lower()
+s1 = Solution(ghs)
+print(f"The Longest Pallindromal substring in {ghs.title()} is {s1.longestPalindrome()}\n")
