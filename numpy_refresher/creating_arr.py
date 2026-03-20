@@ -30,7 +30,7 @@ def auth_it(arr):
         o.system('cls' if o.name == 'nt' else 'clear')
         s.exit()
 
-    if a > 0 and b >= 0 and a * b == len(arr):
+    if a > 0 and b > 0 and a * b == len(arr):
         nas = arr.reshape(a , b)
     else:
         print(f"The values of X-axis -> {a} and Y-axis -> {b} are not allowed \nRedirecting to the standard value\n")
