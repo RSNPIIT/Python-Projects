@@ -1,50 +1,72 @@
-🐍 Python-Projects
+# 🐍 Python-Projects
 
-![Python](https://img.shields.io/badge/Python-3.8+-blue?logo=python)
+![Python](https://img.shields.io/badge/Python-98%25-blue?logo=python)
+![Other](https://img.shields.io/badge/Other-2%25-orange)
+![Languages](https://img.shields.io/badge/Julia%20%7C%20R%20%7C%20Ruby%20%7C%20Go%20%7C%20Shell-lightgrey)
 ![License](https://img.shields.io/badge/License-GPL--3.0-green)
-![Platform](https://img.shields.io/badge/Platform-Linux%20%7C%20macOS%20%7C%20Windows-lightgrey)
 ![Maintained](https://img.shields.io/badge/Maintained-Yes-success)
 
+---
 
-📂 Project Overview
+## 📂 Project Overview
 
-A growing collection of small Python mini-projects built while exploring different ideas, tools, and programming concepts.
+A growing collection of mini-projects built while exploring different ideas, tools, and programming concepts. While **98%** of this repository is powered by **Python**, the remaining **2%** features experiments in **Julia, R, Ruby, GoLang, and Shell**, which serve as secondary languages for specific utilities and performance tests.
 
-This repository serves as a sandbox for experiments, practice exercises, and mini-utilities. Each script is standalone—you can clone the repo and run any file directly.
+### Typical themes include:
+- Command-line utilities and calculators
+- Small games and interactive scripts
+- Fun/random generators
+- Data-processing snippets
 
-Typical themes include:
-Command-line utilities and calculators
-Small games and interactive scripts
-Fun/random generators
-Data-processing snippets
-🛠 Tech Stack
-Python 3.10+
-Standard library (unless specified in script headers)
-Occasionally explores performance tools like Cython
-Environment
-Linux (Fedora, Ubuntu, Kali, etc.)
-Terminals: Yakuake, Konsole
-Editor: VSCodium
-🚀 Getting Started
+---
 
-Clone the repository and run any script:
+## 🛠 Tech Stack
+- **Primary:** Python 3.10+
+- **Secondary:** Julia, R, Ruby, GoLang, Shell
+- **Environment:** Linux (Fedora, Kali, etc.)
+- **Editor:** VSCodium
 
+---
+
+## 🚀 Getting Started
+
+Follow these steps to set up the environment and run the projects:
+
+### 1. Clone the Repository via SSH
+```bash
+git clone git@github.com\:RSNPIIT/Python-Projects.git
+cd Python-Projects
+## 2. Set up a Virtual Environment
+
+```bash
+python3 -m venv venv
+source venv/bin/activate
+```
+
+## 3. Install Dependencies
+
+```bash
+pip3 install -r requirements.txt
+```
+
+## 4. Run a Script
+
+```bash
 python3 project_name.py
-# example:
-python3 passwordgen.py
-📝 Notes
-Projects are primarily written in Python, but the logic and problem-solving approach is language-agnostic
-Designed from a student-friendly perspective for easy understanding
-Contributions and experimentation are welcome
-📜 License
+```
 
-This project is licensed under the GPL-3.0 License
-You are free to use, modify, and distribute the code, provided derivative work is also open-sourced.
+---
 
-👨‍💻 Author
+> **Note:** Although the projects are primarily implemented in Python, you are free to implement them in any language of your choice. The ideas behind the projects are language agnostic.
 
-Ramrup Satpati (RSNPIIT)
-IIT Madras
+---
 
-Built with 🐧 Linux and 🐍 Python
-Always learning, always building 🚀
+## 📜 License
+
+This project is licensed under the **GPL-3.0 License**. You are free to use, modify, and distribute the code, provided derivative work is also open-sourced.
+
+🄯 Ramrup Satpati (RSNPIIT) · IIT Madras · Built with 🐧 Linux and 🐍 Python
+
+
+
+
