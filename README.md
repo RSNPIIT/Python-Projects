@@ -36,6 +36,8 @@ Follow these steps to set up the environment and run the projects:
 ```bash
 git clone git@github.com\:RSNPIIT/Python-Projects.git
 cd Python-Projects
+```
+
 ## 2. Set up a Virtual Environment
 
 ```bash
@@ -66,7 +68,3 @@ python3 project_name.py
 This project is licensed under the **GPL-3.0 License**. You are free to use, modify, and distribute the code, provided derivative work is also open-sourced.
 
 🄯 Ramrup Satpati (RSNPIIT) · IIT Madras · Built with 🐧 Linux and 🐍 Python
-
-
-
-
