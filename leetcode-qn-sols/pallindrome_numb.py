@@ -68,7 +68,7 @@ while True:
                 print("Redirection Successful\n")
                 continue
         except (KeyboardInterrupt , EOFError) as kb:
-            print("See comrade -- If you need to exit follow the rules and press y\nExit Blocked via the Keyboard Interrupt pathway\n")
+            print("See comrade -- If you need to exit follow the rules and press n\nExit Blocked via the Keyboard Interrupt pathway\n")
             continue
         except Exception as e:
             print(f"Some Error Occurred which is caught successfully\n{e}")
