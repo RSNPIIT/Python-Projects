@@ -60,7 +60,7 @@ while True:
                 print(f"Thankyou for COming and testing the Software\nApp Used for {attmpt} time(s)\nPlease do come back")
                 break   
             elif ch == 'y':
-                print(f"Good\Lets Test Something else\n")
+                print(f"Good! now lets Test Something else\n")
                 continue
             else:
                 print(f"Wrong Input---Redirecting to a y\n")
