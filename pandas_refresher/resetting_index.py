@@ -19,11 +19,21 @@ ser = pd.Series(arr , index = idex , name = NAME)
 print(f"The Said Series is :-\n\n{ser}\n")
 
 try:
-    a = abs(int(input("Enter the Value of the starting slice index (in int64 form) : ")))
-    b = abs(int(input("Enter the Value of the ending slice index (in int64 form) : ")))
+    a = int(input("Enter the Value of the starting slice index (in int64 form) : "))
+    b = int(input("Enter the Value of the ending slice index (in int64 form) : "))
 
-    if a > b or a >= arr.size or b >= arr.size or (a == 0 and b == 0):
-        print("These Values Are Invalid in Slicing Owing to which You cant Proceed")
+    if a > b:
+        print("Start index cannot be greater than end index")
+        ti.sleep(1)
+        o.system('cls' if o.name == 'nt' else 'clear') 
+        s.exit()
+    elif a < 0 or b < 0:
+        print("Negative indices are not allowed")
+        ti.sleep(1)
+        o.system('cls' if o.name == 'nt' else 'clear') 
+        s.exit()
+    elif a >= arr.size or b >= arr.size:
+        print("Index out of bounds")
         ti.sleep(1)
         o.system('cls' if o.name == 'nt' else 'clear') 
         s.exit()
