@@ -25,7 +25,7 @@ htm_end = """</div>
 
 tiles = ""
 
-for i in range(100):
+for i in range(1 ,101):
     catf = r.choice(categ)
     ship = r.choice(shipp)
     stat = r.choice(stock_st)
