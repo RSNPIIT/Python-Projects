@@ -1,0 +1,2 @@
+message <- "Hello Everyone, I am Ramrup Satpati\nI go by the Alias of RSNPIIT on GitHub and GitLab\nThis Directory is me navigating my way to scrape web files\nI will share all my work once done, as all my work is in GitHub under the GNU GPLv3 or Later License"
+cat(message, "\n")
