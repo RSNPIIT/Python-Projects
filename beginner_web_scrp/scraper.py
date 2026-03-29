@@ -21,4 +21,12 @@ for c in crd:
     print(f'Name -> {name}')
     print(f"Status -> {stats}")
     print(f"License -> {lic}")
+    if not lic:
+        print("This Project is either unLicensed or under an unknown License")
+    elif any(x in lic for x in ['PSF', 'BSD', 'MIT' , 'Apache']):
+        print("This Project is under an Open Source Permissive License")
+    elif any(x in lic for x in ['GPLv2', 'GPLv3', 'LGPL', 'AGPL']):
+        print("This Project is under an Open Source CopyLeft License")
+    else:
+        print("This Project is under a proprietary Copyright License")    
     print("-"*50)
