@@ -1,6 +1,8 @@
 import time as ti
 import subprocess as sb
 import os as o
+import pprint as pp
+import platform as pl
 from bs4 import BeautifulSoup as bls
 
 # Static Variables 
@@ -21,7 +23,7 @@ if not o.path.exists(FILE):
         )
     print(f'{val.stdout}\nSuccessfully Created the HTML/LXML File')
 else:
-    print(f"File {FILE} exits\nContinuining....")
+    print(f"File {FILE} exits\nContinuing....")
     ti.sleep(1)
 
 # Extracting the File Here
@@ -29,7 +31,7 @@ with open(FILE) as rf:
     hgf = rf.read()
 
 # Giving the Output to Beautiful Soup
-soup = bls(hgf ,PARSER)
+soup = bls(hgf , PARSER)
 tilte = soup.title.string
 
 # Now Getting the Titles of the games here
@@ -52,5 +54,23 @@ with open(TFILE , WMOD , encoding = ENCD) as w:
         w.write(f'\n{j}\n')
         w.write('-'*50)
 
+# Displaying the Output in CLI Here
 ti.sleep(1)
+o.system('cls' if o.name == 'nt' else 'clear')
 print("Successfully Written and Saved to the Text File")
+print("Running the File Here :-\n")
+
+# Displaying the Output
+# POSIX Systems
+if pl.system() != 'Windows':
+    o.system('cat saver.txt') 
+    print(f"\n{pl.system()} Rocks !!!")
+
+# NT Kernel Systems
+else:
+    with open(TFILE) as f:
+        cat = f.read()
+    pp.pprint(cat)
+    print(f"\n{pl.system()} is Okay!!")
+
+print("\nDONE\n")
