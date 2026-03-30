@@ -13,34 +13,34 @@ try:
     if not a:
         print("Null Values are not allowed over here\nLike Null Colours ...\nPlease Re-Enter")
         ti.sleep(1)
-        o.system('cls' if PLATF != 'Windows' else 'clear')
+        o.system('cls' if PLATF == 'Windows' else 'clear')
         s.exit()
     elif a <= 0:
         print("NOTE :- Only the Positive Nonzero Numbers are allowed\nI mean just think if I told you that you need to extract -5 colours\nWont make sense would it ?\nPlease (RE)Enter\n")
         ti.sleep(1)
-        o.system('cls' if PLATF != 'Windows' else 'clear')
+        o.system('cls' if PLATF == 'Windows' else 'clear')
         s.exit()
     elif a >= 50:
         print("See If You Give Large Values Several Problems will happen\nIt will lead to system slowing down and throttling\nThus for safety reasons the maximum limit is 49 colors..\nPlease re-enter...\n")
         ti.sleep(1)
-        o.system('cls' if PLATF != 'Windows' else 'clear')
+        o.system('cls' if PLATF == 'Windows' else 'clear')
         s.exit()
     else:
         pass
 except (KeyboardInterrupt , EOFError) as e:
     print("\nExitting the Program\nPlease Dont Spam.....")
     ti.sleep(1)
-    o.system('cls' if PLATF != 'Windows' else 'clear')
+    o.system('cls' if PLATF == 'Windows' else 'clear')
     s.exit()
 except ValueError as v:
     print("The Non Integer Values are not allowed\nUnable to proceed ...")
     ti.sleep(1)
-    o.system('cls' if PLATF != 'Windows' else 'clear')
+    o.system('cls' if PLATF == 'Windows' else 'clear')
     s.exit()
 except Exception as ex:
     print(f"Some Exception Occurred\n{e}")
     ti.sleep(1)
-    o.system('cls' if PLATF != 'Windows' else 'clear')
+    o.system('cls' if PLATF == 'Windows' else 'clear')
     s.exit()
 else:
     clr = co.extract('tux.jpg' , a)
