@@ -29,5 +29,5 @@ with open(FILE , MODE , encoding = ENCD) as f:
 
 # Formatting for a good UI
 print("Written to HTML File Successfully")
-# ti.sleep(1)
-# o.system('cls' if o.name == 'nt' else 'clear')
+ti.sleep(1)
+o.system('cls' if o.name == 'nt' else 'clear')
