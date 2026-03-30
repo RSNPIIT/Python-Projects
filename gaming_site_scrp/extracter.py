@@ -1,4 +1,6 @@
 import time as ti
+import subprocess as sb
+import os as o
 from bs4 import BeautifulSoup as bls
 
 # Static Variables 
@@ -7,6 +9,20 @@ PARSER = 'html.parser'
 TFILE = 'saver.txt'
 WMOD = 'w'
 ENCD = 'utf-8'
+
+# We Will Extract the File But what if the File is Deleted or Does not Exist so Ideally We need to run the Runner.py first to get the HTML file
+if not o.path.exists(FILE):
+    print(f"File := {FILE} does not exists\n(RE)Creating it...")
+    val = sb.run(
+        ['python3' ,'runner.py'],
+        check = True,
+        capture_output = True,
+        text = True
+        )
+    print(f'{val.stdout}\nSuccessfully Created the HTML/LXML File')
+else:
+    print(f"File {FILE} exits\nContinuining....")
+    ti.sleep(1)
 
 # Extracting the File Here
 with open(FILE) as rf:
@@ -27,6 +43,7 @@ for t in titl:
 
 trt = list(reversed(tup))
 
+# Now We Create the TXT File and Save the Elements of the List in reversed order
 with open(TFILE , WMOD , encoding = ENCD) as w:
     w.write(f"-"*50)
     w.write(f"\n{tilte}\n")
@@ -36,4 +53,4 @@ with open(TFILE , WMOD , encoding = ENCD) as w:
         w.write('-'*50)
 
 ti.sleep(1)
-print("Successfully Written to the Text File")
+print("Successfully Written and Saved to the Text File")
