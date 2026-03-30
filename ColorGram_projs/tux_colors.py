@@ -1,13 +1,9 @@
 import colorgram as co
 
+# Getting the Colours (Top 30 in this case)
 clr = co.extract('tux.jpg' , 30)
-lis = []
 
-for cl in clr:
-    re = cl.rgb.r
-    gr = cl.rgb.g
-    bl = cl.rgb.b
-    new_t = (re , gr , bl)
-    lis.append(new_t)
+# Now We convert the Colour Objects to RGB Integers Via List Comprehension
+lis = [(c.rgb.r , c.rgb.g , c.rgb.b) for c in clr]
 
 print(f"\nThe Colours in Tux are :- \n{lis}")
