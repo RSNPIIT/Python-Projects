@@ -37,6 +37,10 @@ except ValueError as v:
     ti.sleep(1)
     o.system('cls' if PLATF == 'Windows' else 'clear')
     s.exit()
+except OverflowError as ov:
+    print(f"The Mathematical C constraints overflowed\nUnable to proceed ...")
+    ti.sleep(1)
+    o.system('cls' if PLATF == 'Windows' else 'clear')
 except Exception as ex:
     print(f"Some Exception Occurred\n{e}")
     ti.sleep(1)
