@@ -1,15 +1,57 @@
 import colorgram as co
+import time as ti
+import sys as s
+import os as o
+import platform as pl
 
-#Extract Colors
-colors = co.extract('images.jpg' , 10)
-my_l = []
+# Static Variables
+FILE = 'images.jpg'
+PLATF = pl.system()
 
-#Taking All Colours Into Something we can read
-for c in colors:
-    re = c.rgb.r
-    gr = c.rgb.g
-    bl = c.rgb.b
-    n_t = (re , gr , bl)
-    my_l.append(n_t)
+try:
+    a = int(input("Enter the Number of Colours You Wanna Extract : "))
+    
+    if not a:
+        print("Null Values are not allowed over here\nLike Null Colours ...\nPlease Re-Enter")
+        ti.sleep(1)
+        o.system('cls' if PLATF == 'Windows' else 'clear')
+        s.exit()
+    elif a <= 0:
+        print("NOTE :- Only the Positive Nonzero Numbers are allowed\nI mean just think if I told you that you need to extract -5 colours\nWont make sense would it ?\nPlease (RE)Enter\n")
+        ti.sleep(1)
+        o.system('cls' if PLATF == 'Windows' else 'clear')
+        s.exit()
+    elif a >= 50:
+        print("See If You Give Large Values Several Problems will happen\nIt will lead to system slowing down and throttling\nThus for safety reasons the maximum limit is 49 colors..\nPlease re-enter...\n")
+        ti.sleep(1)
+        o.system('cls' if PLATF == 'Windows' else 'clear')
+        s.exit()
+    else:
+        pass
+except (KeyboardInterrupt , EOFError) as e:
+    print("\nExitting the Program\nPlease Dont Spam.....")
+    ti.sleep(1)
+    o.system('cls' if PLATF == 'Windows' else 'clear')
+    s.exit()
+except ValueError as v:
+    print("The Non Integer Values are not allowed\nUnable to proceed ...")
+    ti.sleep(1)
+    o.system('cls' if PLATF == 'Windows' else 'clear')
+    s.exit()
+except OverflowError as ov:
+    print(f"The Mathematical C constraints overflowed\nUnable to proceed ...")
+    ti.sleep(1)
+    o.system('cls' if PLATF == 'Windows' else 'clear')
+except Exception as ex:
+    print(f"Some Exception Occurred\n{e}")
+    ti.sleep(1)
+    o.system('cls' if PLATF == 'Windows' else 'clear')
+    s.exit()
+else:
+    #Extract Colors and making them into a list
+    col = co.extract('images.jpg' , a)
+    my_l = [(c.rgb.r, c.rgb.g, c.rgb.b) for c in col]
 
-print(f"\nThe Colours Are :\n{my_l}")
+    print(f"\nThe Colours Are :\n{my_l}")
+finally:
+    print(f"{PLATF} Rocks....\nMade by 🄯 RSNPIIT - aka Ramrup Satpati from IIT Madras\nThis Project as all other orojects in this repository are under the GNU General Public License Version 3 or Later (GNU GPLv3)\nMade with 🩷 in Linux and 🐍 Python\nThankyou")
