@@ -37,6 +37,12 @@ except ValueError as v:
     o.system('cls' if pt.system() == 'Windows' else 'clear')
     s.exit()
 
+except OverflowError as ov:
+    print("Due to wrong input some error occurred\n")
+    ti.sleep(1)
+    o.system('cls' if pt.system() == 'Windows' else 'clear')
+    s.exit()    
+
 else:
     fv = r.randint(2 , n) if n >= 2 else 1 
     print(f"\nThe Algorithm has decided the Final Value of number(s) of sentences as {fv}")
