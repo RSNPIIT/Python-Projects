@@ -4,6 +4,9 @@ import sys as s
 import os as o
 import platform as pt
 
+# Static Variables
+attmpt = 0
+
 try:
     n = abs(int(input("Enter the number of sentences you wanna suggest of entering : ")))
 
@@ -69,11 +72,28 @@ else:
     print(all_w)
 
     # Now Basically we take user input
-    qre = input("\nPlease Search for some Word ----\n").strip().lower()
-    if qre in all_w:
-        print(f"The word {qre.title()} found in the documents with the status quo as :- {all_w[qre]}\n")
-    else:
-        print(f"The word {qre.title()} doesnt exist\nWord not found")
+    while True:
+        attmpt += 1
+        try:
+            qre = input("\nPlease Search for some Word or (q to quit) :- ").strip().lower()
+
+            if qre == 'q':
+                print(f"Thankyou Ciao\nPlease come again won't you ?\nYou used the app for {attmpt} times")
+                break
+
+        except (KeyboardInterrupt , EOFError) as e:
+            print("\nNot Allowed -- I wont Let you exit\nFollow the rules enter q please\n")
+            pass
+        except Exception as e:
+            print(f"Some Error occurred\n{e}")
+            pass
+        else:       
+            if qre in all_w:
+                print(f"The word {qre.title()} found in the documents with the status quo as :- {all_w[qre]}\n")
+            else:
+                print(f"The word {qre.title()} doesnt exist\nWord not found")
+        finally:
+            print("Please Enter....another cause why not......\n")
 
 finally:
     print("\nReverse Search by 🄯 RSNPIIT (Ramrup Satpati) IIT Madras\nReleased under GNU GPLv3 License")
