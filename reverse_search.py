@@ -35,13 +35,19 @@ except (KeyboardInterrupt , EOFError) as kb:
     s.exit()
 
 except ValueError as v:
-    print(f"This Value of {n} is not allowed please enter a Numeric Value\nPlease Re-Enter\n")
+    print(f"String Input Value is not allowed please enter a Numeric Value\nPlease Re-Enter\nError code {v}")
     ti.sleep(1)
     o.system('cls' if pt.system() == 'Windows' else 'clear')
     s.exit()
 
 except OverflowError as ov:
     print("Due to wrong input some error occurred\n")
+    ti.sleep(1)
+    o.system('cls' if pt.system() == 'Windows' else 'clear')
+    s.exit()    
+
+except Exception as e:
+    print("Some Uncapped Exception has occurred however we have successfully caught the exception nicely\n")
     ti.sleep(1)
     o.system('cls' if pt.system() == 'Windows' else 'clear')
     s.exit()    
@@ -73,15 +79,17 @@ else:
 
     # Now Basically we take user input
     while True:
+        qtin = False
         attmpt += 1
         try:
             qre = input("\nPlease Search for some Word or (q to quit) :- ").strip().lower()
 
             if qre == 'q':
+                qtin = True
                 print(f"Thankyou Ciao\nPlease come again won't you ?\nYou used the app for {attmpt} times")
                 break
 
-        except (KeyboardInterrupt , EOFError) as e:
+        except (KeyboardInterrupt , EOFError) as kb:
             print("\nNot Allowed -- I wont Let you exit\nFollow the rules enter q please\n")
             pass
         except Exception as e:
@@ -93,7 +101,8 @@ else:
             else:
                 print(f"The word {qre.title()} doesnt exist\nWord not found")
         finally:
-            print("Please Enter....another cause why not......\n")
+            if not qtin:
+                print("Please Enter....another cause why not......\n")
 
 finally:
     print("\nReverse Search by 🄯 RSNPIIT (Ramrup Satpati) IIT Madras\nReleased under GNU GPLv3 License")
