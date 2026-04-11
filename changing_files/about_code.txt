@@ -1,0 +1,35 @@
+about_code.txt
+===============
+
+This folder is a mess. A beautiful, functional mess.
+
+It started as a simple Python script to rename files.
+Then C files got involved. Then C++. Then Julia. Then Ruby.
+Then someone accidentally made everything a .rb file.
+Then someone catted a binary and their terminal had a seizure.
+
+changer.py is the main villain/hero of this directory.
+It will rename everything it sees without hesitation.
+It does not care about your feelings.
+It skips .py files though. It has SOME mercy.
+
+Languages that have passed through this directory:
+  - C          (compiled fine, a.out got murdered by g++)
+  - C++        (iostream.h error. Classic.)
+  - Java       (javac not found. Java stays losing.)
+  - Julia       (worked first try. Respect.)
+  - Python     (obviously worked. Home turf.)
+  - R          (also worked first try. Underrated.)
+  - Ruby       (never actually ran. Just vibes.)
+
+Things learned:
+  - Use g++ for .cpp files, not gcc
+  - Don't cat a binary file unless you enjoy chaos
+  - list(os.listdir()) before renaming, not during
+  - '-'*50 inside an f-string is just text, not a separator
+  - KDE will misspell your name on official credits
+
+Status: Ongoing experiments
+Owner:  Ramrup Satpati (RSNPIIT) | IIT Madras
+Note:   This file contains no useful information whatsoever.
+License: Released as open source GPLv3 License
