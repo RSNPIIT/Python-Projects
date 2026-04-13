@@ -3,6 +3,7 @@ import os as o
 import time as ti
 import platform as pt
 import sys as s
+import shutil as st
 import subprocess as sb
 
 # Static Variables
@@ -14,14 +15,18 @@ MODE = 'a'
 # Non-Static Variables
 LIS = [f for f in o.listdir() if o.path.isfile(f) and not f.endswith(('.py', '.ipynb'))]
 
-# Introducing the Program via Calling an External HLL Lang.
-reu = sb.run(
-    ['julia' , 'intro_file.jl'],
-    capture_output = True,
-    text = True,
-    check = True
-)
-print(f"{SYM}\n{reu.stdout}")
+# Getting the Output of whether the Julia Language is Installed or not
+if st.which('julia') is not None:
+    reu = sb.run(
+        ['julia' , 'intro_file.jl'],
+        capture_output = True,
+        text = True,
+        check = True
+    )
+    print(f"{SYM}\n{reu.stdout}")
+
+else:
+    print(f"{SYM}\nCH3NGR F!L3 : This is a File Renamer en Mass\n")
 
 if not LIS:
     print("Python3 Found that the directory is empty with no non pythonic files so ...\nSkipping the iterations\nPlease come back after populating the same\n")
