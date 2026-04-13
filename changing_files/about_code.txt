@@ -17,7 +17,7 @@ Languages that have passed through this directory:
   - C          (compiled fine, a.out got murdered by g++)
   - C++        (iostream.h error. Classic.)
   - Java       (javac not found. Java stays losing.)
-  - Julia       (worked first try. Respect.)
+  - Julia      (worked first try. Respect.)
   - Python     (obviously worked. Home turf.)
   - R          (also worked first try. Underrated.)
   - Ruby       (never actually ran. Just vibes.)
