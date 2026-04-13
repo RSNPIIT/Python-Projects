@@ -4,12 +4,16 @@ import platform as pt
 import sys as s
 
 # Static Variables
-LIS = [f for f in o.listdir() if o.path.isfile(f) and not f.endswith(('.py', '.ipynb'))]
 SYM = '-'*50
 itn = 1
+FILENAME = 'text_file/filer.txt'
+MODE = 'a'
+
+# Non-Static Variables
+LIS = [f for f in o.listdir() if o.path.isfile(f) and not f.endswith(('.py', '.ipynb'))]
 
 if not LIS:
-    print("Python Found that the directory is empty with no non pythonic files so ...\nSkipping the iterations\nPlease come back after populating the same\n")
+    print("Python3 Found that the directory is empty with no non pythonic files so ...\nSkipping the iterations\nPlease come back after populating the same\n")
     ti.sleep(1)
     o.system('cls' if pt.system() == 'windows' else 'clear')
     s.exit()
@@ -43,6 +47,12 @@ for l in LIS:
 
             try:
                 print(f"\nRenaming the file :-> {l} to {final_name}\n")
+
+                o.makedirs('text_file' , exist_ok = True)
+
+                with open(FILENAME ,  MODE) as r:
+                    r.write(f'Previous Name -> {l} | New Name -> {final_name}\n')
+
                 ti.sleep(1)
                 o.rename(l , final_name)
                 
