@@ -3,7 +3,7 @@ from cryptography.fernet import Fernet as frn
 
 files = []
 FILE = 'thekey.key'
-SECRET_P = 'o.getenv("SECRET_P")
+SECRET_P = o.getenv("SECRET_P")
 
 if not SECRET_P:
     print("You Dont have the necessary permission here")
