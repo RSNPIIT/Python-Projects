@@ -121,6 +121,7 @@ $RECYCLE.BIN/
 */*.css
 */*.wav
 */*.mp4
+sample_encrypt_proj/thekey.key
 
 # =========================
 # Media & Web Files
