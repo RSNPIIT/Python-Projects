@@ -33,3 +33,4 @@ for f in vault_files:
     print(f"  - {f}")
 
 print("="*50)
+print("🄯 RSNPIIT (Ramrup Satpati) from IIT Madras\nReleased under the GNU GPLv3 license") 
