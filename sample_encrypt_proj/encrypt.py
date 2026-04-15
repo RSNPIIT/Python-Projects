@@ -52,9 +52,16 @@ if ph == SECRET_P:
     for fil in FLIS:
         with open(fil , 'rb') as fl:
             con = fl.read()
-        dec_con = frn(key).encrypt(con)
-        with open(fil , 'wb') as wl:
-            wl.write(dec_con)
+        try:
+            dec_con = frn(key).encrypt(con)
+        except Exception as e:
+            print(f"Exception Occurred Here\n{e}")
+            ti.sleep(1)
+            o.system('cls' if  pt.system() == 'windows' else 'clear')
+            s.exit()
+        else:
+            with open(fil , 'wb') as wl:
+                wl.write(dec_con)
 
     print("D*N3----\nThe Encryption Process Worked")
 else:
