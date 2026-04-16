@@ -7,6 +7,7 @@ import sys as s
 # Static File
 FILE = 'sample_file.txt'
 MODE = 'w'
+SYM = '-'*50
 
 # Extracting the Raw Txt Data
 try:
@@ -53,7 +54,7 @@ else:
                 sum(stu['marks'])
             ])
 
-        print(f"The Records are as follows are as follows :-\n\n{table}")
+        print(f"{SYM}\nThe Records are as follows are as follows :-\n\n{table}\n{SYM}")
 
         # Extracting the Maximum Student His/Her Age and Roll Number based on sum of marks and the class marks' sum average
         max_mar = 0
@@ -71,7 +72,7 @@ else:
                 continue
         
         std_avg = round( tot_sum / std_cnt , 3)
-        print(f"\n\nPython's Analysis :-\nClass' Average -> {std_avg}\nTopper's Name -> {max_st['name']}\nAge -> {max_st['age']}\nRoll Number -> {max_st['roll']}\nMarks -> {sum(max_st['marks'])}")
+        print(f"\n\n{SYM}\nPython's Analysis :-\nClass' Average -> {std_avg}\nTopper's Name -> {max_st['name']}\nAge -> {max_st['age']}\nRoll Number -> {max_st['roll']}\nMarks -> {sum(max_st['marks'])}\n{SYM}")
     else:
         print("The File is Empty\nPlease Add something inside of it")
         ti.sleep(1)
@@ -79,4 +80,4 @@ else:
         s.exit()
 
 finally:
-    print("\n\n🄯 RSNPIIT (Ramrup Satpati) IIT Madras\nReleased under the GNU GPLv3 and later license\n")
+    print(f"{SYM}\n\n🄯 RSNPIIT (Ramrup Satpati) IIT Madras\nReleased under the GNU GPLv3 and later license\n")
