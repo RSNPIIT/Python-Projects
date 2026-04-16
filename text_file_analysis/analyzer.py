@@ -77,3 +77,6 @@ else:
         ti.sleep(1)
         o.system('cls' if pt.system() == 'windows' else 'clear')
         s.exit()
+
+finally:
+    print("\n\n🄯 RSNPIIT (Ramrup Satpati) IIT Madras\nReleased under the GNU GPLv3 and later license\n")
