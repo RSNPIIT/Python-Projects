@@ -1,6 +1,8 @@
+# Importing all the modules here
 import prettytable as prt
 import time as ti
 import os as o
+import subprocess as sb
 import platform as pt
 import sys as s
 
@@ -8,6 +10,16 @@ import sys as s
 FILE = 'sample_file.txt'
 MODE = 'w'
 SYM = '-'*50
+
+# Introducing the Directory
+res = sb.run(
+    ["python3", "intro_file.py"],
+    capture_output=True,
+    text=True,
+    check=True
+)
+
+print(f"{SYM}\n{res.stdout}")
 
 # Extracting the Raw Txt Data
 try:
