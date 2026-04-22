@@ -5,12 +5,17 @@ import sys as s
 import platform as pt
 import pprint as pp
 
-# Making a Log Processor using the Power of Python
+# Static Variables
+CRIT = ['admin', 'password', 'root', 'compromised', 'critical', 'vulnerable', 'system']
+PAT = ['patched' , 'fixed' , 'protected']
+
+# Making a simple log processor
 def process_logs(log_date , *logs , min_length = 10):
     count = 0
     d = {
         'invalid' : [],
         'critical' : [],
+        'patched' : [],
         'normal' : [],
         'metadata' : {}
     }
@@ -22,8 +27,11 @@ def process_logs(log_date , *logs , min_length = 10):
         if len(clear_log) < min_length:
             d['invalid'].append(clear_log)
 
-        elif 'admin' in clear_log or 'password' in clear_log or 'root' in clear_log:
+        elif any(word in clear_log for word in CRIT):
             d['critical'].append(clear_log)
+
+        elif any(word in clear_log for word in PAT):
+            d['patched'].append(clear_log)
 
         else:
             d['normal'].append(clear_log)
@@ -94,6 +102,7 @@ else:
     res = process_logs(date , *user_log , min_length = mini)
     print("The Status Result is :-\n")
     pp.pprint(res)
+    print()
 
 finally:
     print("🄯 RSNPIIT (Ramrup Satpati) -- IIT Madras\nReleased Under the GNU GPLv3 license")
