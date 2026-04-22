@@ -1,0 +1,2 @@
+Balance -> 4500 | Amount -> 1200 | Result -> (True, 3300)
+Balance -> 2900 | Amount -> 14000 | Result -> (False, 'Exceeds Limit Amount')
