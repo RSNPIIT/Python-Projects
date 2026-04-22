@@ -2,6 +2,8 @@ import datetime as dt
 import time as ti
 import os as o
 import sys as s
+import platform as pt
+import pprint as pp
 
 # Making a Log Processor using the Power of Python
 def process_logs(log_date , *logs , min_length = 10):
@@ -20,17 +22,18 @@ def process_logs(log_date , *logs , min_length = 10):
         if len(clear_log) < min_length:
             d['invalid'].append(clear_log)
 
-        if 'admin' in clear_log or 'password' in clear_log or 'root' in clear_log:
+        elif 'admin' in clear_log or 'password' in clear_log or 'root' in clear_log:
             d['critical'].append(clear_log)
 
         else:
             d['normal'].append(clear_log)
         
         count += 1
-        d['metadata']['date'] = log_date
-        d['metadata']['total-processed'] = count
 
-        return d
+    d['metadata']['date'] = log_date
+    d['metadata']['total-processed'] = count
+
+    return d
 
 # Now We call our function here
 now = dt.datetime.now()
@@ -55,14 +58,26 @@ try:
 
 except (KeyboardInterrupt , EOFError) as kb:
     print("Skipping Iteration Please don't Spam Ctrl-C\n")
-    ti.sleep()
-    o.system('cls' if o.name == 'nt' else 'clear')
+    ti.sleep(1)
+    o.system('cls' if pt.system() == 'windows' else 'clear')
     s.exit()
 
 except ValueError as v:
     print(f"Non Integer Value Given\nThese are not allowed over here\n")
-    ti.sleep()
-    o.system('cls' if o.name == 'nt' else 'clear')
+    ti.sleep(1)
+    o.system('cls' if pt.system() == 'windows' else 'clear')
+    s.exit()
+
+except OverflowError as ov:
+    print("OverFlow Error Occurred Here\n")
+    ti.sleep(1)
+    o.system('cls' if pt.system() == 'windows' else 'clear')
+    s.exit()
+
+except Exception as e:
+    print(f"Some Exception occurred here\n")
+    ti.sleep(1)
+    o.system('cls' if pt.system() == 'windows' else 'clear')
     s.exit()
 
 else:
@@ -74,9 +89,11 @@ else:
             break
         else:
             user_log.append(log)
-    
+            continue
+
     res = process_logs(date , *user_log , min_length = mini)
-    print(f"The Status Result is :-\n{res}")
+    print("The Status Result is :-\n")
+    pp.pprint(res)
 
 finally:
     print("🄯 RSNPIIT (Ramrup Satpati) -- IIT Madras\nReleased Under the GNU GPLv3 license")
