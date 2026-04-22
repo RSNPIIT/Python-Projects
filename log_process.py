@@ -67,25 +67,25 @@ try:
 except (KeyboardInterrupt , EOFError) as kb:
     print("Skipping Iteration Please don't Spam Ctrl-C\n")
     ti.sleep(1)
-    o.system('cls' if pt.system() == 'windows' else 'clear')
+    o.system('cls' if pt.system() == 'Windows' else 'clear')
     s.exit()
 
 except ValueError as v:
     print(f"Non Integer Value Given\nThese are not allowed over here\n")
     ti.sleep(1)
-    o.system('cls' if pt.system() == 'windows' else 'clear')
+    o.system('cls' if pt.system() == 'Windows' else 'clear')
     s.exit()
 
 except OverflowError as ov:
     print("OverFlow Error Occurred Here\n")
     ti.sleep(1)
-    o.system('cls' if pt.system() == 'windows' else 'clear')
+    o.system('cls' if pt.system() == 'Windows' else 'clear')
     s.exit()
 
 except Exception as e:
     print(f"Some Exception occurred here\n")
     ti.sleep(1)
-    o.system('cls' if pt.system() == 'windows' else 'clear')
+    o.system('cls' if pt.system() == 'Windows' else 'clear')
     s.exit()
 
 else:
