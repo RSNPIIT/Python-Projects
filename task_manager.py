@@ -62,7 +62,7 @@ def main():
             ch = abs(int(input("Enter the Choice Here :-> ")))
 
         except (KeyboardInterrupt , EOFError) as kb:
-            print("Not Allowed to perform this by user\n")
+            print("\nNot Allowed to perform this by user\n")
             continue
         
         except ValueError as v: 
@@ -92,7 +92,7 @@ def main():
                     tn = abs(int(input("Enter the Task Number You wish to complete :-> ")))
                 
                 except (KeyboardInterrupt , EOFError) as kb:
-                    print("Not Allowed to perform this by user\n")
+                    print("\nNot Allowed to perform this by user\n")
                     continue
         
                 except ValueError as v: 
