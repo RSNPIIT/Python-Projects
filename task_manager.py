@@ -69,12 +69,12 @@ def main():
             print("Error\nNon Integer Values are given\nPlease re-enter\n")
             continue
         
-        except OverflowError as o:
+        except OverflowError as ov:
             print("Error\nOverFlow Error due to Interpreter occurred\nPlease re-run\n")
             ti.sleep(1)
             o.system('cls' if o.name == 'nt' else 'clear')
 
-        except Exception as ex:
+        except Exception as e:
             print(f"Some other Exception Occurred\n{e}\nPlease Re-Enter")
             continue
         
@@ -127,7 +127,7 @@ def main():
                     man.delete(tn)
 
             elif ch == 5:
-                print("Exiting Program\nApp Used For {ATTMPT} times\nPlease come back again\n")
+                print(f"Exiting Program\nApp Used For {ATTMPT} times\nPlease come back again\n")
                 break
 
             else:
