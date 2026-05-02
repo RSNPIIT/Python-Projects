@@ -7,9 +7,28 @@ stud = {}
 SEL = 'y'
 FILE = 'file.txt'
 MODE = 'w'
+attmpt = 0
+
+# As we are using the write mode we need to save earlier transaction safely so as to avoid data loss
+if o.path.exists(FILE):
+    with open(FILE) as f:
+        for line in f:
+            try:
+                parts = line.strip().split('|')
+                name = parts[0].split('->')[1].strip()
+                mars = int(parts[1].split('->')[1].strip())
+                stud[name] = mars
+            except Exception as ex:
+                continue
+
+# Function to apply DRY - Don't repeat yourself principle
+def save_data():
+    with open(FILE, 'w') as fl:
+        for key, val in stud.items():
+            fl.write(f"Student Name -> {key} | Marks -> {val}\n")
 
 while True:
-    attmpt = 0
+    attmpt += 1
     
     print("------- STUDENT MANAGER APP ----------\nOptions ->")
     print("1. -> Add Students")
@@ -17,7 +36,6 @@ while True:
     print("3. -> Delete Passouts")
     print("4. -> Exit the appication")
 
-    attmpt += 1
     try:
         ch = abs(int(input("Enter your choice here :-> ")))
     except (KeyboardInterrupt , EOFError) as e:
@@ -32,6 +50,11 @@ while True:
             if name not in stud:
                 try:
                     mar_st = int(input(f"Enter {name}'s marks here :-> "))
+
+                    if not (0 <= mar_st <= 100):
+                        print("Marks must be between 0 and 100\n")
+                        continue
+
                 except (KeyboardInterrupt , EOFError) as e:
                     print("\nNot Allowed to do this\nIllegal Exit ignored")
                     continue
@@ -54,6 +77,10 @@ while True:
                 if yn == SEL:
                     try:
                         mar_st = int(input(f"Enter {name}'s marks here :-> "))
+
+                        if not (0 <= mar_st <= 100):
+                            print("Marks must be between 0 and 100\n")
+                            continue
                     except (KeyboardInterrupt , EOFError) as e:
                         print("\nNot Allowed to do this\nIllegal Exit ignored")
                         continue
@@ -94,20 +121,19 @@ while True:
                 print(f"The Student {name} doesn't exist please add him/her first then run the same\n")
         
         elif ch == 4:
+            print("Saving to file.....\nSaved successfully")
+            save_data()
             print(f"Thankyou for using our app\nApp used for {attmpt} time(s)\n")
             break
 
         else:
+            save_data()
             print("Wrong Value Given\nPlease give a plausible and acceptable value\n")
             ti.sleep(1)
             o.system('cls' if o.name == 'nt' else 'clear')
             s.exit()
     
     finally:
-        print("Saving to file")
-        with open(FILE , MODE) as fl:
-            # fl.write("All Things Writen Here :->\n")
-            for key , val in stud.items():
-                fl.write(f"Student Name -> {key} | Marks -> {val}\n")
-
+        print("-"*50)
+        
 print("🄯 RSNPIIT (Ramrup Satpati) from IIT Madras | Released under the GNU GPLv3 License")

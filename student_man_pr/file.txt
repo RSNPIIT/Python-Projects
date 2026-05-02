@@ -1,16 +1,5 @@
-All Things Writen Here :->
-Student Name -> Harish | Marks -> 59
-All Things Writen Here :->
-Student Name -> Harish | Marks -> 59
-All Things Writen Here :->
-Student Name -> Harish | Marks -> 59
-All Things Writen Here :->
-Student Name -> Harish | Marks -> 59
-All Things Writen Here :->
-Student Name -> Harish | Marks -> 59
-All Things Writen Here :->
-Student Name -> Harish | Marks -> 59
-All Things Writen Here :->
-Student Name -> Gaja | Marks -> 95
-All Things Writen Here :->
-Student Name -> Gaja | Marks -> 95
+Student Name -> Harishankar Devdas | Marks -> 56
+Student Name -> Malikarjun Kharge | Marks -> 74
+Student Name -> Gaja Manojar | Marks -> 46
+Student Name -> Subhan Panda | Marks -> 85
+Student Name -> Devdas Partidar | Marks -> 86
