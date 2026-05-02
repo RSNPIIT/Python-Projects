@@ -1,5 +1,0 @@
-Student Name -> Harishankar Devdas | Marks -> 56
-Student Name -> Malikarjun Kharge | Marks -> 74
-Student Name -> Gaja Manojar | Marks -> 46
-Student Name -> Subhan Panda | Marks -> 85
-Student Name -> Devdas Partidar | Marks -> 86
