@@ -10,8 +10,13 @@ SYM = '-'*15
 
 # Loading the data from the file from an earlier itera
 if o.path.exists(FILE):
-    with open(FILE) as f:
-        lib = js.load(f)
+    try:
+        with open(FILE) as f:
+            lib = js.load(f)
+
+    except (js.JSONDecodeError, ValueError) as jl:
+        lib = {}
+        
 else:
     lib = {}
 
@@ -46,7 +51,7 @@ while True:
         continue
 
     except Exception as ex:
-        print(f"\nError :-> {e}")
+        print(f"\nError :-> {ex}")
         continue
 
     else:
