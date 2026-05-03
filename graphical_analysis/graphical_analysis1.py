@@ -53,7 +53,7 @@ plt.plot(df['Date'], y_pred, linestyle='--', label='Trendline')
 
 plt.xlabel("Date")
 plt.ylabel("Total Expense")
-plt.title("Expense Trend Analysis")
+plt.title("Figure 1: Total Daily Expense Over Time")
 
 plt.legend()
 plt.xticks(rotation=45)
