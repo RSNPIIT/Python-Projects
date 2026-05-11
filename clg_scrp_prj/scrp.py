@@ -1,6 +1,7 @@
 from bs4 import BeautifulSoup as bls
 import time as ti
 import os as o
+import sys as s
 import subprocess as sb
 
 FILE = 'site.html'
@@ -18,12 +19,16 @@ if not o.path.exists(FILE):
             text = True,
             check = True
         )
+
+        o.system('cls' if o.name == 'nt' else 'clear')
+        s.exit()
+
     except:
         pass
 
 else:
-with open(FILE) as f:
-    cont = f.read()
+    with open(FILE) as f:
+        cont = f.read()
 
 soup = bls(cont , PRSR)
 
