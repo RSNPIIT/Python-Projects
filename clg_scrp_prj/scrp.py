@@ -1,7 +1,6 @@
 from bs4 import BeautifulSoup as bls
 import time as ti
 import os as o
-import sys as s
 import subprocess as sb
 
 FILE = 'site.html'
@@ -11,7 +10,8 @@ if not o.path.exists(FILE):
     print(f"Scraping File {FILE} not found in the current directory\n")
 
     try:
-        print("Making the HTML File here")      
+        print("Making the HTML File here")
+        ti.sleep(1)
         sb.run(
             ["python3" , "studius.py"],
             capture_output = True,
@@ -21,6 +21,7 @@ if not o.path.exists(FILE):
     except:
         pass
 
+else:
 with open(FILE) as f:
     cont = f.read()
 
@@ -54,7 +55,6 @@ colg_set = set()
 
 for tag in strong_tags:
     tdf = tag.get_text(strip = True)
-    # print('-'*50)
 
     keywords = [
         "University",
