@@ -2,6 +2,7 @@ import os as o
 import json as js
 import tkinter as tk
 import pyperclip as cl
+import ttkbootstrap as tdk
 from tkinter import ttk , messagebox as msg
 
 # Static Variables
@@ -12,6 +13,7 @@ FAINT = ("Courier", 25 , "bold")
 FILE = 'pic_rl.png'
 FIEL = 'value.json'
 SIDE = 'left'
+THEME = 'darkly'
 
 # The Function to Add into the JSON FIle is this one
 def get_hold(fle):
@@ -68,8 +70,8 @@ def add_one():
     return
 
 # Tkinter Core Pluggins here
-sc = tk.Tk()
-sc.geometry('2500x2500')
+sc = tdk.Window(themename = THEME)
+sc.geometry('900x900')
 sc.title('Library Analysis')
 sc.config(padx = 50, pady = 50, bg = BLACK)
 
