@@ -1,6 +1,7 @@
 import os as o
 import json as js
 import tkinter as tk
+import pyperclip as cl
 from tkinter import ttk , messagebox as msg
 
 # Static Variables
@@ -39,6 +40,7 @@ def srch_it():
         en1.delete(0 ,tk.END)
         bk = jlb[s1]
         en1.insert(0 , bk)
+        cl.copy(bk)
     return
 
 def update_wrt(something , some_othr):
