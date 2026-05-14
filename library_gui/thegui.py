@@ -117,3 +117,5 @@ bu2.pack(pady = 10)
 
 # The Command to make the GUI auto refresh
 sc.mainloop()
+
+print("Made by 🄯 RSNPIIT (Ramrup Satpati) From IIT Madras || Released under the GNU GPLv3 license")
