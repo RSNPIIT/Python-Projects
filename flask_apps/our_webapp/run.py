@@ -10,10 +10,25 @@ app = fl(
     template_folder = TMP
     )
 
-# The '/' means the root aka the root path
+# The '/' means the root path of the file
 @app.route('/')
 def index():
-    return "<h1>Hello World</h1>"
+    VAL = 'RSNPIIT'
+    ITM = [20 , 30 , 35 , 40]
+    return render_template(
+        template_name_or_list = 'index.html',
+        myname = VAL,
+        myvalue = 9.8,
+        myitem = ITM
+        )
+
+@app.route('/other')
+def other():
+    STAT = 'hello Flask'
+    return render_template(
+        template_name_or_list = 'other.html',
+        some = STAT
+    )
 
 # This has been given as an optional Argument to Remove the 404 Favicon Error
 @app.route('/favicon.ico')
@@ -47,27 +62,19 @@ def greet(name):
     res.headers['content-type'] = 'text/plain'
     return f"<p>Hello {name}<br>Response Type is :-> {res if res != None else 'something'}<br>Body is :-> {res.data}<br>Status Code is :-> {res.status_code}<br></p>"
 
-# This uses dynamic routing and exception handling in Python
-@app.route('/add/<string:num1>/<string:num2>')
-def adder(num1 , num2):
-    try:
-        num1 = float(num1)
-        num2 = float(num2)
-    except OverflowError as ov:
-        return f"Error Occurred Here :-> \n{v}" , 404
-    except ValueError as v:
-        return f"Error Occurred Here :-> \n{v}" , 404
-    else:
-        sum = num1 + num2   
-        if num1 >= 0 and num2 >= 0:
-            return f"<h1>{num1} + {num2} = {sum :.2f}</h1>"
-        elif num1 < 0:
-            return f"<h1>{num1} + {num2} = {sum : .2f}</h1>"
-        elif num2 < 0:
-            return f"<h1>{num1} + ({num2}) = {sum : .2f}</h1>"
-        else:
-            return f"<h1>{num1} + ({num2}) = ({sum : .2f})</h1>"
-    
+# These are not the Rotes but functions that we can use in Jinja2 HTML template
+@app.template_filter('reverse_string')
+def reverse_string(s):
+    return s[ :: -1]
+
+@app.template_filter('repeat')
+def repeat(s , times = 2):
+    return (s + ' ') * times
+
+@app.template_filter('alternate')
+def alternate(s):
+    return ''.join(c.upper() if i % 2 != 0 else c.lower() for i,c in enumerate(s))
+
 # This uses the __name__ variable which is a dunder function to prevent other file from run (or mis-run this app)
 if __name__ == '__main__':
     # The host means the current machine
