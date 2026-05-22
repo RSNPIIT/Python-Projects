@@ -1,5 +1,6 @@
 from flask import Flask as fl,request ,make_response ,send_from_directory, render_template, Response
 import os
+import uuid
 import pandas as pd
 
 # Static variables
@@ -46,8 +47,8 @@ def login():
 # This is the Route for File Upload ->
 @app.route(
     rule = '/file_upload',
-    methods = ['POST']
-    )
+    methods = ['POST'],
+)
 def file_upload():
     file = request.files['file']
     
@@ -57,32 +58,40 @@ def file_upload():
         df = pd.read_excel(file)
         return df.to_html()
 
-# This is the Route for CSV conversion using pandas
+# Essentially this creates a new directory to store the dowmloads
 @app.route(
-    rule = '/csv_upload',
-    methods = ['POST']
+    rule = '/csv_two',
+    methods = ['POST'],
 )
-def csv_upload():
+def csv_two():
     file = request.files['file']
-
     df = pd.read_excel(file)
-    res = Response(
-        df.to_csv(),
-        mimetype = 'text/csv',
-        headers = {
-            'Content-Disposition' : 'attachment; filename = result.csv'
-        }
-    )
-    return res
-    
-# This has been given as an optional Argument to Remove the 404 Favicon Error
-@app.route('/favicon.ico')
-def favicon():
-    return send_from_directory(
-        os.path.join(app.root_path, 'static'),
-        'favicon.ico', 
-        mimetype='image/vnd.microsoft.icon'
+
+    if not os.path.exists('downloads'):
+        os.makedirs('downloads')
+
+    filename = f'{uuid.uuid4()}.csv'
+    df.to_csv(
+        os.path.join(
+            'downloads' , filename
         )
+    )
+    return render_template(
+        'download.html', 
+        flname = filename
+    )
+
+# The Central Download Page is this one
+@app.route(
+    rule = '/download/<flname>',
+    methods = ['GET'],
+)
+def download(flname):
+    return send_from_directory(
+        directory = 'downloads',
+        path = flname,
+        download_name = 'result.csv'
+    )    
 
 # This uses methods and request method which allows us to interact with the data in certain ways
 @app.route(
@@ -105,7 +114,7 @@ def hello():
     else:
         return "You will never see this message ever"
 
-# This uses make response What this does is basically helps us control the HTTP heades
+# This uses make response What this does is basically helps us control the HTTP headers
 @app.route('/greet/<name>')
 def greet(name):
     res = make_response(
