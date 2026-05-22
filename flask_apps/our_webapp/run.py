@@ -3,6 +3,7 @@ import os
 
 # Static variables
 TMP = 'templates'
+VAL = 'RSNPIIT'
 
 # Creating a Flask Instance
 app = fl(
@@ -51,6 +52,25 @@ def hello():
         return "Post Request made here"
     else:
         return "You will never see this message ever"
+
+# Making the Login Route
+@app.route(
+    rule = '/login',
+    methods = ['GET' , 'POST']
+)
+def login():
+    if request.method == 'GET':
+        return render_template(
+            template_name_or_list = 'form.html'
+        )
+    elif request.method == 'POST':
+        user = request.form.get('username')
+        psw = request.form.get('password')
+
+        if user == VAL and psw == '1Ramrup@S':
+            return f"Hello {VAL} you have successfully authenticated"
+        else:
+            return "Login Failed"
 
 # This uses make response What this does is basically helps us control the HTTP heades
 @app.route('/greet/<name>')
