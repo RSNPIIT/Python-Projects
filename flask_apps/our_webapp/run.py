@@ -1,5 +1,6 @@
-from flask import Flask as fl,request ,make_response ,send_from_directory, render_template
+from flask import Flask as fl,request ,make_response ,send_from_directory, render_template, Response
 import os
+import pandas as pd
 
 # Static variables
 TMP = 'templates'
@@ -20,38 +21,8 @@ def index():
         template_name_or_list = 'index.html',
         myname = VAL,
         myvalue = 9.8,
-        myitem = ITM
-        )
-
-@app.route('/other')
-def other():
-    STAT = 'hello Flask'
-    return render_template(
-        template_name_or_list = 'other.html',
-        some = STAT
+        myitem = ITM 
     )
-
-# This has been given as an optional Argument to Remove the 404 Favicon Error
-@app.route('/favicon.ico')
-def favicon():
-    return send_from_directory(
-        os.path.join(app.root_path, 'static'),
-        'favicon.ico', 
-        mimetype='image/vnd.microsoft.icon'
-        )
-
-# This uses methods and request method which allows us to interact with the data in certain ways
-@app.route(
-    rule = '/hello',
-    methods = ['GET', 'POST']
-    )
-def hello():
-    if request.method == 'GET':
-        return "Get Request made here"
-    elif request.method == 'POST':
-        return "Post Request made here"
-    else:
-        return "You will never see this message ever"
 
 # Making the Login Route
 @app.route(
@@ -71,6 +42,68 @@ def login():
             return f"Hello {VAL} you have successfully authenticated"
         else:
             return "Login Failed"
+
+# This is the Route for File Upload ->
+@app.route(
+    rule = '/file_upload',
+    methods = ['POST']
+    )
+def file_upload():
+    file = request.files['file']
+    
+    if file.content_type == "text/plain":
+        return file.read().decode()
+    elif file.content_type == 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet':
+        df = pd.read_excel(file)
+        return df.to_html()
+
+# This is the Route for CSV conversion using pandas
+@app.route(
+    rule = '/csv_upload',
+    methods = ['POST']
+)
+def csv_upload():
+    file = request.files['file']
+
+    df = pd.read_excel(file)
+    res = Response(
+        df.to_csv(),
+        mimetype = 'text/csv',
+        headers = {
+            'Content-Disposition' : 'attachment; filename = result.csv'
+        }
+    )
+    return res
+    
+# This has been given as an optional Argument to Remove the 404 Favicon Error
+@app.route('/favicon.ico')
+def favicon():
+    return send_from_directory(
+        os.path.join(app.root_path, 'static'),
+        'favicon.ico', 
+        mimetype='image/vnd.microsoft.icon'
+        )
+
+# This uses methods and request method which allows us to interact with the data in certain ways
+@app.route(
+    rule = '/hello',
+    methods = ['GET', 'POST']
+    )
+def hello():
+    if request.method == 'GET':
+        return render_template(
+            template_name_or_list = 'form.html'
+        )
+    elif request.method == 'POST':
+        user = request.form.get('username')
+        psw = request.form.get('password')
+
+        if user == VAL and psw == '1Ramrup@S':
+            return f"Hello {VAL} you have successfully authenticated"
+        else:
+            return "Login Failed"
+    else:
+        return "You will never see this message ever"
 
 # This uses make response What this does is basically helps us control the HTTP heades
 @app.route('/greet/<name>')
