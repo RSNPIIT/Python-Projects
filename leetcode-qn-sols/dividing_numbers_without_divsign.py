@@ -10,7 +10,10 @@ class Solution:
             return dividend
         
         elif divisor == -1:
-            return (-1) * dividend
+            if dividend  == INT_MIN:
+                return INT_MAX
+            
+            return -dividend
         
         else:
             sign = 1 if (dividend > 0)  == (divisor > 0) else -1
@@ -37,6 +40,3 @@ class Solution:
                 return INT_MIN
 
             return quotient
- 
-
-
