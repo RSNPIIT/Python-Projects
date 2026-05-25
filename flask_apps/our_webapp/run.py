@@ -1,4 +1,4 @@
-from flask import Flask as fl,request ,make_response ,send_from_directory, render_template, Response, session
+from flask import Flask as fl,request ,make_response ,send_from_directory, render_template, Response, session, flash, redirect, url_for
 import os
 import uuid
 import pandas as pd
@@ -133,9 +133,12 @@ def login():
         psw = request.form.get('password')
 
         if user == VAL and psw == '1Ramrup@S':
-            return f"Hello {VAL} you have successfully authenticated"
+            flash(f"Hello {VAL} you have successfully authenticated")
         else:
-            return "Login Failed"
+            flash("Login Failed")
+        return redirect(
+            url_for('login')
+        )
 
 # The other Page route
 @app.route(
