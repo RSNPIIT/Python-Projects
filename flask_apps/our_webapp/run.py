@@ -1,29 +1,122 @@
-from flask import Flask as fl,request ,make_response ,send_from_directory, render_template, Response
+from flask import Flask as fl,request ,make_response ,send_from_directory, render_template, Response, session
 import os
 import uuid
 import pandas as pd
 
 # Static variables
 TMP = 'templates'
+STT = 'static'
 VAL = 'RSNPIIT'
+ITM = [20 , 30 , 35 , 40]
 
 # Creating a Flask Instance
 app = fl(
     __name__,
-    template_folder = TMP
-    )
+    template_folder = TMP,
+    static_folder = STT,
+    static_url_path = '/'
+)
+app.secret_key = os.urandom(24)
+
+# Common data function used once
+def common_data():
+    return {
+        'myname': VAL,
+        'myvalue': 9.8,
+        'myitem': ITM
+    }
 
 # The '/' means the root path of the file
 @app.route('/')
 def index():
-    VAL = 'RSNPIIT'
-    ITM = [20 , 30 , 35 , 40]
     return render_template(
         template_name_or_list = 'index.html',
-        myname = VAL,
-        myvalue = 9.8,
-        myitem = ITM 
+        message = "Session Data Set",
+        **common_data()
     )
+
+# Getting a stored session data for Flask to remember
+@app.route('/set_data')
+def set_data():
+    session['name'] = "RS"
+    session['data'] = "Hello World"
+
+    return render_template(
+        template_name_or_list = 'index.html',
+        message = "Session Data Set",
+        **common_data()
+    )
+
+# Returning the stored cached data
+@app.route('/get_data')
+def get_data():
+    if 'name' in session.keys() and 'data' in session.keys():
+        name = session['name']
+        other = session['data']
+        return render_template(
+            template_name_or_list = 'index.html',
+            message = f"Priviet Tovarisch Ich Heisse {name} und mein message ist {other}",
+            **common_data()
+        )
+    else:
+        return render_template(
+            template_name_or_list = 'index.html',
+            message = "No Session Found",
+            **common_data()
+        )
+
+# Erasing the stored session data
+@app.route('/clear_data')
+def clear_session():
+    session.clear()
+    return render_template(
+        template_name_or_list = 'index.html',
+        message = "Session Data Erased",
+        **common_data()
+    )
+
+# We set with the cookies here
+@app.route('/set_cookie')
+def set_cookie():
+    res = make_response(
+        render_template(
+            template_name_or_list = 'index.html',
+            message = "Cookie Set Successfully",
+            **common_data()
+        )
+    )
+    res.set_cookie(
+        key = "Cookie_Name_CKK22",
+        value = "Cookie_Val_key_JibJ"
+    )
+    return res
+
+# Returning the cookie here
+@app.route('/get_cookie')
+def get_cookie():
+    all_v = request.cookies['Cookie_Name_CKK22']
+    return render_template(
+        template_name_or_list = 'index.html',
+        message = f"Got the Message it is :-> {all_v}",
+        **common_data()
+    )
+
+# Erasing the Cookie here
+@app.route('/erase_cookie')
+def erase_cookie():
+    res = make_response(
+        render_template(
+            template_name_or_list = 'index.html',
+            message = "Cookie Erased",
+            **common_data()
+        )
+    )
+    res.set_cookie(
+        key = "Cookie_Name_CKK22",
+        value = "Cookie_Val_key_JibJ",
+        expires = 0
+    )
+    return res
 
 # Making the Login Route
 @app.route(
@@ -44,6 +137,16 @@ def login():
         else:
             return "Login Failed"
 
+# The other Page route
+@app.route(
+    rule = '/other',
+    methods = ['GET'],
+)
+def other():
+    return render_template(
+        template_name_or_list = 'other.html',
+        some = VAL
+    )
 # This is the Route for File Upload ->
 @app.route(
     rule = '/file_upload',
