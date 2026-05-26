@@ -131,4 +131,11 @@ sample_encrypt_proj/thekey.key
 *.css
 *.wav
 *.mp4
+*.js
+*/*.js
 student_man_pr/file.txt
+
+# =========================
+# Flask App Specifics
+# =========================
+flask_apps/login_app/downloads/
