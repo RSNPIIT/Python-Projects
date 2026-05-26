@@ -53,7 +53,10 @@ pip3 install -r requirements.txt
 python3 project_name.py
 ```
 
----
+> ⚠️ **Exception — IDE-specific projects:** The following must be run inside their respective editors/platforms, **not** from the terminal:
+> - `codeforces_solutions/` → run via [Codeforces](https://codeforces.com) online judge
+> - `leetcode_questions/` → run via [LeetCode](https://leetcode.com) online judge
+> - `stanford_karel_solutions/` → run inside the **Stanford Karel IDE**
 
 > **Note:** Although the projects are primarily implemented in Python, you are free to implement them in any language of your choice. The ideas behind the projects are language agnostic.
 
