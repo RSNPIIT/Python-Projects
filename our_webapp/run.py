@@ -299,7 +299,7 @@ def superuser():
 @app.route(
     rule = '/delete/<int:pid>',
     methods = ['GET']
-    )
+)
 def delete_person(pid):
     fellow = Person.query.get(pid)
     nam = fellow.name
@@ -309,6 +309,40 @@ def delete_person(pid):
         db.session.commit()
         flash(f'Record named {nam} has been erased')
     
+    return redirect(
+        url_for('superuser')
+    )
+
+# Creating the Update method in the Subscription Entries
+@app.route(
+    rule = '/update/<int:pid>',
+    methods = ['GET','POST']
+)
+def update_person(pid):
+    fellow = Person.query.get(pid)
+    
+    if fellow is None:
+        flash("Nothing to do here")
+        return redirect(
+            url_for('superuser')
+        )
+        
+    old_name = fellow.name
+
+    if request.method == 'GET':
+        return render_template(
+            template_name_or_list = "edit.html",
+            person = fellow
+        )
+    
+    elif request.method == 'POST':
+        fellow.name = request.form.get('name')
+        fellow.age = request.form.get('age')
+        fellow.job = request.form.get('job')
+
+        db.session.commit()
+        flash(f"Person's name changed from {old_name} to {fellow.name} successfully")
+
     return redirect(
         url_for('superuser')
     )
