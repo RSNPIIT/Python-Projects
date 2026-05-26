@@ -1,6 +1,7 @@
 from flask import Flask as fl,request ,make_response ,send_from_directory, render_template, Response, session, flash, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
+from flask_login import login_user, login_required, current_user, logout_user
 import os
 import uuid
 import pandas as pd
@@ -11,8 +12,8 @@ STT = 'static'
 VAL = 'RSNPIIT'
 ITM = [20 , 30 , 35 , 40]
 
-# Creating the Database
-from extensions import db
+# Creating the Database and the Login Manager
+from extensions import db, login_manager
 
 # Creating a Flask Instance
 app = fl(
@@ -27,7 +28,10 @@ app.secret_key = os.urandom(24)
 
 # Initializing the database -> This is similar to git init and then migrate it 
 db.init_app(app)
+login_manager.init_app(app)
 migrate = Migrate(app , db)
+
+login_manager.login_view = 'subscribe'
 
 # Common data function used once
 def common_data():
@@ -257,6 +261,14 @@ def alternate(s):
 # Importing the Files here -> Basically extensions.py is used to avoid circular import error in run.py and models.py
 from models import Person
 
+# This essentially uses flask_login
+@login_manager.user_loader
+def load_user(user_id):
+
+    return User.query.get(
+        int(user_id)
+    )
+
 # Now Here We add people to database in a Subscribe method
 @app.route(
     rule = '/subscribe',
@@ -268,31 +280,39 @@ def subscribe():
             template_name_or_list = 'subscribe.html'
         )
     elif request.method == 'POST':
-        name = request.form.get('name')
-        age = request.form.get('age')
-        job = request.form.get('job')
-        
-        p1 = Person(
-            name = name,
-            age = age,
-            job = job
-        )
-        db.session.add(p1)
-        db.session.commit()
-        flash("Person Added Successfully")
+        user = request.form.get('username')
+        psw = request.form.get('password')
+        found = User.query.filter_by(
+            username=user
+        ).first()
+        if found and found.password == psw:
 
-        return redirect(
-            url_for(
-                'subscribe'
+            login_user(found)
+            flash("Login Successful")
+            return redirect(
+                url_for('superuser')
             )
+        flash("Invalid Credentials")
+        return redirect(
+            url_for('login')
         )
+
 # Then show all the prople who joined in a protected admin method
 @app.route('/superuser')
+@login_required
 def superuser():
-    pupil = Person.query.all()
+
+    if current_user.is_admin != True:
+        flash("Unauthorized")
+        return redirect(
+            url_for('index')
+        )
+
+    people = Person.query.all()
+
     return render_template(
-        template_name_or_list = 'superuser.html',
-        person = pupil
+        'superuser.html',
+        people=people
     )
 
 # The Route to delete the Subscription Entries
@@ -326,8 +346,15 @@ def update_person(pid):
         return redirect(
             url_for('superuser')
         )
-        
+
     old_name = fellow.name
+    age = int(request.form.get('age'))
+
+    if age <= 0 or age > 120:
+        flash("Invalid age")
+        return redirect(
+            url_for('subscribe')
+        )
 
     if request.method == 'GET':
         return render_template(
@@ -345,6 +372,16 @@ def update_person(pid):
 
     return redirect(
         url_for('superuser')
+    )
+
+@app.route('/logout')
+@login_required
+def logout():
+
+    logout_user()
+    flash("Logged Out")
+    return redirect(
+        url_for('index')
     )
 
 # This uses the __name__ variable which is a dunder function to prevent other file from run (or mis-run this app)
