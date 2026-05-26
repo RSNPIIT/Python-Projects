@@ -1,26 +1,41 @@
-from flask import Flask , request
+from flask import Flask, request, redirect, url_for, session, Response, render_template
 
 app = Flask(__name__)
+app.secret_key = 'supersecretkey123'
 
 @app.route('/')
 def home():
-    return 'Hello User - This is my first Flask app'
+    return render_template('starting.html')
 
-@app.route('/contact')
-def contact():
-    return "Please Contact -> [[[ramrupsatpati@gmail.com]]]"
-
-@app.route('/about')
-def about():
-    return "This is Abou Us Page"
-
-@app.route('/submit' , methods = ['GET' , 'POST'])
-def submit():
+@app.route('/login' , methods = ['GET' , 'POST'])
+def login():
     if request.method == 'POST':
-        return 'You are sending data'
+        uname = request.form.get('username')
+        password = request.form.get('password')
+        type_ur = request.form.get('role')
+
+        if uname == 'admin' and password == 'admin123' and type_ur == 'developer':
+            session['user'] = uname
+            return redirect(url_for('welcome'))
+        
+        else:
+            flash('Invalid Credentials Please Try again')
+            return Response('Invalid credentials , Please Try again Later' , mimetype = 'text/plain')
     
     else:
-        return 'You are only recieving the data not sending'
+        return render_template('index.html')
+
+@app.route('/welcome')
+def welcome():
+    if 'user' not in session:
+        return redirect(url_for('home'))
+    else:
+        return render_template('welcome.html' , username = session['user'].title())
+
+@app.route('/logout')
+def logout():
+    session.pop('user' , None)
+    return redirect(url_for('login'))
 
 if __name__ == '__main__':
     app.run(debug = True)
