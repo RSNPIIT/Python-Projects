@@ -12,7 +12,7 @@ VAL = 'RSNPIIT'
 ITM = [20 , 30 , 35 , 40]
 
 # Creating the Database
-db = SQLAlchemy()
+from extensions import db
 
 # Creating a Flask Instance
 app = fl(
@@ -254,11 +254,64 @@ def repeat(s , times = 2):
 def alternate(s):
     return ''.join(c.upper() if i % 2 != 0 else c.lower() for i,c in enumerate(s))
 
-from extensions import db
+# Importing the Files here -> Basically extensions.py is used to avoid circular import error in run.py and models.py
+from models import Person
 
 # Now Here We add people to database in a Subscribe method
+@app.route(
+    rule = '/subscribe',
+    methods = ['GET','POST']
+    )
+def subscribe():
+    if request.method == 'GET':
+        return render_template(
+            template_name_or_list = 'subscribe.html'
+        )
+    elif request.method == 'POST':
+        name = request.form.get('name')
+        age = request.form.get('age')
+        job = request.form.get('job')
+        
+        p1 = Person(
+            name = name,
+            age = age,
+            job = job
+        )
+        db.session.add(p1)
+        db.session.commit()
+        flash("Person Added Successfully")
 
+        return redirect(
+            url_for(
+                'subscribe'
+            )
+        )
 # Then show all the prople who joined in a protected admin method
+@app.route('/superuser')
+def superuser():
+    pupil = Person.query.all()
+    return render_template(
+        template_name_or_list = 'superuser.html',
+        person = pupil
+    )
+
+# The Route to delete the Subscription Entries
+@app.route(
+    rule = '/delete/<int:pid>',
+    methods = ['GET']
+    )
+def delete_person(pid):
+    fellow = Person.query.get(pid)
+    nam = fellow.name
+
+    if fellow:
+        db.session.delete(fellow)
+        db.session.commit()
+        flash(f'Record named {nam} has been erased')
+    
+    return redirect(
+        url_for('superuser')
+    )
 
 # This uses the __name__ variable which is a dunder function to prevent other file from run (or mis-run this app)
 if __name__ == '__main__':
