@@ -38,14 +38,11 @@ def do_it():
     en2.delete(0 , tk.END)
     try:
         val = int(en1.get())
-
         if val <= 0:
             msg.showinfo(title = "WARNING 🚨" , message = f"Error -> The Integer Field can't be empty or zero or negative integer")
-
     except ValueError as v:
         msg.showinfo(title = "WARNING 🚨" , message = f"Error -> Please enter Integer values\n{v}")
         en1.delete(0 , tk.END)
-
     else:
         sym = int_to_roman(val)
         en2.insert(0 , sym)
@@ -54,17 +51,15 @@ def do_it():
 def save_it():
     try:
         v1 = int(en1.get())
-
         if v1 <= 0:
             msg.showinfo(title = "WARNING 🚨" , message = f"Error -> The Integer Field can't be empty or zero or negative integer")
-
     except ValueError as v:
         msg.showinfo(title = "WARNING 🚨" , message = f"Error -> Please enter Integer values\n{v}")
+        return
     
     v2 = en2.get()
     if not v1 or not v2:
         msg.showinfo(title = "WARNING 🚨" , message = "Error -> One or more of the processor values empty")
-    
     with open(TEXT_FL , MODE) as f:
         ask = msg.askokcancel(
             title = "NOTICE ℹ️",
@@ -92,7 +87,7 @@ THEME = 'darkly'
 # The Screen of the TKinter object
 sc = tdk.Window(themename = THEME)
 sc.geometry('1000x1000')
-sc.title('L3Brary Analysis')
+sc.title('Integer to Roman program')
 sc.config(padx = 50 , pady = 50 , bg = BLACK)
 
 # Styling Configuration of TTK
@@ -106,7 +101,7 @@ lbl = ttk.Label(master = sc, text = 'Integer to Roman' , style = "j.TLabel")
 lbl.pack(pady = 10)
 
 # Canvas Widget with the picture
-cv = tk.Canvas(master = sc, width = 400 , height = 400 , relief = REL)
+cv = tk.Canvas(master = sc, width = 400 , height = 400 , relief = REL , bg = BLACK , highlightthickness = 0)
 pb = tk.PhotoImage(file = IMG_FL)
 cv.image = pb
 cv.create_image(200 , 200 , image = pb)
