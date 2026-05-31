@@ -1,8 +1,6 @@
-Basics of this directory ->
-venv
-
-why venv ? -
-All versions of modules may have version conflicts owing to which there may be a conflict between the system python and the userland python
-
 step 1 - setup (app.py)
 step 2 - database (db.py)
+step 3 - making the schema (models.py)
+step 4 - incorporating Ai into the project (Using OLLAMA QWEN:8b) (ai.py)
+step 5 - making the frontend part using HTML (Using templates/ linked with Flask)
+step 6 - using reactive styling (using styles/ directory linked to Flask)
