@@ -1,0 +1,8 @@
+Basics of this directory ->
+venv
+
+why venv ? -
+All versions of modules may have version conflicts owing to which there may be a conflict between the system python and the userland python
+
+step 1 - setup (app.py)
+step 2 - database (db.py)
