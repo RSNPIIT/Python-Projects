@@ -1,39 +1,152 @@
-println("=" ^ 60)
-println("  AI Career Copilot")
-println("  Author  : Ramrup Satpati (RSNPIIT) · IIT Madras")
-println("  License : GPL-3.0")
-println("=" ^ 60)
+# AI Career Copilot
 
-println()
-println("  ABOUT")
-println("  ─────")
-println("  An intelligent assistant to help users navigate their")
-println("  career journey — resume building, job matching,")
-println("  interview prep, and skill gap analysis.")
+# Project Type:
 
-println()
-println("  FEATURES")
-println("  ────────")
-println("  → Resume analysis and feedback")
-println("  → Job description matching and scoring")
-println("  → Skill gap identification")
-println("  → Interview question generation")
-println("  → Career path suggestions")
+# Flask + SQLAlchemy + TiDB + Ollama
 
-println()
-println("  STACK")
-println("  ─────")
-println("  → Python 3.10+")
-println("  → LLM API (OpenAI / Anthropic / Gemini)")
-println("  → Flask (web interface)")
-println("  → Linux · VSCodium")
+# Purpose:
 
-println()
-println("  USAGE")
-println("  ─────")
-println("  \$ source venv/bin/activate")
-println("  \$ pip install -r requirements.txt")
-println("  \$ python3 run.py")
+# AI Career Copilot is a web application that helps users
 
-println()
-println("=" ^ 60)
+# evaluate and improve their resumes for specific career
+
+# goals.
+
+
+# Core Features:
+
+
+# • User Authentication
+
+# - Signup
+
+# - Login
+
+# - Session Management
+
+
+# • Resume Processing
+
+# - Manual Resume Input
+
+# - PDF Resume Upload
+
+# - DOCX Resume Upload
+
+#
+
+# • AI-Powered Analysis
+
+# - Extract Relevant Skills
+
+# - Detect Missing Skills
+
+# - Generate Learning Roadmaps
+
+# - Suggest Interview Questions
+
+#
+
+# • History Tracking
+
+# - Stores Previous Analyses
+
+# - Allows Users To Review Past Reports
+
+#
+
+# Tech Stack:
+
+#
+
+# Backend:
+
+# Flask
+
+# SQLAlchemy
+
+#
+
+# Database:
+
+# TiDB Cloud
+
+#
+
+# AI Engine:
+
+# Ollama
+
+# Qwen3:8B
+
+#
+
+# Frontend:
+
+# HTML
+
+# CSS
+
+# Jinja2 Templates
+
+#
+
+# Project Structure:
+
+#
+
+# app.py
+
+# Main Flask Application
+
+#
+
+# db.py
+
+# Database Configuration
+
+#
+
+# models.py
+
+# SQLAlchemy Models
+
+#
+
+# ai.py
+
+# Resume Analysis Logic
+
+#
+
+# templates/
+
+# Jinja2 HTML Templates
+
+#
+
+# static/
+
+# CSS And Static Assets
+
+#
+
+# Notes:
+
+#
+
+# This project was built as a practical full-stack
+
+# learning exercise involving:
+
+#
+
+# • Flask Development
+
+# • SQLAlchemy ORM
+
+# • Cloud Databases
+
+# • Local LLM Integration
+
+# • Resume Analysis Systems
