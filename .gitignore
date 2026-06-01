@@ -139,3 +139,8 @@ student_man_pr/file.txt
 # Flask App Specifics
 # =========================
 flask_apps/login_app/downloads/
+
+# ========================
+# Things specific to manim
+# ========================
+media/
