@@ -1,6 +1,8 @@
 name: Email Step Workflow
 
 on:
+  push:
+    branches: [ main ]
   workflow_dispatch:
 
 jobs:
