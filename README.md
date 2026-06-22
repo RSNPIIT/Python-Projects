@@ -6,6 +6,7 @@
 ![Maintained](https://img.shields.io/badge/Maintained-Yes-success)
 
 ---
+<!--email_off-->24f3004027@ds.study.iitm.ac.in<!--/email_off-->
 
 ## 📂 Project Overview
 
