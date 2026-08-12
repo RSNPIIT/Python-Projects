@@ -8,7 +8,7 @@ FILE = 'value.json'
 attmpt = 0
 SYM = '-'*15
 
-# Loading the data from the file from an earlier itera
+# Loading the data from the file from an earlier iteration
 if o.path.exists(FILE):
     try:
         with open(FILE) as f:
