@@ -19,8 +19,7 @@ pygame.display.set_caption("Game")
 clock = pygame.time.Clock()
 
 # Sample Red Coloured Test surface
-test_surface = pygame.Surface((20,50))
-test_surface.fill('Red')
+sky_surface = pygame.image.load('graphics/skyblue.png')
 
 # But we see that the Screen Display soon ends as the program terminates
 while True:
@@ -30,8 +29,8 @@ while True:
             pygame.quit()
             sys.exit()
 
-    # Black Surface
-    screen.blit(test_surface, (0, 0))
+    # Imcorporate the Test surface unto the display surface
+    screen.blit(sky_surface, (0, 0))
 
     # This is a boilerplate to Update the Screen as the mainloop that keeps the screen on
     pygame.display.update()
