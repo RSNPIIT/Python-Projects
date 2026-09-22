@@ -35,11 +35,22 @@ displ.fill(BLUE)
 COL_LIS = [BLACK , WHITE, RED, YELLOW, CYAN, MAGENTA, GREEN, WHITE, YELLOW, MAGENTA]
 random.shuffle(COL_LIS)
 
-# Making successive circles here
+# Making successive circles here (Ensuring that the current colour can never be the last one)
 radius = HALF_X
+last_col = None
 for i in range(10):
+    current_col = random.choice(COL_LIS)
+
+    # Picking a colour unless a colour that's different from the others
+    while current_col == last_col:
+        current_col = random.choice(COL_LIS)
+    
+    # Updating the last colour herein
+    last_col = current_col
+
+    # Making the circles herein
     if radius > 0:
-        pygame.draw.circle(displ, random.choice(COL_LIS), ARENA, radius, 0)
+        pygame.draw.circle(displ, current_col, ARENA, radius, 0)
     radius -= 30
 
 # Making the game loop
