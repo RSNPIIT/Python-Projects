@@ -1,3 +1,8 @@
+import os as o
+
+# Silencing the Support Prompt is done before the Pygame is called
+o.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = '1'
+
 import pygame
 
 # Initializing the Pygame Library
