@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Python Projects Monorepo | Ramrup Satpati</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #070a13;
+            --card-bg: rgba(13, 19, 36, 0.85);
+            --border-card: rgba(56, 189, 248, 0.22);
+            --border-hover: rgba(56, 189, 248, 0.65);
+            --accent-cyan: #38bdf8;
+            --accent-emerald: #34d399;
+            --accent-orange: #fb923c;
+            --accent-yellow: #facc15;
+            --accent-rose: #f43f5e;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
+            min-height: 100vh;
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        /* Ambient Glow & Grid Background */
+        .bg-grid {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100vw; height: 100vh;
+            background-image: radial-gradient(rgba(56, 189, 248, 0.08) 1px, transparent 1px);
+            background-size: 36px 36px;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .glow-halo-1 {
+            position: fixed;
+            top: -150px; left: -150px;
+            width: 600px; height: 600px;
+            background: radial-gradient(circle, rgba(56, 189, 248, 0.15) 0%, transparent 70%);
+            pointer-events: none;
+            z-index: 0;
+            filter: blur(40px);
+        }
+
+        .glow-halo-2 {
+            position: fixed;
+            bottom: -150px; right: -150px;
+            width: 600px; height: 600px;
+            background: radial-gradient(circle, rgba(251, 146, 60, 0.12) 0%, transparent 70%);
+            pointer-events: none;
+            z-index: 0;
+            filter: blur(40px);
+        }
+
+        .container {
+            max-width: 1240px;
+            margin: 0 auto;
+            padding: 40px 24px 80px 24px;
+            position: relative;
+            z-index: 10;
+        }
+
+        /* TOP NAVIGATION BAR */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 28px;
+            background: rgba(13, 19, 36, 0.75);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--border-card);
+            border-radius: 20px;
+            margin-bottom: 45px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+        }
+
+        .nav-brand {
+            font-size: 1.25rem;
+            font-weight: 800;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .nav-brand span { color: var(--accent-cyan); }
+
+        .nav-links {
+            display: flex;
+            gap: 14px;
+            align-items: center;
+        }
+
+        .nav-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(56, 189, 248, 0.1);
+            border: 1px solid rgba(56, 189, 248, 0.3);
+            border-radius: 30px;
+            padding: 6px 16px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--accent-cyan);
+            text-decoration: none;
+            transition: all 0.25s ease;
+        }
+
+        .nav-chip:hover {
+            background: rgba(56, 189, 248, 0.25);
+            border-color: var(--accent-cyan);
+            color: #ffffff;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(56, 189, 248, 0.3);
+        }
+
+        /* HERO SECTION */
+        .hero {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: linear-gradient(135deg, rgba(56, 189, 248, 0.15), rgba(2, 132, 199, 0.08));
+            border: 1px solid rgba(56, 189, 248, 0.4);
+            padding: 6px 18px;
+            border-radius: 30px;
+            font-size: 0.86rem;
+            font-weight: 700;
+            color: var(--accent-cyan);
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-bottom: 20px;
+        }
+
+        .hero-title {
+            font-size: 3.2rem;
+            font-weight: 900;
+            line-height: 1.15;
+            margin-bottom: 16px;
+            background: linear-gradient(135deg, #ffffff 0%, #cbd5e1 50%, #38bdf8 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -1px;
+        }
+
+        .hero-subtitle {
+            font-size: 1.15rem;
+            color: var(--text-muted);
+            max-width: 800px;
+            margin: 0 auto 35px auto;
+        }
+
+        /* STATS COUNTER BAR */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            max-width: 900px;
+            margin: 0 auto 40px auto;
+        }
+
+        .stat-card {
+            background: rgba(13, 19, 36, 0.6);
+            border: 1px solid var(--border-card);
+            border-radius: 18px;
+            padding: 18px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--accent-cyan);
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* SEARCH & FILTER CONTROLS */
+        .controls-wrapper {
+            background: rgba(13, 19, 36, 0.7);
+            border: 1px solid var(--border-card);
+            border-radius: 22px;
+            padding: 24px;
+            margin-bottom: 40px;
+            backdrop-filter: blur(12px);
+            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.4);
+        }
+
+        .search-box-wrap {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 16px 20px 16px 50px;
+            background: rgba(7, 10, 19, 0.8);
+            border: 1px solid var(--border-card);
+            border-radius: 14px;
+            color: #ffffff;
+            font-size: 1.05rem;
+            font-family: inherit;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .search-input:focus {
+            border-color: var(--accent-cyan);
+            box-shadow: 0 0 20px rgba(56, 189, 248, 0.3);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1.2rem;
+            color: var(--text-muted);
+            pointer-events: none;
+        }
+
+        .filter-tags {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .filter-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            color: var(--text-muted);
+            padding: 8px 18px;
+            border-radius: 30px;
+            font-size: 0.88rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            outline: none;
+        }
+
+        .filter-btn.active, .filter-btn:hover {
+            background: rgba(56, 189, 248, 0.2);
+            border-color: var(--accent-cyan);
+            color: #ffffff;
+            box-shadow: 0 4px 15px rgba(56, 189, 248, 0.25);
+        }
+
+        /* PROJECTS GRID */
+        .projects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 24px;
+            margin-bottom: 60px;
+        }
+
+        .project-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-card);
+            border-radius: 20px;
+            padding: 26px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(12px);
+        }
+
+        .project-card:hover {
+            transform: translateY(-8px);
+            border-color: var(--border-hover);
+            box-shadow: 0 20px 45px rgba(56, 189, 248, 0.35);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 14px;
+        }
+
+        .card-icon {
+            font-size: 2.2rem;
+        }
+
+        .badge-pill {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .badge-cyan { background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.4); }
+        .badge-emerald { background: rgba(52, 211, 153, 0.15); color: #34d399; border: 1px solid rgba(52, 211, 153, 0.4); }
+        .badge-orange { background: rgba(251, 146, 60, 0.15); color: #fb923c; border: 1px solid rgba(251, 146, 60, 0.4); }
+        .badge-yellow { background: rgba(250, 204, 21, 0.15); color: #facc15; border: 1px solid rgba(250, 204, 21, 0.4); }
+        .badge-rose { background: rgba(244, 63, 94, 0.15); color: #f43f5e; border: 1px solid rgba(244, 63, 94, 0.4); }
+
+        .card-title {
+            font-size: 1.35rem;
+            font-weight: 800;
+            color: #ffffff;
+            margin-bottom: 8px;
+        }
+
+        .card-desc {
+            color: var(--text-muted);
+            font-size: 0.93rem;
+            line-height: 1.55;
+            margin-bottom: 20px;
+        }
+
+        .card-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-top: 14px;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .code-path {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.78rem;
+            color: var(--accent-cyan);
+            background: rgba(56, 189, 248, 0.08);
+            padding: 4px 10px;
+            border-radius: 6px;
+        }
+
+        .github-link {
+            color: #ffffff;
+            text-decoration: none;
+            font-size: 0.88rem;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: color 0.25s ease;
+        }
+
+        .github-link:hover {
+            color: var(--accent-cyan);
+        }
+
+        /* CLONE CODE BOX */
+        .clone-box {
+            background: rgba(13, 19, 36, 0.85);
+            border: 1px solid var(--border-card);
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            backdrop-filter: blur(14px);
+            margin-bottom: 60px;
+        }
+
+        .clone-title {
+            font-size: 1.5rem;
+            font-weight: 800;
+            margin-bottom: 10px;
+        }
+
+        .clone-code-container {
+            display: flex;
+            max-width: 650px;
+            margin: 18px auto 0 auto;
+            background: #070a13;
+            border: 1px solid var(--border-card);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .clone-code {
+            flex: 1;
+            padding: 14px 18px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.92rem;
+            color: var(--accent-cyan);
+            text-align: left;
+            overflow-x: auto;
+        }
+
+        .copy-btn {
+            background: rgba(56, 189, 248, 0.15);
+            border: none;
+            border-left: 1px solid var(--border-card);
+            color: #ffffff;
+            padding: 0 20px;
+            font-weight: 700;
+            font-family: inherit;
+            cursor: pointer;
+            transition: all 0.25s ease;
+        }
+
+        .copy-btn:hover {
+            background: var(--accent-cyan);
+            color: #070a13;
+        }
+
+        /* FOOTER */
+        .footer {
+            text-align: center;
+            padding-top: 30px;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .footer a {
+            color: var(--accent-cyan);
+            text-decoration: none;
+            font-weight: 700;
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-grid"></div>
+    <div class="glow-halo-1"></div>
+    <div class="glow-halo-2"></div>
+
+    <div class="container">
+        <!-- NAVBAR -->
+        <header class="navbar">
+            <div class="nav-brand">
+                🐍 <span>RSNPIIT</span> / Python-Projects
+            </div>
+            <div class="nav-links">
+                <a href="https://github.com/RSNPIIT/Python-Projects" target="_blank" class="nav-chip">🐙 GitHub Repo</a>
+                <a href="https://rsnpiit.github.io" target="_blank" class="nav-chip">⚡ Portfolio</a>
+            </div>
+        </header>
+
+        <!-- HERO -->
+        <section class="hero">
+            <div class="hero-badge">⚡ Open Source Monorepo</div>
+            <h1 class="hero-title">Python Projects & Explorations</h1>
+            <p class="hero-subtitle">
+                A high-performance monorepo featuring 100+ Python applications, AI/ML tools, mathematical simulations, web scrapers, desktop GUIs, and polyglot experiments in Julia, R, and GoLang.
+            </p>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number">100+</div>
+                    <div class="stat-label">Mini Projects</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">98%</div>
+                    <div class="stat-label">Python Codebase</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">6+</div>
+                    <div class="stat-label">Technical Domains</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">GPLv3</div>
+                    <div class="stat-label">Open License</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SEARCH & CONTROLS -->
+        <section class="controls-wrapper">
+            <div class="search-box-wrap">
+                <span class="search-icon">🔍</span>
+                <input type="text" id="searchInput" class="search-input" placeholder="Search projects by name, keyword, or domain (e.g., AI, scraper, GUI, math)...">
+            </div>
+            <div class="filter-tags">
+                <button class="filter-btn active" data-filter="all">All Projects</button>
+                <button class="filter-btn" data-filter="ai">🤖 AI & Data Science</button>
+                <button class="filter-btn" data-filter="web">🌐 Web & Automation</button>
+                <button class="filter-btn" data-filter="math">🧮 Math & Simulations</button>
+                <button class="filter-btn" data-filter="gui">🖥️ Desktop GUIs</button>
+                <button class="filter-btn" data-filter="game">🎮 Games & Engines</button>
+                <button class="filter-btn" data-filter="sys">🔐 Security & Systems</button>
+            </div>
+        </section>
+
+        <!-- PROJECTS GRID -->
+        <main class="projects-grid" id="projectsGrid">
+            <!-- CARD 1 -->
+            <article class="project-card" data-category="ai">
+                <div>
+                    <div class="card-header">
+                        <span class="card-icon">🤖</span>
+                        <span class="badge-pill badge-cyan">AI / ML</span>
+                    </div>
+                    <h3 class="card-title">AI Career Copilot</h3>
+                    <p class="card-desc">AI-driven resume and career guidance assistant offering automated skill matching and resume optimization.</p>
+                </div>
+                <div class="card-footer">
+                    <span class="code-path">ai_career_copilot/</span>
+                    <a href="https://github.com/RSNPIIT/Python-Projects/tree/main/ai_career_copilot" target="_blank" class="github-link">View Code &rarr;</a>
+                </div>
+            </article>
+
+            <!-- CARD 2 -->
+            <article class="project-card" data-category="math">
+                <div>
+                    <div class="card-header">
+                        <span class="card-icon">🧮</span>
+                        <span class="badge-pill badge-rose">Math Algorithm</span>
+                    </div>
+                    <h3 class="card-title">Chudnovsky $\pi$ Calculator</h3>
+                    <p class="card-desc">High-precision mathematical pipeline for calculating Pi digits using the Ramanujan-Chudnovsky infinite series formula.</p>
+                </div>
+                <div class="card-footer">
+                    <span class="code-path">chudnovsky_math_calc/</span>
+                    <a href="https://github.com/RSNPIIT/Python-Projects/tree/main/chudnovsky_math_calc" target="_blank" class="github-link">View Code &rarr;</a>
+                </div>
+            </article>
+
+            <!-- CARD 3 -->
+            <article class="project-card" data-category="web">
+                <div>
+                    <div class="card-header">
+                        <span class="card-icon">🛍️</span>
+                        <span class="badge-pill badge-emerald">Web Scraper</span>
+                    </div>
+                    <h3 class="card-title">Amazon Price Tracker</h3>
+                    <p class="card-desc">Automated price monitor using BeautifulSoup to parse product pages and send instant email alerts on price drops.</p>
+                </div>
+                <div class="card-footer">
+                    <span class="code-path">amazon_price_tracker/</span>
+                    <a href="https://github.com/RSNPIIT/Python-Projects/tree/main/amazon_price_tracker" target="_blank" class="github-link">View Code &rarr;</a>
+                </div>
+            </article>
+
+            <!-- CARD 4 -->
+            <article class="project-card" data-category="ai">
+                <div>
+                    <div class="card-header">
+                        <span class="card-icon">📈</span>
+                        <span class="badge-pill badge-orange">Finance & Analytics</span>
+                    </div>
+                    <h3 class="card-title">Stock Market Project</h3>
+                    <p class="card-desc">Data analysis and visual dashboard tracking financial market equities, historical volatility, and technical indicators.</p>
+                </div>
+                <div class="card-footer">
+                    <span class="code-path">stock-market-project/</span>
+                    <a href="https://github.com/RSNPIIT/Python-Projects/tree/main/stock-market-project" target="_blank" class="github-link">View Code &rarr;</a>
+                </div>
+            </article>
+
+            <!-- CARD 5 -->
+            <article class="project-card" data-category="gui">
+                <div>
+                    <div class="card-header">
+                        <span class="card-icon">🎬</span>
+                        <span class="badge-pill badge-yellow">Manim Engine</span>
+                    </div>
+                    <h3 class="card-title">Manim Math Animations</h3>
+                    <p class="card-desc">Programmatic 2D/3D mathematical video animations built with Grant Sanderson's Manim rendering engine.</p>
+                </div>
+                <div class="card-footer">
+                    <span class="code-path">manim_lib_animations/</span>
+                    <a href="https://github.com/RSNPIIT/Python-Projects/tree/main/manim_lib_animations" target="_blank" class="github-link">View Code &rarr;</a>
+                </div>
+            </article>
+
+            <!-- CARD 6 -->
+            <article class="project-card" data-category="sys">
+                <div>
+                    <div class="card-header">
+                        <span class="card-icon">🔐</span>
+                        <span class="badge-pill badge-cyan">Security & Vault</span>
+                    </div>
+                    <h3 class="card-title">Password Manager Vault</h3>
+                    <p class="card-desc">Secure credential manager featuring PBKDF2 key derivation, random generator, and Tkinter GUI interface.</p>
+                </div>
+                <div class="card-footer">
+                    <span class="code-path">password-manager-start/</span>
+                    <a href="https://github.com/RSNPIIT/Python-Projects/tree/main/password-manager-start" target="_blank" class="github-link">View Code &rarr;</a>
+                </div>
+            </article>
+
+            <!-- CARD 7 -->
+            <article class="project-card" data-category="game">
+                <div>
+                    <div class="card-header">
+                        <span class="card-icon">🕹️</span>
+                        <span class="badge-pill badge-emerald">PyGame Engine</span>
+                    </div>
+                    <h3 class="card-title">Retro Pong Arcade</h3>
+                    <p class="card-desc">2-player classic Pong arcade game featuring collision physics, smooth paddle movement, and scoring state.</p>
+                </div>
+                <div class="card-footer">
+                    <span class="code-path">pong_game.py</span>
+                    <a href="https://github.com/RSNPIIT/Python-Projects/blob/main/pong_game.py" target="_blank" class="github-link">View Code &rarr;</a>
+                </div>
+            </article>
+
+            <!-- CARD 8 -->
+            <article class="project-card" data-category="math">
+                <div>
+                    <div class="card-icon">🌀</div>
+                    <span class="badge-pill badge-rose">Number Theory</span>
+                    <h3 class="card-title">Collatz Conjecture Simulator</h3>
+                    <p class="card-desc">Trajectory exploration of the famous $3n + 1$ mathematical conjecture with iteration path visualizations.</p>
+                </div>
+                <div class="card-footer">
+                    <span class="code-path">collatz_conj_math/</span>
+                    <a href="https://github.com/RSNPIIT/Python-Projects/tree/main/collatz_conj_math" target="_blank" class="github-link">View Code &rarr;</a>
+                </div>
+            </article>
+
+            <!-- CARD 9 -->
+            <article class="project-card" data-category="web">
+                <div>
+                    <div class="card-header">
+                        <span class="card-icon">🎵</span>
+                        <span class="badge-pill badge-orange">Billboard & Spotify</span>
+                    </div>
+                    <h3 class="card-title">Billboard Time Machine</h3>
+                    <p class="card-desc">Scrapes Billboard Hot 100 charts for any given historical date and auto-generates a Spotify playlist via Spotipy API.</p>
+                </div>
+                <div class="card-footer">
+                    <span class="code-path">billboard_project/</span>
+                    <a href="https://github.com/RSNPIIT/Python-Projects/tree/main/billboard_project" target="_blank" class="github-link">View Code &rarr;</a>
+                </div>
+            </article>
+
+            <!-- CARD 10 -->
+            <article class="project-card" data-category="sys">
+                <div>
+                    <div class="card-header">
+                        <span class="card-icon">🛡️</span>
+                        <span class="badge-pill badge-cyan">System Auditor</span>
+                    </div>
+                    <h3 class="card-title">System Audit Log Parser</h3>
+                    <p class="card-desc">Automated log auditor that parses server logs, flags anomaly patterns, and exports structured diagnostic reports.</p>
+                </div>
+                <div class="card-footer">
+                    <span class="code-path">auditor_system.py</span>
+                    <a href="https://github.com/RSNPIIT/Python-Projects/blob/main/auditor_system.py" target="_blank" class="github-link">View Code &rarr;</a>
+                </div>
+            </article>
+
+            <!-- CARD 11 -->
+            <article class="project-card" data-category="gui">
+                <div>
+                    <div class="card-header">
+                        <span class="card-icon">⏱️</span>
+                        <span class="badge-pill badge-yellow">Productivity GUI</span>
+                    </div>
+                    <h3 class="card-title">Pomodoro Productivity App</h3>
+                    <p class="card-desc">Desktop timer implementing the Pomodoro technique with work/break intervals, audio chimes, and checkmark counter.</p>
+                </div>
+                <div class="card-footer">
+                    <span class="code-path">pomodoro-start/</span>
+                    <a href="https://github.com/RSNPIIT/Python-Projects/tree/main/pomodoro-start" target="_blank" class="github-link">View Code &rarr;</a>
+                </div>
+            </article>
+
+            <!-- CARD 12 -->
+            <article class="project-card" data-category="game">
+                <div>
+                    <div class="card-header">
+                        <span class="card-icon">🐍</span>
+                        <span class="badge-pill badge-emerald">Classic Arcade</span>
+                    </div>
+                    <h3 class="card-title">Persistent High-Score Snake</h3>
+                    <p class="card-desc">Retro Snake game built using Python Turtle graphics, supporting food spawns, tail growth, and high-score saving.</p>
+                </div>
+                <div class="card-footer">
+                    <span class="code-path">snake_game.py</span>
+                    <a href="https://github.com/RSNPIIT/Python-Projects/blob/main/snake_game.py" target="_blank" class="github-link">View Code &rarr;</a>
+                </div>
+            </article>
+        </main>
+
+        <!-- QUICK CLONE SECTION -->
+        <section class="clone-box">
+            <h2 class="clone-title">🚀 Ready to Explore the Code?</h2>
+            <p style="color: var(--text-muted);">Clone the entire monorepo to your local environment with a single command:</p>
+            <div class="clone-code-container">
+                <div class="clone-code" id="cloneCommand">git clone git@github.com:RSNPIIT/Python-Projects.git</div>
+                <button class="copy-btn" id="copyBtn">Copy</button>
+            </div>
+        </section>
+
+        <!-- FOOTER -->
+        <footer class="footer">
+            <p>
+                <a href="https://github.com/RSNPIIT" target="_blank">Ramrup Satpati (RSNPIIT)</a> &bull; IIT Madras &bull; Released under GNU GPLv3 License
+            </p>
+        </footer>
+    </div>
+
+    <!-- REAL-TIME FILTER & SEARCH JS -->
+    <script>
+        const searchInput = document.getElementById('searchInput');
+        const filterBtns = document.querySelectorAll('.filter-btn');
+        const projectCards = document.querySelectorAll('.project-card');
+
+        let activeCategory = 'all';
+
+        function filterProjects() {
+            const query = searchInput.value.toLowerCase().trim();
+
+            projectCards.forEach(card => {
+                const category = card.getAttribute('data-category');
+                const title = card.querySelector('.card-title').textContent.toLowerCase();
+                const desc = card.querySelector('.card-desc').textContent.toLowerCase();
+                const path = card.querySelector('.code-path').textContent.toLowerCase();
+
+                const matchesSearch = title.includes(query) || desc.includes(query) || path.includes(query);
+                const matchesCategory = activeCategory === 'all' || category === activeCategory;
+
+                if (matchesSearch && matchesCategory) {
+                    card.style.display = 'flex';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+
+        searchInput.addEventListener('input', filterProjects);
+
+        filterBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                filterBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                activeCategory = btn.getAttribute('data-filter');
+                filterProjects();
+            });
+        });
+
+        // Copy button
+        const copyBtn = document.getElementById('copyBtn');
+        const cloneCommand = document.getElementById('cloneCommand');
+        copyBtn.addEventListener('click', () => {
+            navigator.clipboard.writeText(cloneCommand.textContent);
+            copyBtn.textContent = 'Copied! ✓';
+            setTimeout(() => { copyBtn.textContent = 'Copy'; }, 2000);
+        });
+    </script>
+</body>
+</html>
