@@ -23,7 +23,7 @@ While **98%** of the codebase is engineered in **Python**, the repository also i
 
 - `ai_career_copilot/` – AI-driven resume and career guidance assistant
 - `monte_carlo_sim/` – Probabilistic Monte Carlo simulation models
-- `stock-market-project/` – Financial market data analysis & tracker
+- `stock_market_project/` – Financial market data analysis & tracker
 - `indian_employee_dataset/` – Data processing pipeline for organizational datasets
 - `numpy_refresher/` & `pandas_refresher/` – High-performance matrix & dataframe computations
 - `matplotlib_practice/` & `graphical_analysis/` – Custom visual analytics and plots
@@ -54,18 +54,18 @@ While **98%** of the codebase is engineered in **Python**, the repository also i
 <summary><b>🖥️ Desktop GUIs & Visualizations</b></summary>
 
 - `manim_lib_animations/` – Programmatic mathematical videos built with Manim
-- `pomodoro-start/` – Productivity timer with custom Tkinter UI
-- `flash-card-project-start/` – Language learning spaced-repetition GUI
+- `pomodoro_start/` – Productivity timer with custom Tkinter UI
+- `flash_card_project_start/` – Language learning spaced-repetition GUI
 - `library_gui/` & `integer_to_roman_gui/` – Interactive desktop utility tools
-- `ceaser-cipher-gui/` & `nato_alphabet_tkinter/` – Encrypted string converters
+- `ceaser_cipher_gui/` & `nato_alphabet_tkinter/` – Encrypted string converters
 </details>
 
 <details>
 <summary><b>🎮 Game Engines & Graphics Simulations</b></summary>
 
 - `pong_game_folder/` & `pong_game.py` – Classic arcade Pong with Pygame/Turtle
-- `snake_game/` & `snake-game-withscore/` – Retro Snake game with persistent high scores
-- `turtle-crossing-start/` – Frogger-style arcade game engine
+- `snake_game/` & `snake_game_withscore/` – Retro Snake game with persistent high scores
+- `turtle_crossing_start/` – Frogger-style arcade game engine
 - `damien_hirst.py` – Dot painting generator using Python Turtle graphics
 - `blackjack.py` & `slot_machinegame.py` – Casino risk engine simulations
 </details>
@@ -75,7 +75,7 @@ While **98%** of the codebase is engineered in **Python**, the repository also i
 
 - `auditor_system.py` – Log auditing and system report validator
 - `credit_validator.py` – Luhn algorithm credit card check utility
-- `password-manager-start/` – Encrypted credential vault with search capabilities
+- `password_manager_start/` – Encrypted credential vault with search capabilities
 - `sample_encrypt_proj/` – Custom cipher algorithms
 - `log_process.py` – Automated server log parser
 </details>
