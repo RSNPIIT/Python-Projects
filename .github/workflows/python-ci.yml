@@ -1,0 +1,60 @@
+name: Python Quality & Syntax CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  validate-codebase:
+    name: Code Quality & Syntax Check
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.10", "3.11"]
+
+    steps:
+      - name: Checkout Codebase
+        uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+          pip install flake8
+
+      - name: Validate Python Syntax (AST Compile Check)
+        run: |
+          echo "🔍 Compiling and checking all Python scripts for syntax errors..."
+          python3 -c "
+          import os, sys, ast
+          error_count = 0
+          for root, _, files in os.walk('.'):
+              if 'venv' in root or '.git' in root or 'media' in root:
+                  continue
+              for f in files:
+                  if f.endswith('.py'):
+                      file_path = os.path.join(root, f)
+                      try:
+                          with open(file_path, 'r', encoding='utf-8', errors='ignore') as src:
+                              ast.parse(src.read(), filename=file_path)
+                      except Exception as e:
+                          print(f'❌ Syntax Error in {file_path}: {e}')
+                          error_count += 1
+          if error_count > 0:
+              sys.exit(1)
+          else:
+              print('✅ All Python files passed AST syntax validation!')
+          "
+
+      - name: Lint Code Structure (Flake8)
+        run: |
+          # Stop the build if there are Python syntax errors or undefined names
+          flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics --exclude=venv,.git,media,docs
