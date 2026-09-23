@@ -7,7 +7,6 @@
 ![Maintained](https://img.shields.io/badge/Maintained-Active-brightgreen?style=for-the-badge)
 
 ---
-<!--email_off-->24f3004027@ds.study.iitm.ac.in<!--/email_off-->
 
 ## 📌 Repository Overview
 
