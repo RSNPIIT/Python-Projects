@@ -29,5 +29,8 @@ else:
     ti.sleep(2)
     print(f"The Word Pairs formed here are -> {len(WLIST)}")
 
+    print("The Associated Pairs so formed are ->\n\n")
+    for idx, pair in enumerate(list(WLIST)):
+        print(f"Pair. {idx + 1} -> {pair}")
 finally:
-    print("Copyleft | Ramrup Satpati | 2026 | IIT Madras | Released under the GNU GPLv3 license")
+    print("\nCopyleft | Ramrup Satpati | 2026 | IIT Madras | Released under the GNU GPLv3 license")
