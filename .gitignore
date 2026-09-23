@@ -133,6 +133,10 @@ sample_encrypt_proj/thekey.key
 *.mp4
 *.js
 */*.js
+
+# GitHub Pages Exemption
+!docs/
+!docs/**
 student_man_pr/file.txt
 
 # =========================
