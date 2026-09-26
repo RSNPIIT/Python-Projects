@@ -3,6 +3,7 @@ os.environ["PYGAME_HIDE_SUPPORT_PROMPT"] = "1"
 
 import pygame
 import random
+import sys as s
 
 # Initializing Pygame -> Makes all available in the userland
 pygame.init()
@@ -36,30 +37,46 @@ COL_LIS = [BLACK , WHITE, RED, YELLOW, CYAN, MAGENTA, GREEN, WHITE, YELLOW, MAGE
 random.shuffle(COL_LIS)
 
 # Making successive circles here (Ensuring that the current colour can never be the last one)
+# This is done so that it prevents same colour to come twice
 radius = HALF_X
 last_col = None
-for i in range(10):
-    current_col = random.choice(COL_LIS)
 
-    # Picking a colour unless a colour that's different from the others
-    while current_col == last_col:
+try:
+    n_circl = abs(int(input("Enter the name of the circles here : ")))
+
+except KeyboardInterrupt:
+    print("\nExitting Please do not spam...")
+    os.system("cls" if os.name == 'nt' else "clear")
+    s.exit()
+
+except ValueError:
+    print(f"\nPlease enter a valid integer here\n")
+    os.system("cls" if os.name == 'nt' else "clear")
+    s.exit()
+
+else:
+    for i in range(10):
         current_col = random.choice(COL_LIS)
-    
-    # Updating the last colour herein
-    last_col = current_col
 
-    # Making the circles herein
-    if radius > 0:
-        pygame.draw.circle(displ, current_col, ARENA, radius, 0)
-    radius -= 30
+        # Picking a colour unless a colour that's different from the others
+        while current_col == last_col:
+            current_col = random.choice(COL_LIS)
+        
+        # Updating the last colour herein
+        last_col = current_col
 
-# Making the game loop
-running = True
-while running:
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            running = False
-    pygame.display.update()
+        # Making the circles herein
+        if radius > 0:
+            pygame.draw.circle(displ, current_col, ARENA, radius, 0)
+        radius -= 30
 
-# Safely end the game
+    # Making the game loop
+    running = True
+    while running:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+        pygame.display.update()
+
+    # Safely end the game
 pygame.quit()
