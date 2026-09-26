@@ -44,6 +44,10 @@ last_col = None
 try:
     n_circl = abs(int(input("Enter the name of the circles here : ")))
 
+    if not n_circl or n_circl > 10:
+        print("Please note that the maximum number of input of circles is capped at 10 for visualization\n")
+        n_circl = 10
+        
 except KeyboardInterrupt:
     print("\nExitting Please do not spam...")
     os.system("cls" if os.name == 'nt' else "clear")
@@ -54,8 +58,13 @@ except ValueError:
     os.system("cls" if os.name == 'nt' else "clear")
     s.exit()
 
+except OverflowError:
+    print("The Number entered is too large here to be parsed...\n")
+    os.system("cls" if os.name == 'nt' else 'clear')
+    s.exit()
+
 else:
-    for i in range(10):
+    for i in range(n_circl):
         current_col = random.choice(COL_LIS)
 
         # Picking a colour unless a colour that's different from the others
