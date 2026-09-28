@@ -9,6 +9,7 @@ WIN_HEI = 300
 BLUE = (0, 0, 255)
 FILE_IMG = "dragon_img.png"
 FLP_FILE = "dragon_rgt.png"
+RED = (255, 0, 0)
 
 displ = pygame.display.set_mode(
     (WIN_WID, WIN_HEI)
@@ -41,6 +42,15 @@ while running:
         drag_rgt,
         drag_rgt_img
     )
+
+    pygame.draw.line(
+        displ,
+        RED,
+        (0, 75),
+        (WIN_WID, 75),
+        4
+    )
+    # Updating the GUI
     pygame.display.update()
 
 pygame.quit()
