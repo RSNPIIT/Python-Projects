@@ -148,3 +148,4 @@ flask_apps/login_app/downloads/
 # Things specific to manim
 # ========================
 media/
+*.ttf
