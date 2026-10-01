@@ -3,7 +3,7 @@ import sys as s
 import time as ti
 import os as o
 
-API_KEY = 'HACK_KARLE_BHAI'
+API_KEY = o.environ.get('OPENWEATHER_API_KEY')
 
 def get_weather(city):
     URL = 'https://api.openweathermap.org/data/2.5/weather'
