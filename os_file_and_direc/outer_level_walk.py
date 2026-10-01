@@ -13,9 +13,14 @@ def get_top_level(dir):
         for things in LIS:
             comp_path = o.path.join(dir, things)
             if o.path.isfile(comp_path):
+                if things.startswith('.') or things.startswith('__'):
+                    continue
+
                 file_count += 1
                 file_lis.add(things.lower())
             elif o.path.isdir(comp_path):
+                if things.startswith('.'):
+                    continue # As many directories are kept hidden from unix OS' by a .
                 subdir_count += 1
                 subdir_lis.add(things.lower())
             else:
