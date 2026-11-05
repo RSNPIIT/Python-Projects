@@ -23,7 +23,10 @@ class Player:
         self.pos = Vec3(start_pos)
         self.yaw = 0.0
         self.pitch = 0.0
-        self.mouse_sens = 0.15
+        self.mouse_sens = 0.35
+        self.sens_multiplier = 1.0
+        self.last_mouse_x = None
+        self.last_mouse_y = None
         
         # Camera recoil offsets
         self.recoil_cam_pitch = 0.0
@@ -66,6 +69,7 @@ class Player:
         self.keys = {
             'forward': False, 'backward': False,
             'left': False, 'right': False,
+            'turn_left': False, 'turn_right': False,
             'sprint': False, 'crouch': False,
             'jump': False, 'fire': False, 'ads': False
         }
@@ -114,6 +118,16 @@ class Player:
         self.app.accept('a-up', self.set_key, ['left', False])
         self.app.accept('d', self.set_key, ['right', True])
         self.app.accept('d-up', self.set_key, ['right', False])
+        
+        # 360-Degree Aim / Turning Keys (Arrow keys and Q/E during combat)
+        self.app.accept('arrow_left', self.set_key, ['turn_left', True])
+        self.app.accept('arrow_left-up', self.set_key, ['turn_left', False])
+        self.app.accept('arrow_right', self.set_key, ['turn_right', True])
+        self.app.accept('arrow_right-up', self.set_key, ['turn_right', False])
+        self.app.accept('q', self.set_key, ['turn_left', True])
+        self.app.accept('q-up', self.set_key, ['turn_left', False])
+        self.app.accept('e', self.set_key, ['turn_right', True])
+        self.app.accept('e-up', self.set_key, ['turn_right', False])
         
         # Actions
         self.app.accept('shift', self.set_key, ['sprint', True])
@@ -249,20 +263,34 @@ class Player:
         cx = self.app.win.get_x_size() // 2
         cy = self.app.win.get_y_size() // 2
         
-        dx = md.get_x() - cx
-        dy = md.get_y() - cy
+        cur_x = md.get_x()
+        cur_y = md.get_y()
         
+        if self.last_mouse_x is None:
+            self.last_mouse_x = cur_x
+            self.last_mouse_y = cur_y
+            return
+            
+        dx = cur_x - self.last_mouse_x
+        dy = cur_y - self.last_mouse_y
+        self.last_mouse_x = cur_x
+        self.last_mouse_y = cur_y
+        
+        # Periodic re-centering when pointer drifts away from center
+        if abs(cur_x - cx) > 120 or abs(cur_y - cy) > 120:
+            self.app.win.move_pointer(0, cx, cy)
+            self.last_mouse_x = cx
+            self.last_mouse_y = cy
+            
         if dx != 0 or dy != 0:
             weapon = self.get_current_weapon()
-            sens = self.mouse_sens * (0.35 if weapon.ads_progress > 0.5 else 1.0)
+            aim_sens = self.mouse_sens * self.sens_multiplier * (0.35 if weapon.ads_progress > 0.5 else 1.0)
             if weapon.has_scope and weapon.ads_progress > 0.85:
-                sens *= 0.30
+                aim_sens *= 0.30
                 
-            self.yaw -= dx * sens
-            self.pitch -= dy * sens
+            self.yaw -= dx * aim_sens
+            self.pitch -= dy * aim_sens
             self.pitch = max(-85.0, min(85.0, self.pitch))
-            
-            self.app.win.move_pointer(0, cx, cy)
 
     def update_shooting(self, current_time, map_manager, enemy_manager, particle_mgr):
         weapon = self.get_current_weapon()
@@ -380,6 +408,13 @@ class Player:
 
     def update(self, dt, current_time, map_manager, enemy_manager, particle_mgr):
         self.update_mouse()
+        
+        # Smooth keyboard 360-degree rotation support (Arrow keys or Q/E)
+        turn_rate = 145.0 * dt
+        if self.keys.get('turn_left'):
+            self.yaw += turn_rate
+        if self.keys.get('turn_right'):
+            self.yaw -= turn_rate
         
         # Countdown spawn protection shield
         if self.spawn_shield_timer > 0:
