@@ -710,7 +710,7 @@ class UI:
                     ("E", "AEGIS shield // 10s cooldown"),
                     ("Q", "NOVA BLAST when charged"),
                     ("M", "Mute audio"),
-                    ("ESC", "Pause / abort mission"),
+                    ("P / ESC", "Pause / abort mission"),
                 ],
                 MAGENTA,
             ),
@@ -740,7 +740,7 @@ class UI:
         self.fonts.draw(
             self.fonts.body,
             "Dash to break enemy aim. AEGIS blunts damage. NOVA BLAST clears a room when the meter is full. "
-            "Shield regenerates after 3 seconds without damage.",
+            "Press TAB to free the cursor and click the HUD pause button; P or ESC also pauses.",
             96,
             588,
             15,
@@ -923,6 +923,33 @@ class UI:
     # ------------------------------------------------------------------
     # Gameplay overlays
     # ------------------------------------------------------------------
+    def pause_button_rect(self):
+        return (928, 20, 72, 62)
+
+    def draw_pause_button(self, game) -> None:
+        x, y, w, h = self.pause_button_rect()
+        mouse_x, mouse_y = game.mouse_pos
+        hover = game.pointer_free and x <= mouse_x <= x + w and y <= mouse_y <= y + h
+        accent = game.level_def.theme.accent
+        fill = (7, 14, 25, 225) if not hover else with_alpha(accent, 52)
+        border = with_alpha(accent, 235 if hover else 125)
+        if game.pointer_free:
+            glow = 0.55 + 0.45 * math.sin(game.time * 5.0)
+            rl.BeginBlendMode(rl.BLEND_ADDITIVE)
+            rl.DrawCircleGradient((x + w / 2, y + h / 2), 46, (*accent[:3], int(24 * glow)), CLEAR)
+            rl.EndBlendMode()
+        draw_cut_panel(x, y, w, h, fill, border, 8, 1.6 if hover else 1.0, False)
+        # Two pause bars.
+        bar_color = WHITE if hover or game.pointer_free else with_alpha(PAPER, 220)
+        rl.DrawRectangle(int(x + 21), int(y + 10), 6, 20, bar_color)
+        rl.DrawRectangle(int(x + 35), int(y + 10), 6, 20, bar_color)
+        label = "CLICK" if game.pointer_free else "PAUSE"
+        self.fonts.draw_center(self.fonts.bold, label, x + w / 2, y + 32, 11, with_alpha(accent if game.pointer_free else PAPER, 235), 1.0)
+        hint = "TAB" if game.pointer_free else "P / ESC"
+        self.fonts.draw_center(self.fonts.small, hint, x + w / 2, y + 48, 9, with_alpha(MIST, 155), 1.0)
+        if game.pointer_free:
+            self.fonts.draw_center(self.fonts.small, "TAB  RECAPTURE", x + w / 2, y + h + 8, 9, with_alpha(accent, 200), 1.2)
+
     def draw_gameplay_overlay(self, game) -> None:
         player = game.player
         time_value = game.time
@@ -991,6 +1018,7 @@ class UI:
         # Intro letterbox/banner.
         self._draw_mission_panel(game, theme)
         self._draw_boss_bar(game, theme)
+        self.draw_pause_button(game)
         self._draw_minimap(game, theme)
         self._draw_combo(game, theme)
         self._draw_vitals(game, theme)
