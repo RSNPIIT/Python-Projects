@@ -1,7 +1,7 @@
 """
-player.py - First-person shooter player controller:
-WASD movement, sprinting, crouching, jumping, mouse look with angle clamping,
-footstep cadence, weapon arsenal management, hitscan raycasting, and recoil spring.
+player.py - High-precision FPS controller:
+WASD movement with smooth wall-sliding physics, tactical spawn protection shield,
+mouse look with angle clamping, weapon viewmodels, recoil springs, and raycast hit registration.
 """
 
 import math
@@ -12,7 +12,7 @@ from panda3d.core import (
 from weapons import Pistol, AssaultRifle, Shotgun, SniperRifle
 
 class Player:
-    def __init__(self, app, start_pos=(0, 0, 0)):
+    def __init__(self, app, start_pos=(0, -24, 0)):
         self.app = app
         if app.camera is not None:
             self.camera = app.camera
@@ -21,18 +21,18 @@ class Player:
         
         # Position and Orientation
         self.pos = Vec3(start_pos)
-        self.yaw = 0.0    # Left/Right (degrees)
-        self.pitch = 0.0  # Up/Down (degrees)
-        self.mouse_sens = 0.16
+        self.yaw = 0.0
+        self.pitch = 0.0
+        self.mouse_sens = 0.15
         
         # Camera recoil offsets
         self.recoil_cam_pitch = 0.0
         self.recoil_cam_yaw = 0.0
         
         # Movement speeds
-        self.walk_speed = 7.0
-        self.sprint_speed = 12.0
-        self.crouch_speed = 4.0
+        self.walk_speed = 7.5
+        self.sprint_speed = 13.0
+        self.crouch_speed = 4.2
         self.jump_velocity = 8.5
         self.gravity = -24.0
         
@@ -47,9 +47,9 @@ class Player:
         self.stand_height = 1.65
         self.crouch_height = 1.05
         self.current_height = self.stand_height
-        self.radius = 0.55
+        self.radius = 0.45
         
-        # Health & Shield
+        # Health, Shield & Spawn Protection
         self.max_health = 100.0
         self.health = 100.0
         self.max_shield = 50.0
@@ -57,10 +57,10 @@ class Player:
         self.shield_recharge_timer = 0.0
         self.shield_recharge_delay = 4.0
         self.is_alive = True
+        self.spawn_shield_timer = 3.5  # 3.5s deploy protection!
         
         # Audio cadence for footsteps
         self.footstep_timer = 0.0
-        self.footstep_interval = 0.45
         
         # Key states
         self.keys = {
@@ -78,25 +78,23 @@ class Player:
             Pistol(app, self.camera)
         ]
         self.current_weapon_idx = 0
-        
-        # Link sounds to weapons
         self.init_weapon_sounds()
         
-        # Hide all except active weapon
         for i, w in enumerate(self.weapons):
             if i == self.current_weapon_idx:
                 w.show()
             else:
                 w.hide()
                 
-        # Register input events
         self.setup_inputs()
+
+    def has_spawn_shield(self):
+        return self.spawn_shield_timer > 0.0
 
     def init_weapon_sounds(self):
         sm = self.app.sound_mgr
         if not sm:
             return
-        # Assign sounds
         self.weapons[0].shoot_sound = sm.get('ar')
         self.weapons[1].shoot_sound = sm.get('shotgun')
         self.weapons[2].shoot_sound = sm.get('sniper')
@@ -107,7 +105,7 @@ class Player:
             w.inspect_sound = sm.get('inspect')
 
     def setup_inputs(self):
-        # Movement keys
+        # Movement
         self.app.accept('w', self.set_key, ['forward', True])
         self.app.accept('w-up', self.set_key, ['forward', False])
         self.app.accept('s', self.set_key, ['backward', True])
@@ -125,8 +123,8 @@ class Player:
         self.app.accept('c', self.toggle_crouch)
         self.app.accept('space', self.jump)
         
-        # Mouse buttons
-        self.app.accept('mouse1', self.set_key, ['fire', True])
+        # Mouse
+        self.app.accept('mouse1', self.on_mouse_down)
         self.app.accept('mouse1-up', self.set_key, ['fire', False])
         self.app.accept('mouse3', self.set_key, ['ads', True])
         self.app.accept('mouse3-up', self.set_key, ['ads', False])
@@ -142,9 +140,12 @@ class Player:
         # Reload & Inspect
         self.app.accept('r', self.reload_weapon)
         self.app.accept('f', self.inspect_weapon)
-        
-        # Minimap toggle
         self.app.accept('m', self.toggle_minimap)
+
+    def on_mouse_down(self):
+        if not self.app.mouse_locked:
+            self.app.lock_mouse()
+        self.keys['fire'] = True
 
     def set_key(self, key, value):
         self.keys[key] = value
@@ -208,11 +209,12 @@ class Player:
         self.is_grounded = True
 
     def take_damage(self, amount):
-        if not self.is_alive:
+        if not self.is_alive or self.has_spawn_shield():
             return
+            
         self.shield_recharge_timer = 0.0
         
-        # Damage shield first
+        # Shield absorbs first
         if self.shield > 0:
             if self.shield >= amount:
                 self.shield -= amount
@@ -227,9 +229,8 @@ class Player:
                 self.health = 0
                 self.is_alive = False
                 
-        # Camera shake / damage flash
-        self.recoil_cam_pitch += random.uniform(-1.5, 2.5)
-        self.recoil_cam_yaw += random.uniform(-2.0, 2.0)
+        self.recoil_cam_pitch += random.uniform(-1.2, 2.0)
+        self.recoil_cam_yaw += random.uniform(-1.5, 1.5)
         if hasattr(self.app, 'hud') and self.app.hud:
             self.app.hud.trigger_damage_flash()
 
@@ -252,17 +253,15 @@ class Player:
         dy = md.get_y() - cy
         
         if dx != 0 or dy != 0:
-            # Scale sensitivity if aiming down sights
             weapon = self.get_current_weapon()
-            sens = self.mouse_sens * (0.4 if weapon.ads_progress > 0.5 else 1.0)
+            sens = self.mouse_sens * (0.35 if weapon.ads_progress > 0.5 else 1.0)
             if weapon.has_scope and weapon.ads_progress > 0.85:
-                sens *= 0.35 # Ultra precision for sniper scope
+                sens *= 0.30
                 
             self.yaw -= dx * sens
             self.pitch -= dy * sens
             self.pitch = max(-85.0, min(85.0, self.pitch))
             
-            # Re-center cursor
             self.app.win.move_pointer(0, cx, cy)
 
     def update_shooting(self, current_time, map_manager, enemy_manager, particle_mgr):
@@ -275,23 +274,19 @@ class Player:
         else:
             if self.keys['fire'] and current_time - weapon.last_fire_time >= weapon.fire_rate:
                 should_fire = True
-                # Reset key to require separate click for semi-autos
                 self.keys['fire'] = False
                 
         if should_fire:
             shot_info = weapon.fire(current_time)
             if shot_info:
-                # Recoil impulse
                 cam_pitch_kick, cam_yaw_kick = shot_info['cam_kick']
                 self.recoil_cam_pitch += cam_pitch_kick
                 self.recoil_cam_yaw += cam_yaw_kick
                 
-                # Camera forward ray
                 cam_quat = self.camera.get_quat(self.app.render)
                 base_forward = cam_quat.get_forward()
                 cam_pos = self.camera.get_pos(self.app.render)
                 
-                # Perform raycasts for each pellet (1 for rifle/sniper, 8 for shotgun)
                 for _ in range(shot_info['pellets']):
                     spread = shot_info['spread']
                     ray_dir = Vec3(base_forward)
@@ -309,31 +304,29 @@ class Player:
                     )
 
     def perform_raycast(self, origin, direction, damage, max_range, map_manager, enemy_manager, particle_mgr, muzzle_pos):
-        # Check enemy hits first (closest hit along ray)
         closest_hit_dist = max_range
         hit_enemy = None
         hit_barrel = None
         hit_pos = origin + direction * max_range
         
-        # Ray-cylinder collision check against enemies
+        # Ray against enemies
         for enemy in enemy_manager.enemies:
             if not enemy.is_alive:
                 continue
             e_pos = enemy.get_pos()
-            # Vector from ray origin to enemy center
             to_enemy = e_pos - origin
             dot = to_enemy.dot(direction)
             if 0.5 < dot < closest_hit_dist:
                 proj_pt = origin + direction * dot
-                # Cylinder distance
                 d_horiz = math.sqrt((proj_pt.x - e_pos.x)**2 + (proj_pt.y - e_pos.y)**2)
                 d_vert = proj_pt.z - e_pos.z
                 if d_horiz <= 0.65 and 0.0 <= d_vert <= 2.2:
                     closest_hit_dist = dot
                     hit_enemy = enemy
+                    hit_barrel = None
                     hit_pos = proj_pt
                     
-        # Ray-cylinder collision check against explosive barrels
+        # Ray against explosive barrels
         for barrel in map_manager.barrels:
             if barrel.is_destroyed:
                 continue
@@ -344,13 +337,13 @@ class Player:
                 proj_pt = origin + direction * dot
                 d_horiz = math.sqrt((proj_pt.x - b_pos.x)**2 + (proj_pt.y - b_pos.y)**2)
                 d_vert = proj_pt.z - b_pos.z
-                if d_horiz <= 0.7 and 0.0 <= d_vert <= 1.5:
+                if d_horiz <= 0.75 and 0.0 <= d_vert <= 1.6:
                     closest_hit_dist = dot
                     hit_enemy = None
                     hit_barrel = barrel
                     hit_pos = proj_pt
 
-        # Ray-ground intersection
+        # Ray against ground
         if direction.z < -0.01:
             ground_t = (0.0 - origin.z) / direction.z
             if 0.0 < ground_t < closest_hit_dist:
@@ -359,11 +352,9 @@ class Player:
                 hit_barrel = None
                 hit_pos = origin + direction * ground_t
 
-        # Spawn tracer beam from muzzle to impact position
         if particle_mgr:
             particle_mgr.spawn_tracer(muzzle_pos, hit_pos)
 
-        # Process hit effects
         if hit_enemy:
             is_dead_before = not hit_enemy.is_alive
             hit_enemy.take_damage(damage)
@@ -371,7 +362,6 @@ class Player:
             if is_kill:
                 enemy_manager.enemies_killed += 1
                 
-            # Trigger HUD hitmarker
             if hasattr(self.app, 'hud') and self.app.hud:
                 self.app.hud.trigger_hitmarker(is_kill=is_kill)
             if self.app.sound_mgr and 'hitmarker' in self.app.sound_mgr:
@@ -385,13 +375,15 @@ class Player:
             if particle_mgr:
                 particle_mgr.spawn_impact_sparks(hit_pos, -direction, count=8, color=Vec4(1.0, 0.7, 0.1, 1.0))
         else:
-            # Hit wall or ground
             if particle_mgr and closest_hit_dist < max_range:
-                particle_mgr.spawn_impact_sparks(hit_pos, Vec3(0, 0, 1), count=5, color=Vec4(0.8, 0.8, 0.7, 1.0))
+                particle_mgr.spawn_impact_sparks(hit_pos, Vec3(0, 0, 1), count=5, color=Vec4(0.85, 0.85, 0.8, 1.0))
 
     def update(self, dt, current_time, map_manager, enemy_manager, particle_mgr):
-        # Mouse look
         self.update_mouse()
+        
+        # Countdown spawn protection shield
+        if self.spawn_shield_timer > 0:
+            self.spawn_shield_timer -= dt
         
         # Shield recharge
         if self.shield < self.max_shield:
@@ -399,15 +391,13 @@ class Player:
             if self.shield_recharge_timer >= self.shield_recharge_delay:
                 self.shield = min(self.max_shield, self.shield + dt * 18.0)
                 
-        # Camera recoil recovery spring
         self.recoil_cam_pitch *= math.exp(-14.0 * dt)
         self.recoil_cam_yaw *= math.exp(-14.0 * dt)
         
-        # Crouch height transition
         target_height = self.crouch_height if self.keys['crouch'] or self.is_crouching else self.stand_height
         self.current_height += (target_height - self.current_height) * min(1.0, dt * 10.0)
         
-        # Movement input calculation
+        # WASD orientation
         forward_dir = Vec3(-math.sin(math.radians(self.yaw)), math.cos(math.radians(self.yaw)), 0)
         right_dir = Vec3(math.cos(math.radians(self.yaw)), math.sin(math.radians(self.yaw)), 0)
         
@@ -426,7 +416,6 @@ class Player:
             self.vel.x = move_vec.x * speed
             self.vel.y = move_vec.y * speed
             
-            # Footstep audio
             if self.is_grounded:
                 self.footstep_timer += dt
                 cadence = 0.28 if self.is_sprinting else 0.44
@@ -439,27 +428,24 @@ class Player:
             self.vel.y *= math.exp(-16.0 * dt)
             self.footstep_timer = 0.0
 
-        # Gravity & vertical physics
+        # Gravity
         self.vel.z += self.gravity * dt
-        
-        # Tentative new position
         new_pos = self.pos + self.vel * dt
         
-        # Ground collision
         if new_pos.z <= 0.0:
             new_pos.z = 0.0
             self.vel.z = 0
             self.is_grounded = True
             
-        # Obstacle collision
+        # Smooth sliding collision
         self.pos = map_manager.check_collision(self.pos, new_pos, self.radius, self.current_height)
 
-        # Update camera position and orientation
+        # Camera
         eye_pos = self.pos + Vec3(0, 0, self.current_height)
         self.camera.set_pos(eye_pos)
         self.camera.set_hpr(self.yaw + self.recoil_cam_yaw, self.pitch + self.recoil_cam_pitch, 0)
 
-        # Update dynamic FOV based on ADS
+        # Dynamic FOV
         weapon = self.get_current_weapon()
         if self.app.camLens is not None:
             target_fov = weapon.ads_fov if weapon.ads_progress > 0.5 else weapon.hip_fov
@@ -467,8 +453,5 @@ class Player:
             new_fov = cur_fov + (target_fov - cur_fov) * min(1.0, dt * 14.0)
             self.app.camLens.set_fov(new_fov)
 
-        # Update shooting & raycasts
         self.update_shooting(current_time, map_manager, enemy_manager, particle_mgr)
-
-        # Update weapon viewmodel bobbing & animations
         weapon.update(dt, current_time, self.is_moving, self.is_sprinting)
