@@ -19,7 +19,8 @@ cd raylib_game
 ./run.sh
 ```
 
-On macOS you can also double-click **run.command**.
+On macOS, double-click **NOVA STRIKE.app** for a terminal-free launch. You can also
+double-click **run.command** (it opens the app) or run `./run.sh` for a debug terminal.
 
 ### Windows
 
@@ -50,7 +51,8 @@ open-source fonts.
 - **4 complete missions** with unique floorplans, palettes, hazards and a final boss.
 - **DOOM-style raycasting FPS** rendered at 640x360 and upscaled for a crisp retro look.
 - **Full level flow**: title screen, mission select, briefings, pause, mission stats, game over,
-  unlocks, save file and an ending screen.
+  unlocks, save file and an ending screen. A clickable pause button sits in the HUD; press
+  **P**/**Esc** directly, or **Tab** to free the cursor and click it.
 - **3 weapons**: Pulse Blaster, Scatter Cannon and Nova Lance. New weapons unlock as sectors clear.
 - **3 superhero powers**: dash, AEGIS shield and a charged NOVA BLAST.
 - **4 enemy classes**, including Vex Troopers, Wraith Drones, Juggernauts and Overlord Vex.
@@ -76,9 +78,10 @@ open-source fonts.
 | **E** | AEGIS shield (10 second cooldown) |
 | **Q** | NOVA BLAST when the charge meter is full |
 | **1 / 2 / 3** or **Mouse Wheel** | Switch weapons |
+| **P / Esc** | Pause (or back out of menus) |
+| **Tab** | Free the cursor so you can click the HUD pause button |
 | **M** | Mute / unmute |
 | **F12** | Save a screenshot to `screenshots/` |
-| **Esc** | Pause (or back out of menus) |
 
 ## Missions
 
@@ -111,6 +114,7 @@ Securing a sector unlocks the next one and raises your rank on the mission-selec
 ```
 raylib_game/
   main.py                 entry point
+  NOVA STRIKE.app         terminal-free macOS launcher with custom icon
   run.sh / run.command    macOS/Linux launchers
   run.bat                 Windows launcher
   requirements.txt
@@ -130,6 +134,12 @@ raylib_game/
     audio/                generated WAV cache
   screenshots/
 ```
+
+### Terminal-free macOS launcher
+
+`NOVA STRIKE.app` is a small native app bundle that starts the game without opening Terminal.
+Keep it beside `run.sh`; its launcher writes a `launch.log` in this folder if Python ever fails
+to start. Double-clicking `run.command` also opens the app.
 
 ## Technical notes
 
