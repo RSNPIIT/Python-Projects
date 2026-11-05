@@ -22,7 +22,11 @@ from .constants import (
     INVULN_TIME,
     JUMP_BUFFER,
     JUMP_CUT,
+    JUMP_CUT_SPEED,
+    JUMP_HOLD_GRAVITY,
+    JUMP_HOLD_TIME,
     JUMP_VELOCITY,
+    MAX_ARMOR,
     MAX_FALL,
     MAX_HEARTS,
     MOVE_SPEED,
@@ -59,6 +63,9 @@ class Player:
         self.vy = 0.0
         self.facing = 1
         self.hearts = 3
+        self.armor = 0
+        self.jump_boost = 0.0
+        self.jump_boosting = False
         self.on_ground = False
         self.ground_solid = None
         self.wall_dir = 0
@@ -114,6 +121,8 @@ class Player:
         self.air_dash_used = False
         self.coyote = 0.0
         self.jump_buffer = 0.0
+        self.jump_boost = 0.0
+        self.jump_boosting = False
         self.invuln = 0.0
         self.hurt_timer = 0.0
         self.hearts = hearts if hearts is not None else self.hearts
@@ -125,10 +134,16 @@ class Player:
         self.hearts = min(MAX_HEARTS, self.hearts + amount)
         return self.hearts > before
 
+    def add_armor(self, amount: int = 1) -> bool:
+        before = self.armor
+        self.armor = min(MAX_ARMOR, self.armor + amount)
+        return self.armor > before
+
     # ------------------------------------------------------------------
     def update(self, dt: float, inp: Inputs, world) -> None:
         self.time += dt
         self.events.clear()
+        self.jump_boosting = False
         self.invuln = max(0.0, self.invuln - dt)
         self.hurt_timer = max(0.0, self.hurt_timer - dt)
         self.dash_cooldown = max(0.0, self.dash_cooldown - dt)
@@ -198,6 +213,7 @@ class Player:
             self.vx = dir_x * 240.0 if dir_x else self.facing * 180.0
             self.facing = dir_x or self.facing
             self.jump_buffer = 0.0
+            self.jump_boost = JUMP_HOLD_TIME
             self.events.append("jump")
             return
         self.x += dir_x * CLIMB_HORIZONTAL * dt
@@ -266,8 +282,13 @@ class Player:
                 elif self.vx > target:
                     self.vx = max(target, self.vx - accel * dt)
 
-        # gravity + wall slide
-        self.vy += GRAVITY * dt
+        # gravity + hold-to-rise: a held Space bends gravity while ascending
+        self.jump_boosting = self.jump_boost > 0.0 and inp.jump_held and self.vy < 0.0
+        if self.jump_boosting:
+            self.vy += GRAVITY * JUMP_HOLD_GRAVITY * dt
+            self.jump_boost = max(0.0, self.jump_boost - dt)
+        else:
+            self.vy += GRAVITY * dt
         if self.vy > MAX_FALL:
             self.vy = MAX_FALL
         sliding = (not self.on_ground and self.wall_dir != 0 and dir_x == self.wall_dir
@@ -280,9 +301,9 @@ class Player:
             if self._slide_timer > 0.08:
                 self._slide_timer = 0.0
                 self.events.append("slide")
-        # variable jump height
-        if not inp.jump_held and self.vy < -260:
-            self.vy = max(self.vy, -280.0)
+        # release-to-cut: tapping Space gives a short hop, holding goes higher
+        if not inp.jump_held and self.vy < -JUMP_CUT_SPEED:
+            self.vy = -JUMP_CUT_SPEED
 
         # jumps
         if self.jump_buffer > 0:
@@ -291,6 +312,7 @@ class Player:
                 self.on_ground = False
                 self.coyote = 0.0
                 self.jump_buffer = 0.0
+                self.jump_boost = JUMP_HOLD_TIME
                 self.events.append("jump")
             elif self.wall_dir != 0:
                 self.vy = -WALL_JUMP_Y
@@ -298,6 +320,7 @@ class Player:
                 self.facing = -self.wall_dir
                 self.wall_lock = 0.16
                 self.jump_buffer = 0.0
+                self.jump_boost = JUMP_HOLD_TIME * 0.8
                 self.events.append("wall_jump")
             elif vine is not None and self.jump_buffer > 0:
                 pass
@@ -568,6 +591,27 @@ class Player:
             pygame.draw.circle(surface, (255, 244, 210), (int(lx), int(ly)), 2)
             pygame.draw.arc(surface, (90, 80, 60),
                             (int(lx - 6), int(ly - 9), 12, 12), 3.4, 6.1, 1)
+
+        # held-jump speed lines around the feet
+        if self.jump_boosting:
+            for side in (-1, 1):
+                pygame.draw.line(surface, (135, 235, 215),
+                                 (sx + side * (11 + side), sy + 7),
+                                 (sx + side * (17 + side), sy + 17), 1)
+                pygame.draw.line(surface, (85, 175, 165),
+                                 (sx + side * 7, sy + 4),
+                                 (sx + side * 10, sy + 11), 1)
+
+        # armor bubble
+        if self.armor > 0 and not self.climbing:
+            pulse = 0.5 + 0.5 * math.sin(self.time * 3.4)
+            r = int(27 + pulse * 3)
+            box = (sx - r, sy - 70, r * 2, 78)
+            pygame.draw.ellipse(surface, (48, 112, 126), box, 1)
+            pygame.draw.arc(surface, (128, 232, 255), box,
+                            0.3 + self.time * 1.2, 1.9 + self.time * 1.2, 2)
+            pygame.draw.arc(surface, (86, 190, 215), box,
+                            3.5 + self.time * 0.9, 5.2 + self.time * 0.9, 1)
 
     # ------------------------------------------------------------------
     def draw_hint(self, surface, cam_x, cam_y, world) -> None:
