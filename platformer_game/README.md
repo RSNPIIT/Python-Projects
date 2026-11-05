@@ -23,17 +23,24 @@ are generated in code.
   and safe rest stops). Difficulty ramps smoothly; four biomes cycle every nine
   chunks.
 - **Vertical traversal** — vine climbing, wall slides, wall jumps, one-way
-  ledges and drop-through.
+  ledges, drop-through, and **dynamic elevator platforms** that drift up and
+  down while you ride them.
+- **Hold-to-jump** — tap Space for a short hop, or keep holding for a much
+  higher leap; an upward speed trail sells the boost.
+- **Armor shields** — every run starts with one shield charge (up to three).
+  Shields absorb a hit before hearts and break dramatically; extra shield
+  shards can be picked up.
 - **Evasion-first enemies** — thorn-backed crawlers, drifting gloomwings and
-  rooted thornmaws that charge and spit. Contact costs a heart; nothing is
-  killed.
-- **Things to hoard** — coins, gems, hearts, checkpoints and (in Time Trial)
-  chrono shards. A combo multiplier up to ×5 rewards clean collecting.
+  rooted thornmaws that charge and spit. Contact costs a shield or a heart;
+  nothing is killed.
+- **Things to hoard** — coins, gems, hearts, shield shards, checkpoints and (in
+  Time Trial) chrono shards. A combo multiplier up to ×5 rewards clean
+  collecting, and **collectibles must be touched — there is no magnet**.
 - **Two modes** — *Endless Loop* and a 90-second *Time Trial*.
 - **Shader pipeline** — a procedural aurora/star sky, soft bloom, chromatic
   aberration, film grain, damage warp and dash smear, all rendered offscreen
   with moderngl and composited over the pygame world.
-- **Procedural audio** — all 12 sound effects and the looping ambient track are
+- **Procedural audio** — all 14 sound effects and the looping ambient track are
   synthesized at startup with numpy.
 - **Persistence** — best scores, distance, lifetime coins/gems and mute state in
   `save.json`.
@@ -83,7 +90,7 @@ Double-click `run.bat`, or run the manual commands above.
 | Action | Keys |
 | --- | --- |
 | Move | `A` / `D` or `←` / `→` |
-| Jump (hold for height) | `Space` |
+| Jump — tap for a short hop, hold for height | `Space` |
 | Climb up / down vines | `W` / `S` or `↑` / `↓` |
 | Jump off a vine | `Space` |
 | Dash | `Shift` or `X` |
@@ -96,7 +103,8 @@ Double-click `run.bat`, or run the manual commands above.
 
 The dash recharges in 0.85 s and can be used once per airtime. Vines are
 grabbed by holding up or down while overlapping them. Stone blocks and tall
-ground edges allow wall slides and wall jumps.
+ground edges allow wall slides and wall jumps. Elevator platforms carry you
+while you stand on them.
 
 ---
 
@@ -105,9 +113,11 @@ ground edges allow wall slides and wall jumps.
 ### Endless Loop
 
 No timer. The world goes on forever and loops through the four biomes. You have
-three hearts (up to five); when they run out the run ends. Checkpoints heal one
-heart and set your respawn point. A fall into a pit costs a heart and returns
-you to the last checkpoint, so the dark is never instant death — until it is.
+three hearts (up to five) and one shield. A shield absorbs a hit before a heart
+does; shield shards found in the world add up to three. When hearts run out the
+run ends. Checkpoints heal one heart and set your respawn point. A fall into a
+pit costs a heart and returns you to the last checkpoint, so the dark is never
+instant death — until it is.
 
 ### Time Trial
 
@@ -123,14 +133,26 @@ hits zero the run ends and your banked score is final.
 | Coin | 10 |
 | Gem | 100 |
 | Heart | 25 |
+| Shield shard | 60 |
 | Chrono shard | 40 |
 | Distance | 2 per metre |
 | Completed loop | +500 |
 | Checkpoint | +50 |
 
-Coins, gems and hearts are multiplied by the current combo multiplier (up to
-×5). The combo timer is 3.6 s and resets on damage. Collecting a pickup refreshes
-it.
+Coins, gems, hearts and shield shards are multiplied by the current combo
+multiplier (up to ×5). The combo timer is 3.6 s and resets on damage. Collecting
+a pickup refreshes it.
+
+### Armor and dynamic terrain
+
+Shield charges live beside the hearts in the HUD. They absorb contact damage
+from thorns, creatures and projectiles; a shield break is loud, bright and
+costs no health. Each run starts with one charge and shield shards can take you
+to three.
+
+Some ledges are **elevators**: their height oscillates continuously, their
+motion path is marked by a rune and a dotted guide, and they carry the player
+up or down while standing on them.
 
 ---
 
@@ -154,9 +176,9 @@ platformer_game/
 ├── game/
 │   ├── game.py             states, run loop, scoring, camera, effects
 │   ├── level.py            chunk generation, features, collision world, terrain art
-│   ├── player.py           movement, climbing, dash, wall jump, character art
+│   ├── player.py           movement, climbing, dash, hold-jump, armor, art
 │   ├── enemies.py          crawler / flyer / spitter + projectiles
-│   ├── pickups.py          coins, gems, hearts, chrono shards, checkpoints
+│   ├── pickups.py          coins, gems, hearts, shields, chrono shards, checkpoints
 │   ├── particles.py        particles, floating score text, ambient motes
 │   ├── background.py       procedural parallax silhouettes per biome
 │   ├── renderer.py         moderngl pipeline + software fallback
@@ -262,9 +284,15 @@ The tool runs headless, writes `screenshots/title.png`,
 Most feel lives in `game/constants.py`:
 
 - `GRAVITY`, `JUMP_VELOCITY`, `MOVE_SPEED`, `DASH_SPEED`, `CLIMB_SPEED`
+- Hold-jump: `JUMP_HOLD_TIME`, `JUMP_HOLD_GRAVITY`, `JUMP_CUT_SPEED`
 - `CHUNK_W`, `CHUNKS_PER_BIOME`, `TRIAL_TIME`
+- `START_ARMOR`, `MAX_ARMOR`, `ARMOR_INVULN`
 - `BIOMES` — every colour used by both pygame and the sky shader
 - `MAX_HEARTS`, combo values, point values
+
+Elevator platform height, amplitude and speed are the arguments to
+`_add_moving_ledge(...)` in `game/level.py`; chunk ground heights live in
+`World._make_chunk`.
 
 Feature weights and layouts are in `World._make_chunk` and the `_f_*` methods in
 `game/level.py`; enemies live in `game/enemies.py`; post-processing is in
