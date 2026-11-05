@@ -22,8 +22,11 @@ AIR_ACCEL = 2000.0
 GROUND_FRICTION = 3200.0
 AIR_FRICTION = 500.0
 
-JUMP_VELOCITY = 760.0
+JUMP_VELOCITY = 740.0
 JUMP_CUT = 0.42
+JUMP_HOLD_TIME = 0.26          # seconds of low-gravity lift while Space is held
+JUMP_HOLD_GRAVITY = 0.60       # gravity multiplier during the lift window
+JUMP_CUT_SPEED = 380.0         # upward speed cap once Space is released
 COYOTE_TIME = 0.11
 JUMP_BUFFER = 0.14
 
@@ -45,6 +48,10 @@ PLAYER_H = 46
 MAX_HEARTS = 5
 START_HEARTS = 3
 INVULN_TIME = 1.45
+
+MAX_ARMOR = 3
+START_ARMOR = 1
+ARMOR_INVULN = 0.95
 
 # ---------------------------------------------------------------------------
 # World
@@ -68,6 +75,7 @@ COIN_VALUE = 10
 GEM_VALUE = 100
 HEART_VALUE = 25
 CHRONO_VALUE = 40
+ARMOR_VALUE = 60
 CHECKPOINT_VALUE = 50
 LOOP_BONUS = 500
 DISTANCE_POINTS = 2
