@@ -1,0 +1,9 @@
+#!/bin/bash
+# Terminal-free macOS launcher. Keep this app beside run.sh in raylib_game.
+cd "$(dirname "$0")/../../.." || exit 1
+if [ ! -x "./.venv/bin/python" ]; then
+  osascript -e 'display alert "NOVA STRIKE" message "Keep NOVA STRIKE.app inside the raylib_game folder, or run run.sh once to install dependencies."' >/dev/null 2>&1
+  exit 1
+fi
+echo "launch $(date)" >> "./launch.log"
+exec ./.venv/bin/python main.py >> "./launch.log" 2>&1
