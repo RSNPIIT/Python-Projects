@@ -21,6 +21,7 @@ KIND_RADIUS = {
     "gem": 15,
     "heart": 14,
     "chrono": 14,
+    "armor": 14,
 }
 
 
@@ -47,24 +48,11 @@ class Pickup:
         r = self.radius + 2
         return pygame.FRect(self.x - r, self.y - r, r * 2, r * 2)
 
-    def update(self, dt: float, px: float, py: float, time_s: float,
-               magnet_allowed: bool = True) -> bool:
+    def update(self, dt: float, px: float, py: float, time_s: float) -> bool:
         if self.collected:
             return True
-        bob = math.sin(time_s * 2.6 + self.phase) * 4.0
-        self.y = self.home_y + bob
-        # coins drift toward the player
-        if magnet_allowed and self.kind in ("coin", "gem"):
-            dx = px - self.x
-            dy = py - self.y
-            dist = math.hypot(dx, dy)
-            reach = 118 if self.kind == "coin" else 72
-            if 0.1 < dist < reach:
-                pull = (1.0 - dist / reach) * (520 if self.kind == "coin" else 380)
-                self.x += dx / dist * pull * dt
-                self.home_x += dx / dist * pull * dt
-                self.y += dy / dist * pull * dt
-                self.home_y += dy / dist * pull * dt
+        # No magnet: collectibles stay exactly where the level placed them.
+        self.y = self.home_y + math.sin(time_s * 2.6 + self.phase) * 4.0
         return False
 
     def overlaps_player(self, player) -> bool:
@@ -87,6 +75,8 @@ class Pickup:
             self._draw_heart(surface, sx, sy, t)
         elif self.kind == "chrono":
             self._draw_chrono(surface, sx, sy, t)
+        elif self.kind == "armor":
+            self._draw_armor(surface, sx, sy, t)
 
     def _draw_coin(self, surface, sx, sy, t):
         spin = abs(math.cos(t * 3.4 + self.phase))
@@ -128,6 +118,24 @@ class Pickup:
         pygame.draw.polygon(surface, (255, 196, 210),
                             heart_points(sx - 1.5, sy - 1.5, 13 * pulse))
         pygame.draw.polygon(surface, (176, 54, 80), pts, 2)
+
+    def _draw_armor(self, surface, sx, sy, t):
+        pulse = 0.5 + 0.5 * math.sin(t * 2.8 + self.phase)
+        draw_glow(surface, (sx, sy), 30, (110, 230, 255), 64 + int(pulse * 26), 2.2)
+        ridge = 11 + pulse * 1.5
+        pts = [(sx, sy - 15), (sx + ridge, sy - 7), (sx + ridge - 2, sy + 6),
+               (sx, sy + 15), (sx - ridge + 2, sy + 6), (sx - ridge, sy - 7)]
+        pygame.draw.polygon(surface, (34, 92, 112), pts)
+        pygame.draw.polygon(surface, (148, 244, 255), pts, 2)
+        pygame.draw.polygon(surface, (86, 190, 214),
+                            [(sx, sy - 11), (sx + 6, sy - 5), (sx, sy + 10),
+                             (sx - 6, sy - 5)])
+        pygame.draw.line(surface, (235, 255, 255), (sx, sy - 9), (sx, sy + 5), 1)
+        pygame.draw.line(surface, (235, 255, 255), (sx - 4, sy - 3), (sx + 4, sy - 3), 1)
+        for k in range(3):
+            a = t * 1.3 + k * 2.1 + self.phase
+            pygame.draw.circle(surface, (190, 250, 255),
+                               (int(sx + math.cos(a) * 22), int(sy + math.sin(a) * 17)), 1)
 
     def _draw_chrono(self, surface, sx, sy, t):
         pulse = 0.5 + 0.5 * math.sin(t * 3.0 + self.phase)
