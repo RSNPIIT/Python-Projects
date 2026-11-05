@@ -6,3 +6,5 @@ savegame.json
 savegame.tmp
 screenshots/test_*.png
 screenshots/weapon_*.png
+
+launch.log
