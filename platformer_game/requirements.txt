@@ -1,0 +1,4 @@
+pygame-ce>=2.5.8
+moderngl>=5.13
+numpy>=2.0
+Pillow>=10.0
