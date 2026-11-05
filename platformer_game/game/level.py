@@ -35,10 +35,14 @@ class Solid:
     y: float
     w: float
     h: float
-    kind: str = "ground"     # ground | ledge | stone
+    kind: str = "ground"     # ground | ledge | stone | moving
     one_way: bool = False
     jag: list[float] = field(default_factory=list)
     seed: int = 0
+    base_y: float = 0.0
+    move_amp: float = 0.0
+    move_speed: float = 1.0
+    move_phase: float = 0.0
 
     @property
     def rect(self) -> pygame.FRect:
@@ -186,6 +190,8 @@ class World:
         self._ensure_gem(chunk, difficulty)
         if index % 4 == 1:
             self._ensure_heart(chunk, segments)
+        if index > 0 and index % 5 == 1:
+            self._ensure_armor(chunk, segments)
         if self.mode == "trial" and index % 3 == 1:
             self._place_chrono(chunk, segments)
 
@@ -218,6 +224,21 @@ class World:
     def _add_stone(self, chunk, x, y, w, h):
         chunk.solids.append(Solid(x, y, w, h, "stone", False, [], self.rng.randint(1, 99999)))
 
+    def _add_moving_ledge(self, chunk, x, base_y, w, amp=40.0, speed=1.0):
+        """A one-way platform that drifts vertically around ``base_y``."""
+        n = max(5, int(w / 32))
+        jag = [self.rng.uniform(-2.5, 3.0) for _ in range(n)]
+        jag[0] = jag[-1] = 0.0
+        phase = self.rng.uniform(0.0, math.tau)
+        y = base_y + math.sin(phase) * amp
+        solid = Solid(x, y, w, 24, "moving", True, jag,
+                      self.rng.randint(1, 99999))
+        solid.base_y = base_y
+        solid.move_amp = amp
+        solid.move_speed = speed
+        solid.move_phase = phase
+        chunk.solids.append(solid)
+
     def _add_hazard(self, chunk, x, y, w, h=26):
         if w < 30:
             return
@@ -236,6 +257,9 @@ class World:
 
     def _add_heart(self, chunk, x, y):
         chunk.pickups.append(Pickup("heart", x, y, self.rng.uniform(0, 6.28)))
+
+    def _add_armor(self, chunk, x, y):
+        chunk.pickups.append(Pickup("armor", x, y, self.rng.uniform(0, 6.28)))
 
     def _add_chrono(self, chunk, x, y):
         chunk.pickups.append(Pickup("chrono", x, y, self.rng.uniform(0, 6.28)))
@@ -280,6 +304,8 @@ class World:
         self._add_coin(chunk, chunk.start_x + 760, gy - 150)
         self._add_coin(chunk, chunk.start_x + 820, gy - 150)
         self._add_gem(chunk, chunk.start_x + 930, gy - 165)
+        self._add_armor(chunk, chunk.start_x + 820, gy - 152)
+        self._add_moving_ledge(chunk, chunk.start_x + 1180, gy - 165, 165, 36, 1.0)
         self._checkpoint(chunk, chunk.start_x + 1080)
         self._add_decor(chunk, "lantern", chunk.start_x + 320, gy)
         self._add_decor(chunk, "sign", chunk.start_x + 470, gy)
@@ -301,6 +327,8 @@ class World:
         if self.rng.random() < 0.55:
             self._add_flyer(chunk, start + 1040, gy - 190, 80, 38, 0.8)
         self._coin_line(chunk, start + 880, start + 1180, gy - 165, 4)
+        if self.rng.random() < 0.6:
+            self._add_moving_ledge(chunk, start + 990, gy - 210, 150, 42, 1.05)
 
     def _f_gap(self, chunk, d, segments):
         gy = chunk.ground_y
@@ -309,9 +337,11 @@ class World:
         gx = start + 530 + self.rng.randint(-70, 90)
         self._carve(segments, gx, gx + gw)
         self._coin_arc(chunk, gx + gw / 2, gy - 70, 5, gw + 60, 46)
-        if gw > 175:
+        if gw > 145:
+            self._add_moving_ledge(chunk, gx + gw / 2 - 55, gy - 128, 110, 46, 1.15)
+        else:
             self._add_ledge(chunk, gx + gw / 2 - 50, gy - 88, 100)
-        self._add_flyer(chunk, gx + gw / 2, gy - 210, gw * 0.5, 36, 1.05)
+        self._add_flyer(chunk, gx + gw / 2, gy - 235, gw * 0.5, 36, 1.05)
         if self.rng.random() < 0.7:
             self._add_ledge(chunk, gx - 40, gy - 150, 140)
         self._add_hazard(chunk, gx + gw + 150, gy, 74)
@@ -367,6 +397,7 @@ class World:
             self._add_hazard(chunk, x, gy, w)
             self._coin_arc(chunk, x + w / 2, gy - 58, 3, w + 70, 34)
         self._add_ledge(chunk, start + 620, gy - 150, 170)
+        self._add_moving_ledge(chunk, start + 900, gy - 185, 140, 34, 1.0)
         self._add_crawler(chunk, start + 990, gy, start + 940, start + 1240, 78)
         if self.rng.random() < 0.5:
             self._add_flyer(chunk, start + 900, gy - 200, 90, 40, 0.75)
@@ -377,6 +408,7 @@ class World:
         gy = chunk.ground_y
         start = chunk.start_x
         self._add_ledge(chunk, start + 500, gy - 112, 150)
+        self._add_moving_ledge(chunk, start + 430, gy - 175, 125, 38, 0.9)
         self._add_ledge(chunk, start + 735, gy - 205, 150)
         self._add_ledge(chunk, start + 615, gy - 300, 250)
         self._add_gem(chunk, start + 690, gy - 336)
@@ -413,6 +445,8 @@ class World:
         self._coin_line(chunk, start + 480, start + 760, gy - 88, 4)
         self._add_ledge(chunk, start + 960, gy - 122, 180)
         self._add_gem(chunk, start + 1050, gy - 156)
+        self._add_armor(chunk, start + 600, gy - 70)
+        self._add_moving_ledge(chunk, start + 1160, gy - 155, 145, 34, 0.85)
         self._add_decor(chunk, "mushroom", start + 640, gy)
         self._add_decor(chunk, "mushroom", start + 1180, gy, 1.2)
 
@@ -474,6 +508,17 @@ class World:
             y = gy - self.rng.uniform(64, 112)
             if self._free_spot(chunk, x, y, 20):
                 self._add_gem(chunk, x, y)
+                return
+
+    def _ensure_armor(self, chunk, segments):
+        if any(p.kind == "armor" for p in chunk.pickups):
+            return
+        gy = chunk.ground_y
+        for _ in range(8):
+            x = chunk.start_x + self.rng.uniform(260, CHUNK_W - 220)
+            y = gy - 76
+            if self._free_spot(chunk, x, y, 18):
+                self._add_armor(chunk, x, y)
                 return
 
     def _ensure_heart(self, chunk, segments):
@@ -619,6 +664,18 @@ class World:
     # ==================================================================
     # simulation
     # ==================================================================
+    def update_moving_platforms(self, dt: float, player, time_s: float) -> None:
+        """Animate elevator platforms and carry the player standing on them."""
+        for chunk in self.chunks.values():
+            for s in chunk.solids:
+                if s.move_amp <= 0.0:
+                    continue
+                old_y = s.y
+                s.y = s.base_y + math.sin(time_s * s.move_speed + s.move_phase) * s.move_amp
+                if (player is not None and player.on_ground
+                        and player.ground_solid is s):
+                    player.y += s.y - old_y
+
     def update(self, dt: float, player, cam_x: float) -> None:
         self.time += dt
         # projectiles
@@ -633,12 +690,12 @@ class World:
             for e in c.enemies:
                 if e.alive and abs(e.x - (cam_x + SCREEN_W / 2)) < SCREEN_W:
                     e.update(dt, player, self)
-        # pickups animate + magnet
+        # pickups animate
         for c in self.visible_chunks(cam_x):
             for p in c.pickups:
                 if not p.collected:
                     p.update(dt, player.x + player.w / 2, player.y + player.h / 2,
-                             self.time, not player.climbing)
+                             self.time)
         # prune far-behind chunks
         keep_from = self.chunk_index_at(cam_x) - 22
         if keep_from > 0:
@@ -665,6 +722,8 @@ class World:
                     self._draw_ground(surface, s, pal, cam_x, cam_y, time_s)
                 elif s.kind == "ledge":
                     self._draw_ledge(surface, s, pal, cam_x, cam_y, time_s)
+                elif s.kind == "moving":
+                    self._draw_moving(surface, s, pal, cam_x, cam_y, time_s)
                 else:
                     self._draw_stone(surface, s, pal, cam_x, cam_y, time_s)
             for h in c.hazards:
@@ -846,6 +905,45 @@ class World:
         for i in range(1, n - 1, 2):
             px, py = top[i]
             pygame.draw.line(surface, pal["moss"], (px, py), (px - 2, py - 4), 1)
+
+    def _draw_moving(self, surface, s: Solid, pal, cx, cy, t):
+        x = s.x - cx
+        top = s.y - cy
+        if x + s.w < -80 or x > SCREEN_W + 80:
+            return
+        # motion guide
+        guide_x = x + s.w / 2
+        a = s.base_y - cy - s.move_amp
+        b = s.base_y - cy + s.move_amp
+        guide_col = color_lerp(pal["accent"], pal["rock_dark"], 0.35)
+        for k in range(6):
+            y0 = a + (b - a) * (k / 6)
+            pygame.draw.line(surface, guide_col, (guide_x, y0),
+                             (guide_x, y0 + (b - a) / 12), 1)
+        pygame.draw.circle(surface, pal["accent"], (int(guide_x), int(a)), 2)
+        pygame.draw.circle(surface, pal["accent"], (int(guide_x), int(b)), 2)
+        # slab
+        self._draw_ledge(surface, s, pal, cx, cy, t)
+        # rune + energy glow
+        pulse = 0.5 + 0.5 * math.sin(t * 3.4 + s.move_phase)
+        rune_x = x + s.w / 2
+        rune_y = top - 12
+        draw_glow(surface, (rune_x, rune_y), 26, pal["accent2"], 45 + int(pulse * 40), 2.0)
+        pygame.draw.polygon(surface, pal["accent2"],
+                            [(rune_x, rune_y - 7), (rune_x + 6, rune_y),
+                             (rune_x, rune_y + 7), (rune_x - 6, rune_y)])
+        pygame.draw.polygon(surface, (255, 255, 255),
+                            [(rune_x, rune_y - 4), (rune_x + 3, rune_y),
+                             (rune_x, rune_y + 4), (rune_x - 3, rune_y)], 1)
+        # little chevrons showing travel
+        for side, dy in ((-1, -1), (1, 1)):
+            for k in range(2):
+                yy = rune_y + side * (16 + k * 8)
+                pygame.draw.lines(surface, guide_col, False,
+                                  [(rune_x - 5, yy), (rune_x, yy + side * 4),
+                                   (rune_x + 5, yy)], 1)
+        # underside glow
+        draw_glow(surface, (rune_x, top + 18), 30, pal["accent"], 26, 2.4)
 
     def _draw_stone(self, surface, s: Solid, pal, cx, cy, t):
         x = s.x - cx
