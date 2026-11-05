@@ -14,6 +14,8 @@ from .audio import Audio
 from .background import BackgroundDirector
 from .bot import AutoPilot
 from .constants import (
+    ARMOR_INVULN,
+    ARMOR_VALUE,
     BIOMES,
     CAMERA_LOOKAHEAD,
     CAMERA_SMOOTH_X,
@@ -36,6 +38,7 @@ from .constants import (
     PLAYER,
     SCREEN_H,
     SCREEN_W,
+    START_ARMOR,
     START_HEARTS,
     TITLE,
     TRIAL_CHRONO,
@@ -231,6 +234,7 @@ class Game:
 
     def _update_title(self, dt: float) -> None:
         self.title_world.time += dt
+        self.title_world.update_moving_platforms(dt, None, self.time)
         self.title_cam.x = 430.0 + math.sin(self.time * 0.045) * 90.0
         self.title_cam.y = 196.0 + math.sin(self.time * 0.03) * 10.0
         self.ambient.update(dt, 7.0)
@@ -247,6 +251,7 @@ class Game:
         self.world = World(seed, self.mode)
         self.player = Player(self.world.spawn_x, self.world.spawn_y)
         self.player.hearts = START_HEARTS
+        self.player.armor = START_ARMOR
         self.safe_pos = (self.world.spawn_x, self.world.spawn_y)
         self.active_checkpoint = None
         self.safe_timer = 0.0
@@ -473,6 +478,7 @@ class Game:
         else:
             inp = self._poll_inputs()
 
+        self.world.update_moving_platforms(dt, self.player, self.time)
         self.player.update(dt, inp, self.world)
         self._consume_player_events()
 
@@ -560,6 +566,10 @@ class Game:
         if p.dashing:
             self.particles.trail(p.x + p.w / 2, p.y + p.h / 2, palette["accent"],
                                  2, 5, 28, 0.3)
+        if p.jump_boosting:
+            self.particles.trail(p.x + p.w / 2 + random.uniform(-7, 7),
+                                 p.y + p.h - random.uniform(0, 10),
+                                 palette["accent2"], 1, 3, 15, 0.28)
         if p.hearts == 1 and random.random() < 0.12:
             self.particles.trail(p.x + p.w / 2 + random.uniform(-10, 10),
                                  p.y + random.uniform(4, 16),
@@ -605,6 +615,18 @@ class Game:
                 self.particles.burst(pickup.x, pickup.y, color, 12, 130, 0.6, 40, 4, "glow")
                 self.particles.text(pickup.x, pickup.y - 18, f"+{int(TRIAL_CHRONO)}s",
                                     color, big=False)
+            elif kind == "armor":
+                value = ARMOR_VALUE
+                color = (128, 238, 255)
+                self.audio.play("armor")
+                gained_armor = p.add_armor(1)
+                if not gained_armor:
+                    value += 50
+                self.particles.burst(pickup.x, pickup.y, color, 14, 140, 0.65, 40, 4, "glow")
+                self.particles.ring(pickup.x, pickup.y, color, 16, 0.5)
+                self.particles.text(pickup.x, pickup.y - 20,
+                                    "SHIELD +1" if gained_armor else "ARMOR FULL",
+                                    color, big=False)
             else:
                 continue
 
@@ -613,8 +635,8 @@ class Game:
             self.combo_mult = min(COMBO_MAX, 1 + self.combo_count // COMBO_STEP)
             gained = value * self.combo_mult
             self.score += gained
-            if kind in ("gem", "heart", "chrono"):
-                self.particles.text(pickup.x, pickup.y - 18,
+            if kind in ("gem", "heart", "chrono", "armor"):
+                self.particles.text(pickup.x, pickup.y - 34,
                                     f"+{gained}", color, big=kind == "gem")
             elif self.combo_mult > 1:
                 self.particles.text(pickup.x, pickup.y - 12, f"+{gained}", color, big=False)
@@ -693,9 +715,6 @@ class Game:
         p = self.player
         if p.invuln > 0 or self.state != "playing" or self.god:
             return
-        p.hearts -= 1
-        p.invuln = INVULN_TIME
-        p.hurt_timer = 0.3
         direction = sign(p.x + p.w / 2 - source_x) or -p.facing
         p.vx = direction * 330
         p.vy = -420
@@ -708,6 +727,25 @@ class Game:
         self.combo_mult = 1
         self.shake = 16
         self.hitstop = 0.055
+
+        # Armor takes the hit first: shield break, no heart lost.
+        if p.armor > 0:
+            p.armor -= 1
+            p.invuln = ARMOR_INVULN
+            p.hurt_timer = 0.22
+            self.flash = max(self.flash, 0.3)
+            self.audio.play("shield")
+            self.particles.burst(p.x + p.w / 2, p.y + p.h / 2, (128, 238, 255),
+                                 24, 220, 0.65, 350, 4, "glow")
+            self.particles.ring(p.x + p.w / 2, p.y + p.h * 0.5,
+                                (150, 245, 255), 26, 0.55)
+            self.particles.text(p.x + p.w / 2, p.y - 16, "SHIELD BREAK",
+                                (150, 245, 255))
+            return
+
+        p.hearts -= 1
+        p.invuln = INVULN_TIME
+        p.hurt_timer = 0.3
         self.flash = max(self.flash, 0.25)
         self.audio.play("hurt")
         self.particles.burst(p.x + p.w / 2, p.y + p.h / 2, self.palette["danger"],
@@ -945,7 +983,6 @@ class Game:
             if self.state == "playing":
                 self.ui.draw_hud(self.screen, self)
             elif self.state == "paused":
-                self.ui.draw_hud(self.screen, self)
                 self.ui.draw_pause(self.screen, self)
             elif self.state == "dying":
                 self.ui.draw_hud(self.screen, self)
