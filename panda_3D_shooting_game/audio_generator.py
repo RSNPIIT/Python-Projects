@@ -239,6 +239,28 @@ def gen_voice_callout(phrase="kill"):
             
     return samples
 
+def gen_ui_click():
+    duration = 0.05
+    num_samples = int(duration * SAMPLE_RATE)
+    samples = []
+    for i in range(num_samples):
+        t = i / SAMPLE_RATE
+        env = math.exp(-80.0 * t)
+        sample = math.sin(2 * math.pi * 1800.0 * t) * env * 0.4
+        samples.append(sample)
+    return samples
+
+def gen_ui_hover():
+    duration = 0.03
+    num_samples = int(duration * SAMPLE_RATE)
+    samples = []
+    for i in range(num_samples):
+        t = i / SAMPLE_RATE
+        env = math.exp(-100.0 * t)
+        sample = math.sin(2 * math.pi * 1200.0 * t) * env * 0.25
+        samples.append(sample)
+    return samples
+
 def generate_all_sounds(target_dir):
     """Generates all game sounds into target_dir."""
     ensure_sound_dir(target_dir)
@@ -257,6 +279,8 @@ def generate_all_sounds(target_dir):
         "voice_wave.wav": gen_voice_callout("wave"),
         "voice_reload.wav": gen_voice_callout("reload"),
         "enemy_death.wav": gen_voice_callout("death"),
+        "ui_click.wav": gen_ui_click(),
+        "ui_hover.wav": gen_ui_hover(),
     }
     
     for filename, data in sounds.items():
