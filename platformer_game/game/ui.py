@@ -12,6 +12,7 @@ from .constants import (
     FONT_TITLE,
     FONT_UI,
     FONT_UI_CONDENSED,
+    MAX_ARMOR,
     MAX_HEARTS,
     SCREEN_H,
     SCREEN_W,
@@ -41,8 +42,8 @@ class UI:
         self.f_title_sub = font(FONT_UI, 15, bold=True)
         self.f_h1 = font(FONT_UI_CONDENSED, 54, bold=True)
         self.f_h2 = font(FONT_UI_CONDENSED, 34, bold=True)
-        self.f_menu = font(FONT_UI, 25, bold=True)
-        self.f_menu_small = font(FONT_UI, 14)
+        self.f_menu = font(FONT_UI, 27, bold=True)
+        self.f_menu_small = font(FONT_UI, 15)
         self.f_menu_num = font(FONT_MONO, 13)
         self.f_label = font(FONT_UI, 11, bold=True)
         self.f_hud_num = font(FONT_UI_CONDENSED, 36, bold=True)
@@ -105,7 +106,7 @@ class UI:
         accent = p["accent"]
         # ----- left: hearts + currency
         panel = pygame.Rect(24, 20, 344, 84)
-        self._pill(screen, panel, accent, 190)
+        self._pill(screen, panel, accent, 205)
         for i in range(MAX_HEARTS):
             cx = 46 + i * 28
             cy = 42
@@ -116,6 +117,10 @@ class UI:
                 pts = heart_points(cx, cy, 18)
                 pygame.draw.polygon(screen, (48, 58, 58), pts)
                 pygame.draw.polygon(screen, (28, 34, 36), pts, 1)
+        # armor slots
+        draw_text(screen, "ARMOR", self.f_tiny, UI_COLORS["dim"], (196, 29), shadow=None)
+        for i in range(MAX_ARMOR):
+            self._shield_icon(screen, (202 + i * 22, 53), 9, i < player.armor)
         # coins
         self._coin_icon(screen, (44, 80), 9)
         draw_text(screen, f"{game.coins}", font(FONT_UI_CONDENSED, 20, bold=True),
@@ -158,7 +163,7 @@ class UI:
 
         # ----- right: mode metric
         panel = pygame.Rect(SCREEN_W - 320, 20, 296, 84)
-        self._pill(screen, panel, accent, 190)
+        self._pill(screen, panel, accent, 205)
         right_x = SCREEN_W - 44
         if game.mode == "trial":
             self._label(screen, "TIME LEFT", (right_x, 30), UI_COLORS["muted"], "topright", spacing=3)
@@ -190,7 +195,8 @@ class UI:
                 a = game.elapsed
             elif game.elapsed > 7.5:
                 a = clamp(9.5 - game.elapsed, 0.0, 1.0)
-            hint = "A D  move      SPACE  jump      W S  climb      SHIFT  dash      P  pause"
+            hint = ("A D  move     SPACE  jump (hold = higher)     W S  climb     "
+                    "SHIFT  dash     P  pause")
             self._faded_text(screen, hint, self.f_small, UI_COLORS["ivory"],
                              (SCREEN_W // 2, SCREEN_H - 34), int(210 * a), "center")
 
@@ -263,48 +269,51 @@ class UI:
 
         # menu
         menu_x = 96
-        menu_y = 356
-        row_h = 78
+        menu_y = 360
+        row_h = 84
+        draw_text_spaced(screen, "CHOOSE YOUR CLIMB", self.f_label, pal["accent"],
+                         (menu_x - 10, menu_y - 34), 4, shadow=None)
         options = game.title_options
         for i, (title, sub) in enumerate(options):
             selected = i == game.title_index
-            row = pygame.Rect(menu_x - 14, menu_y + i * row_h - 10, 600, 64)
-            rounded_panel(screen, row, (7, 14, 15), 155 if selected else 85,
-                          pal["accent"] if selected else None, 120, 10, 1)
+            row = pygame.Rect(menu_x - 14, menu_y + i * row_h - 8, 600, 70)
+            rounded_panel(screen, row, (6, 13, 14), 225 if selected else 160,
+                          pal["accent"] if selected else UI_COLORS["dim"],
+                          175 if selected else 70, 10, 1 if not selected else 2)
             if selected:
                 pygame.draw.rect(screen, pal["accent"],
-                                 (row.x, row.y + 8, 3, row.h - 16), border_radius=2)
+                                 (row.x, row.y + 8, 4, row.h - 16), border_radius=2)
                 pygame.draw.polygon(screen, pal["accent"],
-                                    [(row.x + 18, row.centery - 7),
-                                     (row.x + 26, row.centery),
-                                     (row.x + 18, row.centery + 7)])
+                                    [(row.x + 19, row.centery - 8),
+                                     (row.x + 28, row.centery),
+                                     (row.x + 19, row.centery + 8)])
             draw_text(screen, f"0{i + 1}", self.f_menu_num,
                       pal["accent"] if selected else UI_COLORS["dim"],
-                      (row.x + 48, row.centery - 6), anchor="midleft", shadow=None)
+                      (row.x + 48, row.centery), anchor="midleft", shadow=None)
             draw_text(screen, title, self.f_menu,
                       UI_COLORS["ivory"] if selected else UI_COLORS["muted"],
-                      (row.x + 82, row.centery - 13), shadow=(0, 0, 0), shadow_offset=2)
+                      (row.x + 84, row.y + 10), shadow=(0, 0, 0), shadow_offset=2)
             draw_text(screen, sub, self.f_menu_small,
                       UI_COLORS["muted"] if selected else UI_COLORS["dim"],
-                      (row.x + 84, row.centery + 11), shadow=None)
+                      (row.x + 86, row.y + 45), shadow=None)
             best = game.save.get("best_loop" if i == 0 else "best_trial", 0)
             if best:
                 draw_text(screen, format_score(best), self.f_menu_num,
                           UI_COLORS["gold"] if selected else UI_COLORS["dim"],
-                          (row.right - 20, row.centery), anchor="midright", shadow=None)
+                          (row.right - 20, row.y + 20), anchor="midright", shadow=None)
                 draw_text(screen, "BEST", self.f_tiny, UI_COLORS["dim"],
-                          (row.right - 20, row.centery + 16), anchor="midright", shadow=None)
+                          (row.right - 20, row.y + 40), anchor="midright", shadow=None)
 
         # field notes / controls
         px = SCREEN_W - 356
         py = 338
         panel = pygame.Rect(px, py, 312, 292)
-        rounded_panel(screen, panel, UI_COLORS["panel"], 158, UI_COLORS["muted"], 50, 12, 1)
+        rounded_panel(screen, panel, UI_COLORS["panel"], 210, UI_COLORS["muted"], 85, 12, 1)
         draw_text_spaced(screen, "FIELD NOTES", self.f_label, pal["accent"],
                          (px + 22, py + 18), 3, shadow=None)
         rows = [
             ("A D", "move  ·  arrows too"),
-            ("SPACE", "jump"),
+            ("SPACE", "jump · hold for height"),
             ("W S", "climb vines"),
             ("SHIFT", "dash"),
             ("P / ESC", "pause"),
@@ -348,31 +357,53 @@ class UI:
         screen.blit(overlay, (0, 0))
 
     def draw_pause(self, screen, game) -> None:
-        self._dim(screen, 165)
-        w, h = 520, 402
+        # Deliberately no HUD behind the pause card: a clean, high-contrast panel.
+        self._dim(screen, 205)
+        w, h = 570, 452
         rect = pygame.Rect((SCREEN_W - w) // 2, (SCREEN_H - h) // 2, w, h)
-        rounded_panel(screen, rect, (8, 14, 16), 232, game.palette["accent"], 100, 16, 1)
+        accent = game.palette["accent"]
+        rounded_panel(screen, rect, (6, 12, 14), 248, accent, 160, 16, 2)
+        draw_text_spaced(screen, "RUN PAUSED", self.f_label, accent,
+                         (rect.centerx, rect.y + 24), 4, anchor="midtop", shadow=None)
         draw_text_spaced(screen, "PAUSED", self.f_h1, UI_COLORS["ivory"],
-                         (rect.centerx, rect.y + 34), 6, anchor="midtop",
+                         (rect.centerx, rect.y + 44), 6, anchor="midtop",
                          shadow=(0, 0, 0), shadow_offset=2)
-        draw_text(screen, "the bramble waits", self.f_small, UI_COLORS["dim"],
-                  (rect.centerx, rect.y + 96), anchor="midtop", shadow=None)
+        draw_text(screen, "the bramble waits", self.f_small, UI_COLORS["muted"],
+                  (rect.centerx, rect.y + 108), anchor="midtop", shadow=None)
+        mode_name = "ENDLESS LOOP" if game.mode == "loop" else "TIME TRIAL"
+        metric = (f"{game.distance:,} m" if game.mode == "loop"
+                  else format_time(game.time_left))
+        draw_text(screen, f"{mode_name}   ·   {metric}   ·   {format_score(game.score)} PTS",
+                  self.f_small, UI_COLORS["ivory"], (rect.centerx, rect.y + 132),
+                  anchor="midtop", shadow=None)
+        pygame.draw.line(screen, (*UI_COLORS["muted"], 60),
+                         (rect.x + 58, rect.y + 158), (rect.right - 58, rect.y + 158), 1)
         items = game.pause_items()
+        hints = {0: "ESC", 2: "M"}
         for i, label in enumerate(items):
-            y = rect.y + 140 + i * 48
+            y = rect.y + 180 + i * 52
             selected = i == game.menu_index
-            row = pygame.Rect(rect.x + 60, y - 6, rect.w - 120, 40)
+            row = pygame.Rect(rect.x + 58, y, rect.w - 116, 44)
             if selected:
-                rounded_panel(screen, row, (14, 26, 26), 190,
-                              game.palette["accent"], 120, 8, 1)
-                pygame.draw.rect(screen, game.palette["accent"],
-                                 (row.x, row.y + 7, 2, row.h - 14))
+                rounded_panel(screen, row, (16, 30, 30), 235, accent, 165, 8, 1)
+                pygame.draw.rect(screen, accent, (row.x, row.y + 8, 3, row.h - 16))
+                pygame.draw.polygon(screen, accent,
+                                    [(row.x + 16, row.centery - 6),
+                                     (row.x + 24, row.centery),
+                                     (row.x + 16, row.centery + 6)])
+            else:
+                rounded_panel(screen, row, (9, 17, 18), 130, None, 0, 8, 0)
             draw_text(screen, label, self.f_menu,
                       UI_COLORS["ivory"] if selected else UI_COLORS["muted"],
-                      (rect.centerx, y + 12), anchor="midtop",
+                      (rect.centerx, row.centery), anchor="center",
                       shadow=(0, 0, 0), shadow_offset=2)
-        draw_text(screen, "ESC  resume      M  sound", self.f_tiny, UI_COLORS["dim"],
-                  (rect.centerx, rect.bottom - 26), anchor="midtop", shadow=None)
+            if i in hints:
+                draw_text(screen, hints[i], self.f_key, UI_COLORS["muted"],
+                          (row.right - 14, row.centery), anchor="midright", shadow=None)
+        draw_text_spaced(screen, "ESC  RESUME     M  SOUND     F11  FULLSCREEN",
+                         self.f_label, UI_COLORS["muted"],
+                         (rect.centerx, rect.bottom - 34), 2,
+                         anchor="midtop", shadow=None)
 
     def draw_gameover(self, screen, game) -> None:
         self._dim(screen, 175)
@@ -450,6 +481,22 @@ class UI:
     # ------------------------------------------------------------------
     # icons
     # ------------------------------------------------------------------
+    def _shield_icon(self, screen, center, r, filled):
+        cx, cy = center
+        pts = [(cx, cy - r * 1.5), (cx + r * 1.15, cy - r * 0.7),
+               (cx + r * 0.95, cy + r * 0.45), (cx, cy + r * 1.45),
+               (cx - r * 0.95, cy + r * 0.45), (cx - r * 1.15, cy - r * 0.7)]
+        if filled:
+            draw_glow(screen, center, int(r * 1.8), (128, 238, 255), 45, 2.0)
+            pygame.draw.polygon(screen, (38, 104, 124), pts)
+            pygame.draw.polygon(screen, (140, 240, 255), pts, 1)
+            pygame.draw.polygon(screen, (96, 196, 220),
+                                [(cx, cy - r * 1.2), (cx + r * 0.6, cy - r * 0.55),
+                                 (cx, cy + r * 0.9), (cx - r * 0.6, cy - r * 0.55)])
+        else:
+            pygame.draw.polygon(screen, (32, 42, 44), pts)
+            pygame.draw.polygon(screen, (52, 66, 68), pts, 1)
+
     def _coin_icon(self, screen, center, r):
         cx, cy = center
         draw_glow(screen, center, r * 2, (255, 198, 96), 50, 2.0)
