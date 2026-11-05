@@ -21,6 +21,7 @@ loadPrcFileData("", "show-frame-rate-meter true")
 loadPrcFileData("", "audio-library-name null")
 
 from audio_generator import generate_all_sounds
+from texture_generator import generate_textures
 from sound_manager import load_sound_catalog
 from particles import ParticleManager
 from map_manager import MapManager
@@ -33,6 +34,11 @@ class CyberOpsGame(ShowBase):
     def __init__(self):
         super().__init__()
         
+        # Textures check
+        tex_dir = os.path.join(os.path.dirname(__file__), "textures")
+        if not os.path.exists(tex_dir) or len(os.listdir(tex_dir)) < 5:
+            generate_textures(tex_dir)
+            
         # Audio directory check
         sound_dir = os.path.join(os.path.dirname(__file__), "sounds")
         if not os.path.exists(sound_dir) or len(os.listdir(sound_dir)) < 5:
@@ -72,10 +78,14 @@ class CyberOpsGame(ShowBase):
         self.accept('1', self.handle_menu_key, [1])
         self.accept('2', self.handle_menu_key, [2])
         self.accept('enter', self.handle_enter)
-        self.accept('q', self.quit_game)
+        self.accept('q', self.handle_q_key)
         
         # Start game update loop
         self.taskMgr.add(self.game_loop, "game_loop")
+
+    def handle_q_key(self):
+        if self.game_state in ('MENU', 'PAUSED', 'GAME_OVER'):
+            self.quit_game()
 
     def lock_mouse(self):
         if self.win is None:
@@ -84,6 +94,7 @@ class CyberOpsGame(ShowBase):
         props = WindowProperties()
         props.set_cursor_hidden(True)
         props.set_mouse_mode(WindowProperties.M_relative)
+        props.set_foreground(True)
         self.win.request_properties(props)
         self.mouse_locked = True
         
@@ -271,16 +282,17 @@ class CyberOpsGame(ShowBase):
         self.selected_map_id = map_id
         self.map_manager.load_map(map_id)
         
-        # Initialize Player
-        spawn_pos = Vec3(0, -28, 0)
+        # Initialize Player in safe staging cover
+        spawn_pos = Vec3(0, -24, 0)
         self.player = Player(self, spawn_pos)
         
         # Initialize HUD & Minimap
         self.hud = HUD(self.aspect2d, self.render2d)
         self.minimap = Minimap(self.aspect2d, self.player, self.map_manager, self.enemy_manager)
         
-        # Start initial wave
-        self.enemy_manager.start_wave(1, self.map_manager.spawn_points)
+        # Start initial wave with current time for reaction delay
+        current_time = ClockObject.get_global_clock().get_real_time()
+        self.enemy_manager.start_wave(1, self.map_manager.spawn_points, current_time=current_time)
         
         self.game_state = 'PLAYING'
         self.lock_mouse()
