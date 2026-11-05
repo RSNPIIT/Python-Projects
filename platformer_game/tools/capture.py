@@ -105,6 +105,7 @@ def main() -> int:
         game.step(1 / 60)
     game.god = False
     game.autopilot = False
+    game.player.armor = 0
     game.player.invuln = 0
     game.player.hearts = 1
     game._hurt_player(game.player.x - 90)
