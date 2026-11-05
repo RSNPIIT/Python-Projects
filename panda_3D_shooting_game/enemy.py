@@ -1,8 +1,8 @@
 """
-enemy.py - Random Enemy AI system with distinct classes:
-Assault Grunt, Fast Striker, and Laser-aiming Sniper.
-Features 3D procedural robotic humanoid models, walking animations,
-hit reactions, laser targeting lines, and audio callouts.
+enemy.py - Balanced and intelligent Tactical AI bots:
+Assault Grunt, Close-Quarter Rusher, and Precision Laser Sniper.
+Features reaction delays, obstacle line-of-sight awareness, balanced accuracy,
+3D tactical chassis models, and death animations.
 """
 
 import math
@@ -13,7 +13,7 @@ from panda3d.core import (
 from mesh_builder import make_cube, make_cylinder
 
 class Enemy:
-    def __init__(self, render, pos, enemy_type="grunt", particle_mgr=None, sound_mgr=None):
+    def __init__(self, render, pos, enemy_type="grunt", particle_mgr=None, sound_mgr=None, start_time=0.0):
         self.render = render
         self.enemy_type = enemy_type
         self.particle_mgr = particle_mgr
@@ -23,39 +23,46 @@ class Enemy:
         self.death_timer = 0.0
         self.hit_flash_timer = 0.0
         
-        # Stats based on archetype
+        # Reaction delay so enemies do not shoot the player on frame 1
+        self.spawn_delay = 1.8
+        self.has_sighted_player = False
+        
+        # Archetype stats
         if enemy_type == "rusher":
-            self.max_health = 65.0
-            self.speed = 8.5
-            self.damage = 18.0
-            self.attack_range = 6.0
-            self.fire_rate = 1.0
-            self.color_theme = Vec4(0.85, 0.25, 0.1, 1.0) # Bright Crimson
+            self.max_health = 60.0
+            self.speed = 7.2
+            self.damage = 14.0
+            self.attack_range = 8.0
+            self.fire_rate = 1.2
+            self.base_accuracy = 0.40
+            self.color_theme = Vec4(0.85, 0.25, 0.1, 1.0) # Crimson
         elif enemy_type == "sniper":
-            self.max_health = 55.0
-            self.speed = 3.8
-            self.damage = 45.0
+            self.max_health = 50.0
+            self.speed = 3.5
+            self.damage = 38.0
             self.attack_range = 45.0
-            self.fire_rate = 2.6
-            self.color_theme = Vec4(0.15, 0.45, 0.75, 1.0) # Deep Cyan
+            self.fire_rate = 3.2
+            self.base_accuracy = 0.85
+            self.color_theme = Vec4(0.15, 0.45, 0.75, 1.0) # Deep Navy Cyan
         else: # "grunt"
-            self.max_health = 85.0
-            self.speed = 5.5
-            self.damage = 12.0
-            self.attack_range = 22.0
-            self.fire_rate = 0.28
-            self.color_theme = Vec4(0.4, 0.42, 0.45, 1.0) # Steel Grey
+            self.max_health = 75.0
+            self.speed = 4.8
+            self.damage = 10.0
+            self.attack_range = 25.0
+            self.fire_rate = 0.45
+            self.base_accuracy = 0.35
+            self.color_theme = Vec4(0.28, 0.32, 0.36, 1.0) # Carbon Slate
             
         self.health = self.max_health
-        self.last_attack_time = 0.0
+        self.last_attack_time = start_time + self.spawn_delay
         self.laser_aim_timer = 0.0
-        self.aim_duration = 1.2
+        self.aim_duration = 1.6
         
         # Root node
         self.root = render.attach_new_node(f"enemy_{enemy_type}")
         self.root.set_pos(pos)
         
-        # Model parts for animation
+        # Model parts
         self.body_root = self.root.attach_new_node("body_root")
         self.left_leg = None
         self.right_leg = None
@@ -74,7 +81,7 @@ class Enemy:
 
     def build_model(self):
         # Pelvis / Lower body
-        pelvis = make_cube(0.5, 0.35, 0.25, Vec4(0.2, 0.2, 0.22, 1.0))
+        pelvis = make_cube(0.5, 0.35, 0.25, Vec4(0.15, 0.15, 0.18, 1.0))
         pelvis.reparent_to(self.body_root)
         pelvis.set_pos(0, 0, 0.9)
         
@@ -83,24 +90,18 @@ class Enemy:
         torso.reparent_to(self.body_root)
         torso.set_pos(0, 0, 1.4)
         
-        # Glowing Core / Power reactor on chest
-        core_c = Vec4(1.0, 0.2, 0.2, 1.0) if self.enemy_type != "sniper" else Vec4(0.1, 0.9, 1.0, 1.0)
-        core = make_cube(0.2, 0.42, 0.2, core_c)
-        core.reparent_to(self.body_root)
-        core.set_pos(0, 0.01, 1.45)
-        
-        # Head with Visor
-        self.head = make_cube(0.35, 0.35, 0.35, Vec4(0.2, 0.22, 0.25, 1.0))
+        # Glowing Energy Visor
+        visor_c = Vec4(1.0, 0.2, 0.1, 1.0) if self.enemy_type != "sniper" else Vec4(0.1, 0.9, 1.0, 1.0)
+        self.head = make_cube(0.35, 0.35, 0.35, Vec4(0.18, 0.20, 0.22, 1.0))
         self.head.reparent_to(self.body_root)
         self.head.set_pos(0, 0, 1.95)
         
-        # Visor strip
-        visor = make_cube(0.32, 0.37, 0.08, core_c)
+        visor = make_cube(0.33, 0.38, 0.08, visor_c)
         visor.reparent_to(self.head)
         visor.set_pos(0, 0.01, 0.02)
         
-        # Legs
-        leg_c = Vec4(0.18, 0.18, 0.2, 1.0)
+        # Limbs
+        leg_c = Vec4(0.14, 0.14, 0.16, 1.0)
         self.left_leg = self.body_root.attach_new_node("left_leg")
         self.left_leg.set_pos(-0.18, 0, 0.9)
         l_mesh = make_cube(0.18, 0.2, 0.85, leg_c)
@@ -113,7 +114,6 @@ class Enemy:
         r_mesh.reparent_to(self.right_leg)
         r_mesh.set_pos(0, 0, -0.42)
         
-        # Arms
         self.left_arm = self.body_root.attach_new_node("left_arm")
         self.left_arm.set_pos(-0.42, 0, 1.65)
         l_arm_mesh = make_cube(0.16, 0.18, 0.7, self.color_theme)
@@ -126,24 +126,19 @@ class Enemy:
         r_arm_mesh.reparent_to(self.right_arm)
         r_arm_mesh.set_pos(0, 0.05, -0.3)
         
-        # Gun in Right Arm
-        gun_c = Vec4(0.1, 0.1, 0.12, 1.0)
-        gun = make_cube(0.1, 0.55, 0.12, gun_c)
+        # Weapon
+        gun = make_cube(0.08, 0.6, 0.12, Vec4(0.08, 0.08, 0.1, 1.0))
         gun.reparent_to(self.right_arm)
         gun.set_pos(0.02, 0.25, -0.45)
         
-        # Aim arms forward
         self.right_arm.set_p(55)
         self.left_arm.set_p(45)
         self.left_arm.set_h(25)
 
     def build_health_bar(self):
-        # Health bar background
-        bg = make_cube(0.8, 0.02, 0.1, Vec4(0.1, 0.1, 0.1, 0.8))
+        bg = make_cube(0.8, 0.02, 0.1, Vec4(0.05, 0.05, 0.08, 0.85))
         bg.reparent_to(self.hp_bar_root)
-        
-        # Health bar fill (green)
-        self.hp_bar_fill = make_cube(0.78, 0.025, 0.08, Vec4(0.2, 0.9, 0.2, 1.0))
+        self.hp_bar_fill = make_cube(0.78, 0.025, 0.08, Vec4(0.2, 0.95, 0.3, 1.0))
         self.hp_bar_fill.reparent_to(self.hp_bar_root)
 
     def get_pos(self):
@@ -154,13 +149,18 @@ class Enemy:
             return
         self.health -= dmg
         self.hit_flash_timer = 0.08
-        self.body_root.set_color_scale(1.8, 0.5, 0.5, 1.0)
+        self.body_root.set_color_scale(2.0, 0.4, 0.4, 1.0)
         
-        # Update HP Bar
         ratio = max(0.0, self.health / self.max_health)
         self.hp_bar_fill.set_scale(ratio, 1.0, 1.0)
         self.hp_bar_fill.set_pos(-(1.0 - ratio) * 0.39, 0, 0)
         
+        # Change color to orange/red as health drops
+        if ratio < 0.3:
+            self.hp_bar_fill.set_color(Vec4(0.95, 0.1, 0.1, 1.0))
+        elif ratio < 0.6:
+            self.hp_bar_fill.set_color(Vec4(0.95, 0.7, 0.1, 1.0))
+            
         if self.health <= 0:
             self.die()
 
@@ -178,23 +178,19 @@ class Enemy:
         if self.sound_mgr and 'enemy_death' in self.sound_mgr:
             self.sound_mgr['enemy_death'].play()
             
-        # Spawn hit spark burst
         if self.particle_mgr:
             self.particle_mgr.spawn_impact_sparks(self.get_pos() + Vec3(0, 0, 1.2), Vec3(0, 0, 1), 16)
 
     def update(self, dt, current_time, player, map_manager):
-        # If dead, run collapse animation then remove
         if not self.is_alive:
             self.death_timer += dt
-            # Collapse backwards
             self.body_root.set_p(min(90.0, self.death_timer * 150.0))
             self.body_root.set_z(-min(0.8, self.death_timer * 1.5))
             if self.death_timer > 2.0:
                 self.root.remove_node()
-                return False  # signal to remove from manager
+                return False
             return True
 
-        # Restore color flash after hit
         if self.hit_flash_timer > 0:
             self.hit_flash_timer -= dt
             if self.hit_flash_timer <= 0:
@@ -203,8 +199,6 @@ class Enemy:
         # Face towards player
         p_pos = player.get_pos()
         my_pos = self.get_pos()
-        
-        # Billboarding health bar to look at camera
         self.hp_bar_root.look_at(player.camera)
         
         to_player = p_pos - my_pos
@@ -213,26 +207,34 @@ class Enemy:
         
         if dist > 0.1:
             to_player.normalize()
-            # Calculate heading angle
             target_angle = math.degrees(math.atan2(-to_player.x, to_player.y))
             self.root.set_h(target_angle)
             
+        # Check Line of Sight (LOS)
+        eye_pos = my_pos + Vec3(0, 0, 1.6)
+        target_pos = p_pos + Vec3(0, 0, 1.2)
+        has_los = map_manager.has_line_of_sight(eye_pos, target_pos)
+
+        # Spawn delay reaction timer
+        if self.spawn_delay > 0:
+            self.spawn_delay -= dt
+            return True
+
         # Movement logic
         is_walking = False
         should_approach = False
         
         if self.enemy_type == "rusher":
-            should_approach = dist > 2.2
+            should_approach = dist > 2.5
         elif self.enemy_type == "sniper":
-            should_approach = dist > 32.0
-            # If too close, retreat slightly
-            if dist < 12.0:
+            should_approach = (dist > 35.0) or (not has_los)
+            if dist < 12.0 and has_los:
                 step = -to_player * self.speed * dt
                 new_pos = map_manager.check_collision(my_pos, my_pos + step)
                 self.root.set_pos(new_pos)
                 is_walking = True
         else: # Grunt
-            should_approach = dist > 14.0
+            should_approach = (dist > 15.0) or (not has_los)
             
         if should_approach:
             step = to_player * self.speed * dt
@@ -240,74 +242,84 @@ class Enemy:
             self.root.set_pos(new_pos)
             is_walking = True
 
-        # Walk animation (Leg swinging)
+        # Walking animation
         if is_walking:
-            swing = math.sin(current_time * (self.speed * 1.8)) * 32.0
+            swing = math.sin(current_time * (self.speed * 1.8)) * 30.0
             self.left_leg.set_p(swing)
             self.right_leg.set_p(-swing)
         else:
             self.left_leg.set_p(0)
             self.right_leg.set_p(0)
 
-        # Attack logic
-        if self.enemy_type == "sniper":
-            self.update_sniper_attack(dt, current_time, dist, player)
+        # Attack logic only if has Line of Sight!
+        if has_los and not player.has_spawn_shield():
+            if self.enemy_type == "sniper":
+                self.update_sniper_attack(dt, current_time, dist, player, eye_pos, target_pos)
+            else:
+                self.update_regular_attack(current_time, dist, player, eye_pos)
         else:
-            self.update_regular_attack(current_time, dist, player)
+            if self.laser_line:
+                self.laser_line.remove_node()
+                self.laser_line = None
+            self.laser_aim_timer = 0.0
 
         return True
 
-    def update_regular_attack(self, current_time, dist, player):
+    def update_regular_attack(self, current_time, dist, player, eye_pos):
         if dist <= self.attack_range:
             if current_time - self.last_attack_time >= self.fire_rate:
                 self.last_attack_time = current_time
-                # Attack player
-                accuracy = 0.85 if self.enemy_type == "grunt" else 0.70
-                if random.random() < accuracy:
+                
+                # Accuracy falloff with distance
+                accuracy = self.base_accuracy * max(0.25, 1.0 - (dist / self.attack_range) * 0.5)
+                hit_player = random.random() < accuracy
+                
+                if hit_player:
                     player.take_damage(self.damage)
+                    tracer_target = player.get_pos() + Vec3(0, 0, random.uniform(0.8, 1.5))
+                else:
+                    # Miss shot that whizzes past player
+                    offset_x = random.choice([-1.5, 1.5]) * random.uniform(0.8, 2.0)
+                    tracer_target = player.get_pos() + Vec3(offset_x, random.uniform(-1, 1), random.uniform(0.5, 2.2))
                     
-                # Audio & Tracer
-                muzzle_world = self.get_pos() + Vec3(0, 0, 1.4)
-                target_pos = player.get_pos() + Vec3(random.uniform(-0.3, 0.3), random.uniform(-0.3, 0.3), 1.2)
                 if self.particle_mgr:
-                    c = Vec4(1.0, 0.3, 0.1, 1.0) if self.enemy_type == "rusher" else Vec4(1.0, 0.8, 0.2, 1.0)
-                    self.particle_mgr.spawn_tracer(muzzle_world, target_pos, color=c)
+                    c = Vec4(1.0, 0.35, 0.1, 1.0) if self.enemy_type == "rusher" else Vec4(1.0, 0.85, 0.2, 1.0)
+                    self.particle_mgr.spawn_tracer(eye_pos, tracer_target, color=c)
                     
                 if self.sound_mgr:
                     snd_key = 'shotgun' if self.enemy_type == "rusher" else 'ar'
                     if snd_key in self.sound_mgr:
                         self.sound_mgr[snd_key].play()
 
-    def update_sniper_attack(self, dt, current_time, dist, player):
+    def update_sniper_attack(self, dt, current_time, dist, player, eye_pos, target_pos):
         if dist <= self.attack_range:
-            # Laser line aiming before shooting
             self.laser_aim_timer += dt
-            muzzle_world = self.get_pos() + Vec3(0, 0, 1.6)
-            player_chest = player.get_pos() + Vec3(0, 0, 1.2)
             
-            # Draw / update red warning laser
+            # Draw visible warning red targeting laser
             if self.laser_line:
                 self.laser_line.remove_node()
                 
             lines = LineSegs()
             lines.set_color(Vec4(1.0, 0.05, 0.05, 0.85))
-            lines.set_thickness(2.0)
-            lines.move_to(muzzle_world)
-            lines.draw_to(player_chest)
+            lines.set_thickness(2.5)
+            lines.move_to(eye_pos)
+            lines.draw_to(target_pos)
             self.laser_line = self.render.attach_new_node(lines.create())
             
             if self.laser_aim_timer >= self.aim_duration:
-                # FIRE SNIPER SHOT!
                 self.laser_aim_timer = 0.0
                 if self.laser_line:
                     self.laser_line.remove_node()
                     self.laser_line = None
                     
-                player.take_damage(self.damage)
+                hit = random.random() < self.base_accuracy
+                if hit:
+                    player.take_damage(self.damage)
+                    
                 if self.sound_mgr and 'sniper' in self.sound_mgr:
                     self.sound_mgr['sniper'].play()
                 if self.particle_mgr:
-                    self.particle_mgr.spawn_tracer(muzzle_world, player_chest, color=Vec4(0.2, 0.8, 1.0, 1.0), speed=250.0)
+                    self.particle_mgr.spawn_tracer(eye_pos, target_pos, color=Vec4(0.1, 0.9, 1.0, 1.0), speed=280.0)
         else:
             self.laser_aim_timer = 0.0
             if self.laser_line:
@@ -329,28 +341,24 @@ class EnemyManager:
         self.wave_active = False
         self.wave_complete_timer = 0.0
 
-    def start_wave(self, wave_num, spawn_points):
+    def start_wave(self, wave_num, spawn_points, current_time=0.0):
         self.wave_number = wave_num
         self.wave_active = True
         
-        # Clear any remaining dead
         for e in self.enemies:
             if not e.is_alive and e.root:
                 e.root.remove_node()
         self.enemies.clear()
         
-        # Calculate wave composition
-        # Base count + extra each wave
-        total_enemies = 4 + wave_num * 2
+        # Wave composition
+        total_enemies = 3 + wave_num * 2
         
-        # Audio voice callout for wave
         if self.sound_mgr and 'voice_wave' in self.sound_mgr:
             self.sound_mgr['voice_wave'].play()
             
         for i in range(total_enemies):
-            sp = random.choice(spawn_points) + Vec3(random.uniform(-3, 3), random.uniform(-3, 3), 0)
+            sp = random.choice(spawn_points) + Vec3(random.uniform(-2, 2), random.uniform(-2, 2), 0)
             
-            # Select enemy archetype
             r = random.random()
             if wave_num >= 3 and r < 0.25:
                 etype = "sniper"
@@ -359,7 +367,7 @@ class EnemyManager:
             else:
                 etype = "grunt"
                 
-            enemy = Enemy(self.render, sp, etype, self.particle_mgr, self.sound_mgr)
+            enemy = Enemy(self.render, sp, etype, self.particle_mgr, self.sound_mgr, start_time=current_time)
             self.enemies.append(enemy)
 
     def update(self, dt, current_time, player, map_manager):
@@ -375,18 +383,16 @@ class EnemyManager:
                 
         self.enemies = remaining_enemies
         
-        # Check wave end
         if self.wave_active and alive_count == 0:
             self.wave_active = False
-            self.wave_complete_timer = 3.0
+            self.wave_complete_timer = 3.5
             if self.sound_mgr and 'voice_kill' in self.sound_mgr:
                 self.sound_mgr['voice_kill'].play()
                 
         if not self.wave_active and self.wave_complete_timer > 0:
             self.wave_complete_timer -= dt
             if self.wave_complete_timer <= 0:
-                # Next wave!
-                self.start_wave(self.wave_number + 1, map_manager.spawn_points)
+                self.start_wave(self.wave_number + 1, map_manager.spawn_points, current_time=current_time)
 
     def get_alive_count(self):
         return sum(1 for e in self.enemies if e.is_alive)
