@@ -1,7 +1,7 @@
 """
-minimap.py - Real-time tactical 2D HUD radar / minimap.
-Displays player position, heading arrow, enemy blips, explosive barrels,
-and ammo/health pickups. Supports compact corner mode and expanded tactical map (M key).
+minimap.py - Real-time tactical 2D HUD radar / minimap with rotating sweep beam.
+Displays cardinal headings, rotating sweep line, player orientation,
+enemy hostiles, explosive barrels, and tactical supply drops.
 """
 
 import math
@@ -16,80 +16,79 @@ class Minimap:
         self.map_manager = map_manager
         self.enemy_manager = enemy_manager
         
-        # State
         self.is_expanded = False
-        self.radar_radius = 50.0  # World units visible in radar
+        self.radar_radius = 50.0
+        self.sweep_angle = 0.0
         
-        # Root node in aspect2d
         self.root = aspect2d.attach_new_node("minimap_root")
+        self.compact_pos = Vec3(1.06, 0, 0.68)
+        self.compact_scale = 0.25
         
-        # Compact mode: Top right corner
-        self.compact_pos = Vec3(1.05, 0, 0.68)
-        self.compact_scale = 0.26
-        
-        # Expanded mode: Center screen
         self.expanded_pos = Vec3(0, 0, 0)
-        self.expanded_scale = 0.75
+        self.expanded_scale = 0.72
         
         self.root.set_pos(self.compact_pos)
         self.root.set_scale(self.compact_scale)
         
-        # Blip nodes
         self.blip_root = self.root.attach_new_node("blip_root")
         self.player_arrow = None
+        self.sweep_line = None
         
         self.build_radar_frame()
         self.build_player_indicator()
 
     def build_radar_frame(self):
-        # Dark circular background backing
         cm = CardMaker("radar_bg")
         cm.set_frame(-1.0, 1.0, -1.0, 1.0)
         bg = self.root.attach_new_node(cm.generate())
-        bg.set_color(Vec4(0.04, 0.08, 0.12, 0.78))
+        bg.set_color(Vec4(0.03, 0.06, 0.09, 0.85))
         bg.set_transparency(True)
         bg.set_bin("fixed", 10)
         
-        # Circular radar rings and compass crosshairs
         lines = LineSegs()
-        lines.set_color(Vec4(0.1, 0.7, 0.9, 0.6))
-        lines.set_thickness(1.5)
+        lines.set_color(Vec4(0.0, 0.85, 1.0, 0.6))
+        lines.set_thickness(1.8)
         
-        # Outer ring
-        segments = 36
+        segments = 40
+        # Outer Ring
         for i in range(segments + 1):
             ang = (i / segments) * 2 * math.pi
             x = math.cos(ang)
             y = math.sin(ang)
-            if i == 0:
-                lines.move_to(x, y, 0)
-            else:
-                lines.draw_to(x, y, 0)
-                
-        # Inner range rings (50% and 75%)
-        for r in [0.5, 0.75]:
+            if i == 0: lines.move_to(x, y, 0)
+            else: lines.draw_to(x, y, 0)
+            
+        # Inner Range Rings (33% and 66%)
+        lines.set_color(Vec4(0.0, 0.7, 0.9, 0.35))
+        for r in [0.35, 0.70]:
             for i in range(segments + 1):
                 ang = (i / segments) * 2 * math.pi
                 x = r * math.cos(ang)
                 y = r * math.sin(ang)
-                if i == 0:
-                    lines.move_to(x, y, 0)
-                else:
-                    lines.draw_to(x, y, 0)
-                    
-        # Crosshair lines
-        lines.move_to(-1.0, 0, 0); lines.draw_to(1.0, 0, 0)
-        lines.move_to(0, -1.0, 0); lines.draw_to(0, 1.0, 0)
+                if i == 0: lines.move_to(x, y, 0)
+                else: lines.draw_to(x, y, 0)
+                
+        # Axis lines
+        lines.move_to(-0.95, 0, 0); lines.draw_to(0.95, 0, 0)
+        lines.move_to(0, -0.95, 0); lines.draw_to(0, 0.95, 0)
         
         frame = self.root.attach_new_node(lines.create())
         frame.set_bin("fixed", 11)
+        
+        # North indicator
+        n_text = TextNode("north_tag")
+        n_text.set_text("N")
+        n_text.set_align(TextNode.A_center)
+        n_text.set_text_color(0.1, 0.9, 1.0, 0.9)
+        np_n = self.root.attach_new_node(n_text)
+        np_n.set_pos(0, 0, 0.82)
+        np_n.set_scale(0.11)
+        np_n.set_bin("fixed", 12)
 
     def build_player_indicator(self):
-        # Bright cyan/green tactical arrow at center of radar
         lines = LineSegs()
-        lines.set_color(Vec4(0.0, 1.0, 0.6, 1.0))
-        lines.set_thickness(2.5)
-        # Arrow pointing up (+Y on 2D)
+        lines.set_color(Vec4(0.0, 1.0, 0.5, 1.0))
+        lines.set_thickness(2.8)
         lines.move_to(0, 0.12, 0)
         lines.draw_to(-0.06, -0.08, 0)
         lines.draw_to(0, -0.03, 0)
@@ -97,7 +96,7 @@ class Minimap:
         lines.draw_to(0, 0.12, 0)
         
         self.player_arrow = self.root.attach_new_node(lines.create())
-        self.player_arrow.set_bin("fixed", 15)
+        self.player_arrow.set_bin("fixed", 16)
 
     def toggle_expand(self):
         self.is_expanded = not self.is_expanded
@@ -111,23 +110,27 @@ class Minimap:
             self.radar_radius = 50.0
 
     def update(self):
-        # Clear old dynamic blips
         for child in self.blip_root.get_children():
             child.remove_node()
             
         p_pos = self.player.get_pos()
         p_yaw = self.player.get_yaw()
-        
-        # Player arrow points in direction of player's heading
-        # In radar, forward is +Y, right is +X.
-        # We rotate the arrow so North is up, or rotate radar with player.
-        # Rotating player arrow relative to world:
         self.player_arrow.set_r(-p_yaw)
+        
+        # Rotating Radar Sweep Beam Line
+        self.sweep_angle = (self.sweep_angle + 120.0 * 0.016) % 360.0
+        rad = math.radians(self.sweep_angle)
+        sweep_lines = LineSegs()
+        sweep_lines.set_color(Vec4(0.0, 0.9, 1.0, 0.45))
+        sweep_lines.set_thickness(1.5)
+        sweep_lines.move_to(0, 0, 0)
+        sweep_lines.draw_to(math.cos(rad) * 0.95, math.sin(rad) * 0.95, 0)
+        self.blip_root.attach_new_node(sweep_lines.create()).set_bin("fixed", 13)
         
         lines = LineSegs()
         lines.set_thickness(4.0)
         
-        # Draw dynamic barrels (Orange/Yellow blips)
+        # Barrels (Orange blips)
         for barrel in self.map_manager.barrels:
             if not barrel.is_destroyed:
                 b_pos = barrel.get_pos()
@@ -136,12 +139,10 @@ class Minimap:
                 dist = math.sqrt(dx * dx + dy * dy)
                 if dist <= 0.95:
                     lines.set_color(Vec4(1.0, 0.65, 0.0, 0.9))
-                    lines.move_to(dx - 0.02, dy, 0)
-                    lines.draw_to(dx + 0.02, dy, 0)
-                    lines.move_to(dx, dy - 0.02, 0)
-                    lines.draw_to(dx, dy + 0.02, 0)
+                    lines.move_to(dx - 0.02, dy, 0); lines.draw_to(dx + 0.02, dy, 0)
+                    lines.move_to(dx, dy - 0.02, 0); lines.draw_to(dx, dy + 0.02, 0)
                     
-        # Draw pickups (Green/Cyan blips)
+        # Pickups (Green/Cyan blips)
         for pickup in self.map_manager.pickups:
             if pickup.is_active:
                 pk_pos = pickup.get_pos()
@@ -149,14 +150,12 @@ class Minimap:
                 dy = (pk_pos.y - p_pos.y) / self.radar_radius
                 dist = math.sqrt(dx * dx + dy * dy)
                 if dist <= 0.95:
-                    c = Vec4(0.2, 1.0, 0.4, 0.9) if pickup.kind == 'health' else Vec4(0.2, 0.8, 1.0, 0.9)
+                    c = Vec4(0.2, 1.0, 0.4, 0.95) if pickup.kind == 'health' else Vec4(0.0, 0.85, 1.0, 0.95)
                     lines.set_color(c)
-                    lines.move_to(dx - 0.025, dy, 0)
-                    lines.draw_to(dx + 0.025, dy, 0)
-                    lines.move_to(dx, dy - 0.025, 0)
-                    lines.draw_to(dx, dy + 0.025, 0)
+                    lines.move_to(dx - 0.025, dy, 0); lines.draw_to(dx + 0.025, dy, 0)
+                    lines.move_to(dx, dy - 0.025, 0); lines.draw_to(dx, dy + 0.025, 0)
                     
-        # Draw enemies (Red blips)
+        # Enemies (Glowing Red blips)
         for enemy in self.enemy_manager.enemies:
             if enemy.is_alive:
                 e_pos = enemy.get_pos()
@@ -165,30 +164,25 @@ class Minimap:
                 dist = math.sqrt(dx * dx + dy * dy)
                 if dist <= 0.95:
                     lines.set_color(Vec4(1.0, 0.15, 0.15, 1.0))
-                    # Draw a solid red square/diamond
                     lines.move_to(dx, dy + 0.035, 0)
                     lines.draw_to(dx + 0.035, dy, 0)
                     lines.draw_to(dx, dy - 0.035, 0)
                     lines.draw_to(dx - 0.035, dy, 0)
                     lines.draw_to(dx, dy + 0.035, 0)
 
-        # Draw dynamic moving platforms (Cyan blip)
+        # Platforms (Cyan blip)
         for plat in self.map_manager.moving_platforms:
             pl_pos = plat.get_pos()
             dx = (pl_pos.x - p_pos.x) / self.radar_radius
             dy = (pl_pos.y - p_pos.y) / self.radar_radius
             dist = math.sqrt(dx * dx + dy * dy)
             if dist <= 0.95:
-                lines.set_color(Vec4(0.0, 0.9, 1.0, 0.8))
-                lines.move_to(dx - 0.03, dy - 0.03, 0)
-                lines.draw_to(dx + 0.03, dy - 0.03, 0)
-                lines.draw_to(dx + 0.03, dy + 0.03, 0)
-                lines.draw_to(dx - 0.03, dy + 0.03, 0)
+                lines.set_color(Vec4(0.0, 0.9, 1.0, 0.85))
+                lines.move_to(dx - 0.03, dy - 0.03, 0); lines.draw_to(dx + 0.03, dy - 0.03, 0)
+                lines.draw_to(dx + 0.03, dy + 0.03, 0); lines.draw_to(dx - 0.03, dy + 0.03, 0)
                 lines.draw_to(dx - 0.03, dy - 0.03, 0)
                 
-        geom = lines.create()
-        blip_node = self.blip_root.attach_new_node(geom)
-        blip_node.set_bin("fixed", 14)
+        self.blip_root.attach_new_node(lines.create()).set_bin("fixed", 15)
 
     def cleanup(self):
         self.root.remove_node()
