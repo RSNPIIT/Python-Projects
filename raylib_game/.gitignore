@@ -1,0 +1,8 @@
+.venv/
+__pycache__/
+*.pyc
+.DS_Store
+savegame.json
+savegame.tmp
+screenshots/test_*.png
+screenshots/weapon_*.png
