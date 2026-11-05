@@ -5,8 +5,9 @@ aim-down-sights (ADS), and gun inspect animations.
 
 import math
 import random
+import os
 from panda3d.core import (
-    NodePath, Vec3, Vec4, PointLight, AudioSound
+    NodePath, Vec3, Vec4, PointLight, AudioSound, Texture, Filename
 )
 from mesh_builder import make_cube, make_cylinder
 
@@ -15,6 +16,13 @@ class Weapon:
         self.name = name
         self.app = app
         self.camera = camera
+        
+        # Load weapon texture
+        tex_path = os.path.join(os.path.dirname(__file__), "textures", "gun_metal.png")
+        self.gun_tex = None
+        if os.path.exists(tex_path):
+            self.gun_tex = Texture()
+            self.gun_tex.read(Filename(tex_path))
         
         # Weapon stats
         self.damage = 25
@@ -240,7 +248,7 @@ class Weapon:
             bob_speed = 14.0 if is_sprinting else 9.0
             bob_amp = 0.022 if is_sprinting else 0.012
             cur_pos.x += math.cos(current_time * (bob_speed * 0.5)) * bob_amp * 1.5 * bob_factor
-            cur_pos.z += math.abs(math.sin(current_time * bob_speed)) * bob_amp * bob_factor
+            cur_pos.z += abs(math.sin(current_time * bob_speed)) * bob_amp * bob_factor
             cur_hpr.z += math.cos(current_time * (bob_speed * 0.5)) * 2.2 * bob_factor
         else:
             # Idle breathing sway
@@ -300,6 +308,8 @@ class Pistol(Weapon):
         slide = make_cube(0.05, 0.22, 0.055, Vec4(0.3, 0.32, 0.34, 1.0))
         slide.reparent_to(self.root)
         slide.set_pos(0, 0.05, 0.02)
+        if self.gun_tex:
+            slide.set_texture(self.gun_tex)
         
         # Barrel tip
         barrel = make_cylinder(0.012, 0.06, 10, Vec4(0.1, 0.1, 0.1, 1.0))
@@ -345,6 +355,8 @@ class AssaultRifle(Weapon):
         rec = make_cube(0.06, 0.28, 0.075, Vec4(0.2, 0.22, 0.24, 1.0))
         rec.reparent_to(self.root)
         rec.set_pos(0, 0.02, 0.0)
+        if self.gun_tex:
+            rec.set_texture(self.gun_tex)
         
         # Handguard / Barrel shroud
         hg = make_cube(0.055, 0.25, 0.065, Vec4(0.25, 0.27, 0.25, 1.0))
@@ -414,6 +426,8 @@ class Shotgun(Weapon):
         rec = make_cube(0.07, 0.28, 0.08, Vec4(0.18, 0.18, 0.2, 1.0))
         rec.reparent_to(self.root)
         rec.set_pos(0, -0.02, 0.0)
+        if self.gun_tex:
+            rec.set_texture(self.gun_tex)
         
         # Top Barrel
         top_barrel = make_cylinder(0.022, 0.45, 12, Vec4(0.28, 0.28, 0.3, 1.0))
@@ -469,6 +483,8 @@ class SniperRifle(Weapon):
         chassis = make_cube(0.065, 0.55, 0.085, Vec4(0.22, 0.32, 0.26, 1.0))
         chassis.reparent_to(self.root)
         chassis.set_pos(0, 0.05, -0.01)
+        if self.gun_tex:
+            chassis.set_texture(self.gun_tex)
         
         # Long Heavy Fluted Barrel
         barrel = make_cylinder(0.018, 0.62, 12, Vec4(0.15, 0.15, 0.17, 1.0))
