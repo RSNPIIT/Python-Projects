@@ -84,7 +84,9 @@ def load_sound_catalog(sound_dir):
         'voice_kill': 'voice_kill.wav',
         'voice_wave': 'voice_wave.wav',
         'voice_reload': 'voice_reload.wav',
-        'enemy_death': 'enemy_death.wav'
+        'enemy_death': 'enemy_death.wav',
+        'ui_click': 'ui_click.wav',
+        'ui_hover': 'ui_hover.wav'
     }
     sounds = {}
     for key, fname in sound_files.items():
