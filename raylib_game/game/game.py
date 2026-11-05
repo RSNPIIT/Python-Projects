@@ -141,6 +141,7 @@ class Game:
         self.ambient_timer = 0.0
         self.ignore_fire = 0.0
         self.ignore_mouse_frames = 0
+        self.pointer_free = False
         self.muzzle_light = 0.0
         self.pending_game_over = False
         self.mission_stats: dict = {}
@@ -325,8 +326,10 @@ class Game:
         if fade:
             self.fade_alpha = 1.0
         if state == PLAYING:
-            rl.DisableCursor()
+            if not self.pointer_free:
+                rl.DisableCursor()
         else:
+            self.pointer_free = False
             rl.EnableCursor()
 
     def _open_briefing(self, index: int, return_state: str) -> None:
@@ -448,7 +451,7 @@ class Game:
 
     def _update_pause(self, dt: float) -> None:
         count = len(self.pause_options)
-        if rl.IsKeyPressed(rl.KEY_ESCAPE):
+        if rl.IsKeyPressed(rl.KEY_ESCAPE) or rl.IsKeyPressed(rl.KEY_P):
             self._resume()
             return
         if rl.IsKeyPressed(rl.KEY_UP) or rl.IsKeyPressed(rl.KEY_W):
@@ -481,7 +484,26 @@ class Game:
         elif option_id == "title":
             self._return_to_title()
 
+    def _toggle_pointer_free(self, force: bool | None = None) -> None:
+        target = (not self.pointer_free) if force is None else force
+        if target == self.pointer_free:
+            return
+        self.pointer_free = target
+        if self.pointer_free:
+            if self.player is not None:
+                self.player.ads = False
+            rl.EnableCursor()
+            self.ignore_fire = 0.2
+            self.ignore_mouse_frames = 2
+            self._emit_event("CURSOR RELEASED // CLICK PAUSE OR TAB TO RECAPTURE", CYAN, 2.2)
+        else:
+            rl.DisableCursor()
+            self.ignore_mouse_frames = 3
+            self.ignore_fire = 0.2
+            self._emit_event("MOUSE RECAPTURED", CYAN, 1.1)
+
     def _resume(self) -> None:
+        self.pointer_free = False
         self._set_state(PLAYING, fade=False)
         self.ignore_mouse_frames = 4
         self.ignore_fire = 0.2
@@ -662,6 +684,7 @@ class Game:
         self.player_in_hazard = False
         self.ignore_fire = 0.35
         self.ignore_mouse_frames = 6
+        self.pointer_free = False
         self.mission_stats = {}
         self.game_map.build_flow_field(self.player.x, self.player.y)
         self._set_state(PLAYING)
@@ -769,10 +792,24 @@ class Game:
     # Gameplay update
     # ------------------------------------------------------------------
     def _update_playing(self, dt: float) -> None:
-        if rl.IsKeyPressed(rl.KEY_ESCAPE):
+        if rl.IsKeyPressed(rl.KEY_ESCAPE) or rl.IsKeyPressed(rl.KEY_P):
+            self.pointer_free = False
             self._set_state(PAUSED, fade=False)
             self.pause_selection = 0
             return
+        if rl.IsKeyPressed(rl.KEY_TAB):
+            self._toggle_pointer_free()
+        if self.pointer_free and self.mouse_clicked:
+            px, py, pw, ph = self.ui.pause_button_rect()
+            mx, my = self.mouse_pos
+            if px <= mx <= px + pw and py <= my <= py + ph:
+                self.pointer_free = False
+                self._set_state(PAUSED, fade=False)
+                self.pause_selection = 0
+                return
+            # Clicking outside the pause button recaptures the mouse.  It must
+            # not fire a shot while the cursor is free for UI interaction.
+            self._toggle_pointer_free(False)
         if self.player is None:
             return
         player = self.player
@@ -827,7 +864,9 @@ class Game:
             player.look = clamp(player.look + look_speed * dt, -112.0, 112.0)
         if rl.IsKeyDown(rl.KEY_DOWN):
             player.look = clamp(player.look - look_speed * dt, -112.0, 112.0)
-        if self.ignore_mouse_frames > 0:
+        if self.pointer_free:
+            rl.GetMouseDelta()
+        elif self.ignore_mouse_frames > 0:
             self.ignore_mouse_frames -= 1
             rl.GetMouseDelta()
         else:
@@ -845,7 +884,11 @@ class Game:
         player = self.player
         if player is None:
             return
-        player.ads = rl.IsMouseButtonDown(rl.MOUSE_BUTTON_RIGHT) and player.dash_time <= 0
+        player.ads = (
+            rl.IsMouseButtonDown(rl.MOUSE_BUTTON_RIGHT)
+            and player.dash_time <= 0
+            and not self.pointer_free
+        )
         forward_input = 0.0
         strafe_input = 0.0
         if rl.IsKeyDown(rl.KEY_W):
@@ -1036,7 +1079,7 @@ class Game:
         fire_pressed = rl.IsMouseButtonPressed(rl.MOUSE_BUTTON_LEFT)
         fire_down = rl.IsMouseButtonDown(rl.MOUSE_BUTTON_LEFT)
         wants_fire = fire_down if player.weapon.automatic else fire_pressed
-        if self.ignore_fire > 0:
+        if self.ignore_fire > 0 or self.pointer_free:
             wants_fire = False
         if wants_fire and player.weapon_cooldown <= 0 and player.switch_cooldown <= 0:
             self._fire_weapon()
