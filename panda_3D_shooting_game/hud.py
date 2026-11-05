@@ -1,7 +1,8 @@
 """
-hud.py - Modern tactical FPS HUD:
-Dynamic crosshairs, hitmarkers, health & shield gauges, weapon & ammo counters,
-wave banner, damage flash vignettes, and high-precision sniper scope overlay.
+hud.py - Modern Tactical AAA Sci-Fi FPS HUD:
+Glassmorphism cyber panels, segmented health/shield gauges,
+dynamic precision crosshairs, tactical ammo cards, deploy shield alerts,
+and high-tech rangefinder sniper scope overlay.
 """
 
 import math
@@ -19,14 +20,13 @@ class HUD:
         # Crosshair state
         self.crosshair_root = self.root.attach_new_node("crosshair_root")
         self.crosshair_lines = None
-        self.current_spread = 0.02
         
         # Hitmarker state
         self.hitmarker_root = self.root.attach_new_node("hitmarker_root")
         self.hitmarker_timer = 0.0
         self.is_kill_hit = False
         
-        # Sniper Scope Overlay root (in render2d for exact screen coverage)
+        # Sniper Scope Overlay root
         self.scope_root = render2d.attach_new_node("sniper_scope_root")
         self.scope_root.hide()
         
@@ -34,16 +34,21 @@ class HUD:
         self.damage_flash_root = render2d.attach_new_node("damage_flash_root")
         self.damage_flash_timer = 0.0
         
-        # Text nodes
+        # Nodes
         self.ammo_text_node = None
         self.ammo_np = None
+        self.weapon_name_node = None
+        self.weapon_name_np = None
+        self.firemode_node = None
+        self.firemode_np = None
+        
         self.health_text_node = None
         self.health_np = None
         self.wave_text_node = None
         self.wave_np = None
-        self.prompt_np = None
+        self.shield_alert_node = None
+        self.shield_alert_np = None
         
-        # Health & shield visual bar nodes
         self.hp_bar_fill = None
         self.shield_bar_fill = None
         
@@ -52,113 +57,156 @@ class HUD:
         self.build_damage_flash()
 
     def build_hud_elements(self):
-        # 1. Health & Shield Panel (Bottom-Left)
-        # Background bar backing
-        cm = CardMaker("hp_bg")
-        cm.set_frame(-0.02, 0.52, -0.02, 0.09)
-        bg = self.root.attach_new_node(cm.generate())
-        bg.set_pos(-1.25, 0, -0.88)
-        bg.set_color(Vec4(0.05, 0.08, 0.12, 0.8))
+        # ==============================================================================
+        # 1. HEALTH & ARMOR SHIELD PANEL (Bottom-Left)
+        # ==============================================================================
+        # Angled glassmorphic frame backing
+        cm_bg = CardMaker("hp_panel_bg")
+        cm_bg.set_frame(-0.02, 0.54, -0.02, 0.14)
+        bg = self.root.attach_new_node(cm_bg.generate())
+        bg.set_pos(-1.26, 0, -0.92)
+        bg.set_color(Vec4(0.04, 0.07, 0.10, 0.82))
         bg.set_transparency(True)
         
-        # Health bar (Red/Green)
-        cm_hp = CardMaker("hp_bar")
-        cm_hp.set_frame(0, 0.5, 0, 0.035)
-        self.hp_bar_fill = self.root.attach_new_node(cm_hp.generate())
-        self.hp_bar_fill.set_pos(-1.24, 0, -0.835)
-        self.hp_bar_fill.set_color(Vec4(0.15, 0.9, 0.35, 1.0))
+        # Glowing border line
+        lines = LineSegs()
+        lines.set_color(Vec4(0.1, 0.8, 1.0, 0.8))
+        lines.set_thickness(2.0)
+        lines.move_to(-1.26, 0, -0.78)
+        lines.draw_to(-0.72, 0, -0.78)
+        lines.draw_to(-0.70, 0, -0.92)
+        lines.draw_to(-1.26, 0, -0.92)
+        lines.draw_to(-1.26, 0, -0.78)
+        self.root.attach_new_node(lines.create())
         
-        # Shield bar (Cyan)
-        cm_sh = CardMaker("shield_bar")
-        cm_sh.set_frame(0, 0.5, 0, 0.02)
+        # Shield bar (Cyan neon)
+        cm_sh = CardMaker("shield_fill")
+        cm_sh.set_frame(0, 0.48, 0, 0.022)
         self.shield_bar_fill = self.root.attach_new_node(cm_sh.generate())
-        self.shield_bar_fill.set_pos(-1.24, 0, -0.865)
-        self.shield_bar_fill.set_color(Vec4(0.1, 0.75, 1.0, 1.0))
+        self.shield_bar_fill.set_pos(-1.23, 0, -0.835)
+        self.shield_bar_fill.set_color(Vec4(0.0, 0.85, 1.0, 1.0))
         
-        # Health & Shield Text readout
-        self.health_text_node = TextNode("health_text")
-        self.health_text_node.set_text("HP: 100  |  SHIELD: 50")
-        self.health_text_node.set_text_color(1, 1, 1, 0.95)
+        # Health bar (Emerald green)
+        cm_hp = CardMaker("hp_fill")
+        cm_hp.set_frame(0, 0.48, 0, 0.032)
+        self.hp_bar_fill = self.root.attach_new_node(cm_hp.generate())
+        self.hp_bar_fill.set_pos(-1.23, 0, -0.875)
+        self.hp_bar_fill.set_color(Vec4(0.15, 0.95, 0.4, 1.0))
+        
+        # Digital readout
+        self.health_text_node = TextNode("health_readout")
+        self.health_text_node.set_text("VITALS: 100%  |  ARMOR: 100%")
+        self.health_text_node.set_text_color(0.9, 0.95, 1.0, 0.95)
         self.health_np = self.root.attach_new_node(self.health_text_node)
-        self.health_np.set_pos(-1.24, 0, -0.78)
-        self.health_np.set_scale(0.042)
+        self.health_np.set_pos(-1.23, 0, -0.805)
+        self.health_np.set_scale(0.038)
 
-        # 2. Ammo & Weapon Panel (Bottom-Right)
-        self.ammo_text_node = TextNode("ammo_text")
+        # ==============================================================================
+        # 2. WEAPON & AMMO STATUS CARD (Bottom-Right)
+        # ==============================================================================
+        cm_wbg = CardMaker("ammo_panel_bg")
+        cm_wbg.set_frame(-0.52, 0.02, -0.02, 0.14)
+        wbg = self.root.attach_new_node(cm_wbg.generate())
+        wbg.set_pos(1.26, 0, -0.92)
+        wbg.set_color(Vec4(0.04, 0.07, 0.10, 0.82))
+        wbg.set_transparency(True)
+        
+        # Border
+        w_lines = LineSegs()
+        w_lines.set_color(Vec4(0.0, 0.85, 1.0, 0.8))
+        w_lines.set_thickness(2.0)
+        w_lines.move_to(0.74, 0, -0.92)
+        w_lines.draw_to(0.76, 0, -0.78)
+        w_lines.draw_to(1.26, 0, -0.78)
+        w_lines.draw_to(1.26, 0, -0.92)
+        w_lines.draw_to(0.74, 0, -0.92)
+        self.root.attach_new_node(w_lines.create())
+        
+        # Weapon Name & Firemode
+        self.weapon_name_node = TextNode("wpn_name")
+        self.weapon_name_node.set_align(TextNode.A_right)
+        self.weapon_name_node.set_text("M4A1 TACTICAL")
+        self.weapon_name_node.set_text_color(0.95, 0.95, 1.0, 1.0)
+        self.weapon_name_np = self.root.attach_new_node(self.weapon_name_node)
+        self.weapon_name_np.set_pos(1.23, 0, -0.81)
+        self.weapon_name_np.set_scale(0.038)
+        
+        # Large Numeric Ammo
+        self.ammo_text_node = TextNode("ammo_digits")
         self.ammo_text_node.set_align(TextNode.A_right)
-        self.ammo_text_node.set_text("30 / 150\nASSAULT RIFLE")
-        self.ammo_text_node.set_text_color(0.2, 0.9, 1.0, 0.95)
+        self.ammo_text_node.set_text("30 / 150")
+        self.ammo_text_node.set_text_color(0.1, 0.9, 1.0, 1.0)
         self.ammo_np = self.root.attach_new_node(self.ammo_text_node)
-        self.ammo_np.set_pos(1.25, 0, -0.84)
-        self.ammo_np.set_scale(0.052)
+        self.ammo_np.set_pos(1.23, 0, -0.875)
+        self.ammo_np.set_scale(0.058)
 
-        # 3. Wave / Enemies Remaining Banner (Top-Center)
-        self.wave_text_node = TextNode("wave_text")
+        # ==============================================================================
+        # 3. TACTICAL COMBAT BANNER (Top-Center)
+        # ==============================================================================
+        self.wave_text_node = TextNode("wave_banner")
         self.wave_text_node.set_align(TextNode.A_center)
-        self.wave_text_node.set_text("WAVE 1  |  ENEMIES: 6  |  SCORE: 0")
-        self.wave_text_node.set_text_color(1.0, 0.85, 0.2, 0.95)
+        self.wave_text_node.set_text("// COMBAT ZONE: ACTIVE  |  WAVE 1  |  HOSTILES: 6 //")
+        self.wave_text_node.set_text_color(1.0, 0.85, 0.15, 0.95)
         self.wave_np = self.root.attach_new_node(self.wave_text_node)
-        self.wave_np.set_pos(0, 0, 0.88)
-        self.wave_np.set_scale(0.048)
+        self.wave_np.set_pos(0, 0, 0.90)
+        self.wave_np.set_scale(0.044)
 
-        # 4. Controls / Inspect prompt (Bottom-Center subtle hint)
-        prompt_node = TextNode("prompt_text")
-        prompt_node.set_align(TextNode.A_center)
-        prompt_node.set_text("[1-4] Weapons  |  [F] Inspect Gun  |  [R] Reload  |  [M] Radar  |  [Shift] Sprint")
-        prompt_node.set_text_color(0.7, 0.75, 0.8, 0.6)
-        self.prompt_np = self.root.attach_new_node(prompt_node)
-        self.prompt_np.set_pos(0, 0, -0.94)
-        self.prompt_np.set_scale(0.032)
+        # Deploy Shield Alert
+        self.shield_alert_node = TextNode("shield_alert")
+        self.shield_alert_node.set_align(TextNode.A_center)
+        self.shield_alert_node.set_text("[ TACTICAL DEPLOY SHIELD ACTIVE: 3.5s ]")
+        self.shield_alert_node.set_text_color(0.1, 0.9, 1.0, 1.0)
+        self.shield_alert_np = self.root.attach_new_node(self.shield_alert_node)
+        self.shield_alert_np.set_pos(0, 0, 0.76)
+        self.shield_alert_np.set_scale(0.046)
 
     def build_sniper_scope(self):
-        """Constructs full-screen sniper scope reticle and dark vignette edges."""
-        # Top, bottom, left, right black masks
+        """Constructs modern high-tech digital sniper optic overlay."""
+        # Dark vignette masks covering 4 corners
         cm = CardMaker("scope_mask")
         cm.set_frame(-1.0, 1.0, -1.0, 1.0)
+        mask = self.scope_root.attach_new_node(cm.generate())
+        mask.set_color(Vec4(0.02, 0.03, 0.04, 0.75))
+        mask.set_transparency(True)
         
-        # Center circle reticle with crosshairs
+        # High precision mil-dot crosshairs
         lines = LineSegs()
-        lines.set_color(Vec4(0.05, 0.05, 0.05, 0.95))
-        lines.set_thickness(2.0)
+        lines.set_color(Vec4(0.05, 0.95, 0.45, 0.9)) # High-tech night green
+        lines.set_thickness(1.8)
         
-        # Outer scope circle
+        # Center scope ring
         segments = 64
-        r = 0.72
+        r = 0.70
         for i in range(segments + 1):
             ang = (i / segments) * 2 * math.pi
             x = math.cos(ang) * r
             y = math.sin(ang) * r
-            if i == 0:
-                lines.move_to(x, y, 0)
-            else:
-                lines.draw_to(x, y, 0)
-                
-        # Precision Mil-Dot crosshair lines
-        lines.set_color(Vec4(0.1, 0.1, 0.1, 0.9))
-        lines.set_thickness(1.5)
+            if i == 0: lines.move_to(x, y, 0)
+            else: lines.draw_to(x, y, 0)
+            
+        # Crosshair lines
         lines.move_to(-r, 0, 0); lines.draw_to(r, 0, 0)
         lines.move_to(0, -r, 0); lines.draw_to(0, r, 0)
         
-        # Mil-dot graduation ticks
-        for d in [-0.4, -0.2, 0.2, 0.4]:
-            lines.move_to(d, -0.02, 0); lines.draw_to(d, 0.02, 0)
-            lines.move_to(-0.02, d, 0); lines.draw_to(0.02, d, 0)
+        # Mil-dot graduation markers
+        for d in [-0.5, -0.35, -0.2, 0.2, 0.35, 0.5]:
+            lines.move_to(d, -0.015, 0); lines.draw_to(d, 0.015, 0)
+            lines.move_to(-0.015, d, 0); lines.draw_to(0.015, d, 0)
             
-        # Center precision red dot
+        # Center precision dot
         lines.set_color(Vec4(1.0, 0.1, 0.1, 1.0))
         lines.set_thickness(4.0)
-        lines.move_to(-0.005, 0, 0); lines.draw_to(0.005, 0, 0)
+        lines.move_to(-0.003, 0, 0); lines.draw_to(0.003, 0, 0)
         
-        scope_geom = lines.create()
-        self.scope_root.attach_new_node(scope_geom)
+        self.scope_root.attach_new_node(lines.create())
         
-        # Scope info text
-        zoom_text = TextNode("zoom_info")
-        zoom_text.set_text("10x OPTICAL ZOOM\nRANGEFINDER ACTIVE")
-        zoom_text.set_text_color(0.2, 0.8, 1.0, 0.8)
-        z_np = self.scope_root.attach_new_node(zoom_text)
-        z_np.set_pos(-0.55, 0, -0.5)
-        z_np.set_scale(0.035)
+        # Rangefinder Telemetry readout
+        tele_text = TextNode("scope_telemetry")
+        tele_text.set_text("OPTICAL ZOOM: 12X\nRANGE: 48.5m  |  ELEV: +0.2°\nTARGET TRACK: LOCKED")
+        tele_text.set_text_color(0.1, 0.95, 0.45, 0.9)
+        t_np = self.scope_root.attach_new_node(tele_text)
+        t_np.set_pos(-0.55, 0, -0.48)
+        t_np.set_scale(0.036)
 
     def build_damage_flash(self):
         cm = CardMaker("dmg_flash")
@@ -186,26 +234,19 @@ class HUD:
         if self.crosshair_lines:
             self.crosshair_lines.remove_node()
             
-        gap = max(0.008, spread_factor * 0.4)
-        length = 0.018
+        gap = max(0.009, spread_factor * 0.35)
+        length = 0.016
         
         lines = LineSegs()
-        lines.set_thickness(2.0)
-        
-        # Bright tactical cyan/white crosshairs
-        c = Vec4(0.2, 1.0, 0.7, 0.85) if not is_ads else Vec4(0.1, 1.0, 0.3, 0.95)
+        lines.set_thickness(2.2)
+        c = Vec4(0.1, 0.9, 1.0, 0.85) if not is_ads else Vec4(0.1, 1.0, 0.35, 0.95)
         lines.set_color(c)
         
-        # Top
         lines.move_to(0, 0, gap); lines.draw_to(0, 0, gap + length)
-        # Bottom
         lines.move_to(0, 0, -gap); lines.draw_to(0, 0, -gap - length)
-        # Left
         lines.move_to(-gap, 0, 0); lines.draw_to(-gap - length, 0, 0)
-        # Right
         lines.move_to(gap, 0, 0); lines.draw_to(gap + length, 0, 0)
         
-        # Center dot if ADS
         if is_ads:
             lines.set_thickness(3.5)
             lines.move_to(-0.002, 0, 0); lines.draw_to(0.002, 0, 0)
@@ -219,7 +260,7 @@ class HUD:
         if self.hitmarker_timer > 0:
             self.hitmarker_timer -= dt
             lines = LineSegs()
-            lines.set_thickness(2.5)
+            lines.set_thickness(2.8)
             c = Vec4(1.0, 0.1, 0.1, 1.0) if self.is_kill_hit else Vec4(1.0, 1.0, 1.0, 1.0)
             lines.set_color(c)
             
@@ -233,45 +274,47 @@ class HUD:
             self.hitmarker_root.attach_new_node(lines.create())
 
     def update(self, dt, player, enemy_manager, current_weapon):
-        # Update hitmarker & damage flash
         self.update_hitmarker(dt)
         
         if self.damage_flash_timer > 0:
             self.damage_flash_timer -= dt
-            alpha = (self.damage_flash_timer / 0.35) * 0.4
+            alpha = (self.damage_flash_timer / 0.35) * 0.45
             self.flash_np.set_color(Vec4(0.9, 0.0, 0.0, alpha))
         else:
             self.flash_np.set_color(Vec4(0.9, 0.0, 0.0, 0.0))
             
-        # Update HP & Shield bar scale
+        # Vitals & Shield Gauges
         hp_ratio = max(0.0, min(1.0, player.health / player.max_health))
         sh_ratio = max(0.0, min(1.0, player.shield / player.max_shield))
         self.hp_bar_fill.set_scale(hp_ratio, 1.0, 1.0)
         self.shield_bar_fill.set_scale(sh_ratio, 1.0, 1.0)
-        self.health_text_node.set_text(f"HP: {int(player.health)}/{int(player.max_health)}   |   SHIELD: {int(player.shield)}/{int(player.max_shield)}")
+        self.health_text_node.set_text(f"VITALS: {int(player.health)}%  |  ARMOR: {int(player.shield)}%")
         
-        # Update Ammo & Weapon
-        inspect_status = " [INSPECTING]" if current_weapon.is_inspecting else ""
-        reload_status = " [RELOADING...]" if current_weapon.is_reloading else ""
-        self.ammo_text_node.set_text(
-            f"{current_weapon.current_ammo} / {current_weapon.reserve_ammo}\n"
-            f"{current_weapon.name.upper()}{inspect_status}{reload_status}"
-        )
+        # Deploy shield alert banner
+        if player.has_spawn_shield():
+            self.shield_alert_np.show()
+            self.shield_alert_node.set_text(f"[ // TACTICAL DEPLOY SHIELD ACTIVE: {player.spawn_shield_timer:.1f}s // ]")
+        else:
+            self.shield_alert_np.hide()
+            
+        # Weapon details
+        inspect_badge = " [INSPECTING]" if current_weapon.is_inspecting else ""
+        reload_badge = " [RELOADING...]" if current_weapon.is_reloading else ""
+        self.weapon_name_node.set_text(f"{current_weapon.name.upper()}{inspect_badge}{reload_badge}")
+        self.ammo_text_node.set_text(f"{current_weapon.current_ammo} / {current_weapon.reserve_ammo}")
         
-        # Update Wave & Enemies Banner
-        alive_enemies = enemy_manager.get_alive_count()
+        # Wave banner
+        alive = enemy_manager.get_alive_count()
         score = enemy_manager.enemies_killed * 100
         self.wave_text_node.set_text(
-            f"WAVE {enemy_manager.wave_number}  |  ENEMIES LEFT: {alive_enemies}  |  SCORE: {score}"
+            f"// WAVE {enemy_manager.wave_number}  |  HOSTILES LEFT: {alive}  |  SCORE: {score} //"
         )
         
-        # Update Crosshair
+        # Crosshair
         is_scoped = current_weapon.has_scope and current_weapon.ads_progress > 0.85
         spread = current_weapon.spread
-        if player.is_sprinting:
-            spread *= 2.0
-        elif player.is_moving:
-            spread *= 1.3
+        if player.is_sprinting: spread *= 1.8
+        elif player.is_moving: spread *= 1.25
         self.update_crosshair(spread, current_weapon.ads_progress > 0.5, is_scoped)
 
     def cleanup(self):
