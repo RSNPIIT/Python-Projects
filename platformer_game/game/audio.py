@@ -125,6 +125,31 @@ def _sfx_heart():
     return out
 
 
+def _sfx_armor():
+    n = int(SR * 0.6)
+    out = np.zeros(n)
+    for i, f in enumerate((659.25, 987.77, 1318.5)):
+        t = _t(0.5)
+        tone = (np.sin(2 * np.pi * f * t) * 0.5
+                + np.sin(2 * np.pi * f * 2.01 * t) * 0.16)
+        tone *= _env(int(SR * 0.5), 0.004, 0.16)
+        _put(out, i * 0.055, tone, 0.32)
+    return out
+
+
+def _sfx_shield():
+    n = int(SR * 0.55)
+    t = _t(0.55)
+    noise = _soft_noise(0.55, 6, 31) * np.exp(-t * 14) * 0.35
+    # metallic partials sliding down
+    f1 = np.linspace(1900, 900, n)
+    f2 = np.linspace(2600, 1200, n)
+    metal = (np.sin(2 * np.pi * np.cumsum(f1) / SR)
+             + 0.5 * np.sin(2 * np.pi * np.cumsum(f2) / SR)) * np.exp(-t * 8) * 0.22
+    thump = np.sin(2 * np.pi * np.linspace(100, 60, n) * t) * np.exp(-t * 12) * 0.2
+    return noise + metal + thump
+
+
 def _sfx_chrono():
     n = int(SR * 0.55)
     out = np.zeros(n)
@@ -318,6 +343,8 @@ class Audio:
             "checkpoint": (_sfx_checkpoint, 0.6),
             "select": (_sfx_select, 0.5),
             "loop": (_sfx_loop, 0.6),
+            "armor": (_sfx_armor, 0.55),
+            "shield": (_sfx_shield, 0.6),
         }
         for name, (fn, vol) in builders.items():
             try:
