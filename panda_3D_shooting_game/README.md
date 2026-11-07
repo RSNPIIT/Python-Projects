@@ -55,9 +55,13 @@ A AAA-styled 3D Modern First-Person Shooter game built in Python using **Panda3D
 
 ---
 
-## 🚀 How to Run
+## 🚀 Run from Terminal
 
 ```bash
 cd panda_3D_shooting_game
-./venv/bin/python3 main.py
+./run.sh
 ```
+
+`run.sh` reuses the existing `venv` or `.venv`. On a fresh copy, it creates `.venv`, installs `requirements.txt`, and launches the game. If the script was copied without its executable permission, run `chmod +x run.sh` once.
+
+The game now starts with PBR lighting, a moving arena spotlight, pulsing local light fixtures, directional shadows, and 4x antialiasing. The active gun slot is shown on the HUD; use `1`–`4` or the mouse wheel to switch.
