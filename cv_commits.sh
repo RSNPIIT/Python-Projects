@@ -1,32 +1,27 @@
 #!/bin/bash
 
-# Target directory
 TARGET_DIR="computer_vision_project"
 
-# Ensure target directory exists
 if [ ! -d "$TARGET_DIR" ]; then
-    echo "Error: Directory $TARGET_DIR not found in the current location."
+    echo "Error: Directory $TARGET_DIR not found."
     exit 1
 fi
 
 echo "🚀 Launching single-file Git commit sequence for $TARGET_DIR..."
 
-# Find all files recursively in the folder, excluding .venv or hidden folders if any exist
-find "$TARGET_DIR" -type f | while read -r filepath; do
+# Use -not -path to completely exclude the virtual environment folder
+find "$TARGET_DIR" -not -path "*/.venv*" -type f | while read -r filepath; do
     
-    # Check if the file is tracked/modified or completely untracked
-    if git status --porcelain "$filepath" | grep -q '.*'; then
+    # Check if the file itself is modified or untracked (handles new files inside untracked directories)
+    if git status --porcelain "$filepath" | grep -q '.*' || [ ! -z "$(git status --porcelain | grep "$filepath")" ]; then
         echo "--------------------------------------------------"
         echo "Adding file: $filepath"
         
-        # Stage the single file
         git add "$filepath"
         
-        # Extract base file name for the detailed commit message
         filename=$(basename "$filepath")
         dirname=$(dirname "$filepath")
         
-        # Construct a descriptive, detailed commit message
         commit_message="feat(cv-playground): integrate and track module components
 
 Staging specific codebase file assets for the computer vision setup.
@@ -37,11 +32,9 @@ Staging specific codebase file assets for the computer vision setup.
         echo "Committing: $filename"
         git commit -m "$commit_message"
         
-        # Push the single commit immediately to remote repo
         echo "Pushing change upstream..."
         git push origin main
         
-        # Small cooldown buffer to maintain stream consistency
         sleep 1
     else
         echo "Skipping (already up to date): $filepath"
@@ -49,5 +42,5 @@ Staging specific codebase file assets for the computer vision setup.
 done
 
 echo "--------------------------------------------------"
-echo "✅ Done! All individual codebase components processed and pushed."
+echo "✅ Done! Real source code components processed."
 
