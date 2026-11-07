@@ -7,7 +7,7 @@ import math
 import random
 import os
 from panda3d.core import (
-    NodePath, Vec3, Vec4, PointLight, AudioSound, Texture, Filename
+    NodePath, Vec3, Vec4, PointLight, AudioSound, Texture, Filename, Material
 )
 from mesh_builder import make_cube, make_cylinder
 
@@ -75,6 +75,11 @@ class Weapon:
         self.root.reparent_to(self.camera)
         self.root.set_pos(self.hip_pos)
         self.root.set_hpr(self.hip_hpr)
+        self.draw_progress = 1.0
+        surface = Material(f'{name}_viewmodel_surface')
+        surface.set_roughness(0.38)
+        surface.set_metallic(0.52)
+        self.root.set_material(surface, 1)
         
         # Muzzle flash
         self.muzzle_node = None
@@ -124,6 +129,10 @@ class Weapon:
         self.inspect_timer = 0.0
         if self.inspect_sound:
             self.inspect_sound.play()
+
+    def start_draw(self):
+        """Bring a newly selected weapon smoothly into view."""
+        self.draw_progress = 0.0
 
     def cancel_inspect(self):
         if self.is_inspecting:
@@ -215,6 +224,11 @@ class Weapon:
         # Base pos & hpr between hip and ADS
         cur_pos = self.hip_pos * (1.0 - self.ads_progress) + self.ads_pos * self.ads_progress
         cur_hpr = self.hip_hpr * (1.0 - self.ads_progress) + self.ads_hpr * self.ads_progress
+
+        self.draw_progress = min(1.0, self.draw_progress + dt * 7.5)
+        draw_ease = 1.0 - (1.0 - self.draw_progress) ** 3
+        cur_pos.z -= (1.0 - draw_ease) * 0.34
+        cur_hpr.y += (1.0 - draw_ease) * 18.0
 
         # Reload animation dip & tilt
         if self.is_reloading:
