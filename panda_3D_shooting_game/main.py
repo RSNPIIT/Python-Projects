@@ -19,7 +19,8 @@ from panda3d.core import (
 loadPrcFileData("", "window-title CYBER OPS: Modern Panda3D FPS")
 loadPrcFileData("", "win-size 1280 720")
 loadPrcFileData("", "sync-video true")
-loadPrcFileData("", "show-frame-rate-meter true")
+# Keep the presentation clean; the game has no debug overlay by default.
+loadPrcFileData("", "show-frame-rate-meter false")
 # Bypass buggy OpenAL Soft on macOS to prevent AudioOutputUnitStart segmentation fault
 loadPrcFileData("", "audio-library-name null")
 
@@ -55,8 +56,13 @@ class CyberOpsGame(ShowBase):
         if self.win is not None:
             try:
                 import simplepbr
-                self.pbr_pipeline = simplepbr.init(enable_fog=True, enable_shadows=False)
-                print("SimplePBR Shader pipeline active!")
+                self.pbr_pipeline = simplepbr.init(
+                    enable_fog=True,
+                    enable_shadows=True,
+                    max_lights=8,
+                    msaa_samples=4,
+                )
+                print("SimplePBR lighting, shadows, and 4x MSAA active!")
             except Exception as e:
                 print("PBR shader info:", e)
         
@@ -155,6 +161,8 @@ class CyberOpsGame(ShowBase):
         self.mouse_locked = False
 
     def select_map(self, map_id):
+        if self.game_state != 'MENU':
+            return
         self.selected_map_id = map_id
         self.play_ui_sound('ui_click')
         
@@ -469,6 +477,10 @@ class CyberOpsGame(ShowBase):
         self.menu_root.show()
         self.unlock_mouse()
         self.play_ui_sound('ui_click')
+
+        if self.player:
+            self.player.cleanup()
+            self.player = None
         
         if self.hud:
             self.hud.cleanup()
@@ -488,6 +500,10 @@ class CyberOpsGame(ShowBase):
         self.menu_root.hide()
         self.pause_root.hide()
         self.game_over_root.hide()
+
+        if self.player:
+            self.player.cleanup()
+            self.player = None
         
         if self.hud:
             self.hud.cleanup()
@@ -524,6 +540,7 @@ class CyberOpsGame(ShowBase):
         
         if self.game_state == 'MENU':
             # 3D Cinematic Lobby Orbit Camera
+            self.map_manager.animate_environment(dt, current_time)
             self.menu_cam_angle += dt * 10.0
             rad = math.radians(self.menu_cam_angle)
             cam_x = math.cos(rad) * 22.0
@@ -548,6 +565,8 @@ class CyberOpsGame(ShowBase):
                     f"HOSTILES ELIMINATED: {self.enemy_manager.enemies_killed}\n"
                     f"TOTAL COMBAT SCORE: {score}"
                 )
+                self.player.cleanup()
+                self.player = None
                 self.game_over_root.show()
                 return task.cont
 
