@@ -1,0 +1,2 @@
+-r requirements.txt
+deepface>=0.0.93
