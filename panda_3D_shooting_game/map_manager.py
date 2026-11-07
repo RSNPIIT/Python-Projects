@@ -9,7 +9,7 @@ import math
 import random
 from panda3d.core import (
     NodePath, Vec3, Vec4, PointLight, DirectionalLight, AmbientLight,
-    Fog, Texture, TextureStage, Filename
+    Spotlight, Fog, Texture, TextureStage, Filename, Material
 )
 from mesh_builder import make_cube, make_cylinder, make_ramp
 
@@ -204,6 +204,7 @@ class MapManager:
         self.obstacles = []  # list of AABB dicts
         self.spawn_points = []
         self.lights = []
+        self.accent_lights = []
         self.fog = None
         self.searchlight = None
         self.searchlight_angle = 0.0
@@ -223,15 +224,58 @@ class MapManager:
                 t.read(Filename(p))
                 t.set_minfilter(Texture.FT_linear_mipmap_linear)
                 t.set_magfilter(Texture.FT_linear)
+                t.set_anisotropic_degree(8)
                 t.set_wrap_u(Texture.WM_repeat)
                 t.set_wrap_v(Texture.WM_repeat)
                 texs[n.split('.')[0]] = t
         return texs
 
+    def apply_surface(self, node, roughness, metallic=0.0, emission=None):
+        """Give procedural meshes useful PBR material values."""
+        material = Material(f"{node.get_name()}_surface")
+        material.set_roughness(roughness)
+        material.set_metallic(metallic)
+        if emission is not None:
+            material.set_emission(emission)
+        node.set_material(material, 1)
+
+    def add_accent_fixture(self, name, pos, color, phase=0.0):
+        """Add a small emissive marker and a gently pulsing local light."""
+        marker = make_cube(0.14, 0.22, 0.82, color)
+        marker.reparent_to(self.map_root)
+        marker.set_pos(pos)
+        marker.set_color_scale(1.25, 1.25, 1.25, 1.0)
+        self.apply_surface(marker, roughness=0.28, metallic=0.0, emission=color * 0.65)
+
+        light = PointLight(f"{name}_light")
+        light.set_color(color)
+        light.set_attenuation(Vec3(1.0, 0.035, 0.004))
+        light_np = self.map_root.attach_new_node(light)
+        light_np.set_pos(pos)
+        self.render.set_light(light_np)
+        self.lights.append(light_np)
+        self.accent_lights.append({"node": light_np, "color": Vec4(color), "phase": phase})
+
+    def add_searchlight(self, color, height=8.0):
+        """Create a moving spot that sweeps across the arena."""
+        light = Spotlight("arena_searchlight")
+        light.set_color(color)
+        light.set_attenuation(Vec3(1.0, 0.012, 0.001))
+        light.get_lens().set_fov(58.0)
+        light.get_lens().set_near_far(1.0, 70.0)
+        self.searchlight = self.map_root.attach_new_node(light)
+        self.searchlight_height = height
+        self.searchlight.set_pos(0, 0, height)
+        self.searchlight.look_at(0, 0, 0)
+        self.render.set_light(self.searchlight)
+        self.lights.append(self.searchlight)
+
     def add_box_obstacle(self, x, y, z, dx, dy, dz, color=Vec4(1, 1, 1, 1), tex=None, uv_scale=(1.0, 1.0)):
         box = make_cube(dx, dy, dz, color, uv_scale=uv_scale)
         box.reparent_to(self.map_root)
         box.set_pos(x, y, z + dz * 0.5)
+        cyber = self.current_map_name.startswith("Sector 7")
+        self.apply_surface(box, roughness=0.58 if cyber else 0.88, metallic=0.28 if cyber else 0.0)
         if tex:
             box.set_texture(tex)
             
@@ -248,6 +292,8 @@ class MapManager:
         ramp.reparent_to(self.map_root)
         ramp.set_pos(x, y, z)
         ramp.set_hpr(*hpr)
+        cyber = self.current_map_name.startswith("Sector 7")
+        self.apply_surface(ramp, roughness=0.58 if cyber else 0.88, metallic=0.22 if cyber else 0.0)
         if tex:
             ramp.set_texture(tex)
             
@@ -280,6 +326,7 @@ class MapManager:
         floor = make_cube(90.0, 90.0, 1.0, Vec4(0.85, 0.9, 1.0, 1.0), uv_scale=(14.0, 14.0))
         floor.reparent_to(self.map_root)
         floor.set_pos(0, 0, -0.5)
+        self.apply_surface(floor, roughness=0.3, metallic=0.68)
         if "floor_metal" in self.textures:
             floor.set_texture(self.textures["floor_metal"])
             
@@ -341,25 +388,25 @@ class MapManager:
         
         # Moody Sci-Fi Lighting
         amb = AmbientLight('cyber_amb')
-        amb.set_color(Vec4(0.28, 0.32, 0.42, 1.0))
+        amb.set_color(Vec4(0.22, 0.25, 0.34, 1.0))
         amb_np = self.map_root.attach_new_node(amb)
         self.render.set_light(amb_np)
         self.lights.append(amb_np)
         
         sun = DirectionalLight('cyber_sun')
-        sun.set_color(Vec4(0.7, 0.8, 0.95, 1.0))
+        sun.set_color(Vec4(0.78, 0.88, 1.0, 1.0))
+        sun.set_shadow_caster(True, 2048, 2048)
+        sun.get_lens().set_film_size(105.0, 105.0)
+        sun.get_lens().set_near_far(1.0, 180.0)
         sun_np = self.map_root.attach_new_node(sun)
         sun_np.set_hpr(-50, -55, 0)
         self.render.set_light(sun_np)
         self.lights.append(sun_np)
         
-        search_l = PointLight('searchlight')
-        search_l.set_color(Vec4(0.2, 0.9, 1.0, 1.0))
-        search_l.set_attenuation(Vec3(0.3, 0.02, 0.005))
-        self.searchlight = self.map_root.attach_new_node(search_l)
-        self.searchlight.set_pos(0, 0, 8.0)
-        self.render.set_light(self.searchlight)
-        self.lights.append(self.searchlight)
+        self.add_searchlight(Vec4(0.22, 0.76, 1.0, 1.0), height=11.0)
+        self.add_accent_fixture("cyan_beacon", Vec3(-14, 12, 4.1), Vec4(0.08, 0.5, 0.9, 1.0), 0.0)
+        self.add_accent_fixture("amber_beacon", Vec3(16, -12, 4.1), Vec4(1.0, 0.34, 0.08, 1.0), 2.1)
+        self.add_accent_fixture("mint_beacon", Vec3(22, 18, 4.1), Vec4(0.12, 0.85, 0.62, 1.0), 4.2)
 
     def build_desert_outpost(self):
         self.current_map_name = "Ruins of Oasis - Desert Outpost"
@@ -376,6 +423,7 @@ class MapManager:
         floor = make_cube(90.0, 90.0, 1.0, Vec4(0.95, 0.9, 0.85, 1.0), uv_scale=(14.0, 14.0))
         floor.reparent_to(self.map_root)
         floor.set_pos(0, 0, -0.5)
+        self.apply_surface(floor, roughness=0.92, metallic=0.0)
         if sand_tex:
             floor.set_texture(sand_tex)
             
@@ -423,19 +471,27 @@ class MapManager:
         
         # Desert Sunlight
         amb = AmbientLight('desert_amb')
-        amb.set_color(Vec4(0.48, 0.45, 0.40, 1.0))
+        amb.set_color(Vec4(0.34, 0.31, 0.27, 1.0))
         amb_np = self.map_root.attach_new_node(amb)
         self.render.set_light(amb_np)
         self.lights.append(amb_np)
         
         sun = DirectionalLight('desert_sun')
-        sun.set_color(Vec4(1.0, 0.94, 0.82, 1.0))
+        sun.set_color(Vec4(1.0, 0.84, 0.66, 1.0))
+        sun.set_shadow_caster(True, 2048, 2048)
+        sun.get_lens().set_film_size(105.0, 105.0)
+        sun.get_lens().set_near_far(1.0, 180.0)
         sun_np = self.map_root.attach_new_node(sun)
         sun_np.set_hpr(30, -60, 0)
         self.render.set_light(sun_np)
         self.lights.append(sun_np)
 
+        self.add_searchlight(Vec4(1.0, 0.62, 0.28, 1.0), height=12.0)
+        self.add_accent_fixture("amber_beacon", Vec3(-22, 22, 6.4), Vec4(1.0, 0.48, 0.15, 1.0), 0.8)
+        self.add_accent_fixture("gold_beacon", Vec3(22, -22, 6.4), Vec4(1.0, 0.74, 0.3, 1.0), 3.4)
+
     def update(self, dt, current_time, player):
+        self.animate_environment(dt, current_time)
         for plat in self.moving_platforms:
             plat.update(dt)
             if plat.is_player_on_top(player.get_pos()):
@@ -444,10 +500,17 @@ class MapManager:
         for pk in self.pickups:
             pk.update(dt, current_time, player)
             
+    def animate_environment(self, dt, current_time):
         if self.searchlight:
-            self.searchlight_angle += dt * 45.0
+            self.searchlight_angle += dt * 24.0
             rad = math.radians(self.searchlight_angle)
-            self.searchlight.set_pos(math.cos(rad) * 16.0, math.sin(rad) * 16.0, 7.5)
+            self.searchlight.set_pos(math.cos(rad) * 20.0, math.sin(rad) * 20.0, self.searchlight_height)
+            self.searchlight.look_at(0, 0, 1.0)
+
+        for accent in self.accent_lights:
+            pulse = 0.82 + 0.18 * (0.5 + 0.5 * math.sin(current_time * 2.2 + accent["phase"]))
+            base = accent["color"]
+            accent["node"].node().set_color(Vec4(base.x * pulse, base.y * pulse, base.z * pulse, base.w))
 
     def _is_colliding(self, pos, radius, height):
         for obs in self.obstacles:
@@ -503,6 +566,7 @@ class MapManager:
             self.render.clear_light(l)
             l.remove_node()
         self.lights.clear()
+        self.accent_lights.clear()
         self.searchlight = None
         
         for b in self.barrels:
