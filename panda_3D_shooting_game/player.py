@@ -6,6 +6,7 @@ mouse look with angle clamping, weapon viewmodels, recoil springs, and raycast h
 
 import math
 import random
+from direct.showbase.DirectObject import DirectObject
 from panda3d.core import (
     NodePath, Vec3, Vec4, WindowProperties
 )
@@ -31,6 +32,7 @@ class Player:
         # Camera recoil offsets
         self.recoil_cam_pitch = 0.0
         self.recoil_cam_yaw = 0.0
+        self.camera_roll = 0.0
         
         # Movement speeds
         self.walk_speed = 7.5
@@ -82,6 +84,9 @@ class Player:
             Pistol(app, self.camera)
         ]
         self.current_weapon_idx = 0
+        self.input_bindings = []
+        self.input_router = DirectObject()
+        self.is_cleaned_up = False
         self.init_weapon_sounds()
         
         for i, w in enumerate(self.weapons):
@@ -110,51 +115,67 @@ class Player:
 
     def setup_inputs(self):
         # Movement
-        self.app.accept('w', self.set_key, ['forward', True])
-        self.app.accept('w-up', self.set_key, ['forward', False])
-        self.app.accept('s', self.set_key, ['backward', True])
-        self.app.accept('s-up', self.set_key, ['backward', False])
-        self.app.accept('a', self.set_key, ['left', True])
-        self.app.accept('a-up', self.set_key, ['left', False])
-        self.app.accept('d', self.set_key, ['right', True])
-        self.app.accept('d-up', self.set_key, ['right', False])
+        self.bind_input('w', self.set_key, 'forward', True)
+        self.bind_input('w-up', self.set_key, 'forward', False)
+        self.bind_input('s', self.set_key, 'backward', True)
+        self.bind_input('s-up', self.set_key, 'backward', False)
+        self.bind_input('a', self.set_key, 'left', True)
+        self.bind_input('a-up', self.set_key, 'left', False)
+        self.bind_input('d', self.set_key, 'right', True)
+        self.bind_input('d-up', self.set_key, 'right', False)
         
         # 360-Degree Aim / Turning Keys (Arrow keys and Q/E during combat)
-        self.app.accept('arrow_left', self.set_key, ['turn_left', True])
-        self.app.accept('arrow_left-up', self.set_key, ['turn_left', False])
-        self.app.accept('arrow_right', self.set_key, ['turn_right', True])
-        self.app.accept('arrow_right-up', self.set_key, ['turn_right', False])
-        self.app.accept('q', self.set_key, ['turn_left', True])
-        self.app.accept('q-up', self.set_key, ['turn_left', False])
-        self.app.accept('e', self.set_key, ['turn_right', True])
-        self.app.accept('e-up', self.set_key, ['turn_right', False])
+        self.bind_input('arrow_left', self.set_key, 'turn_left', True)
+        self.bind_input('arrow_left-up', self.set_key, 'turn_left', False)
+        self.bind_input('arrow_right', self.set_key, 'turn_right', True)
+        self.bind_input('arrow_right-up', self.set_key, 'turn_right', False)
+        self.bind_input('q', self.set_key, 'turn_left', True)
+        self.bind_input('q-up', self.set_key, 'turn_left', False)
+        self.bind_input('e', self.set_key, 'turn_right', True)
+        self.bind_input('e-up', self.set_key, 'turn_right', False)
         
         # Actions
-        self.app.accept('shift', self.set_key, ['sprint', True])
-        self.app.accept('shift-up', self.set_key, ['sprint', False])
-        self.app.accept('control', self.set_key, ['crouch', True])
-        self.app.accept('control-up', self.set_key, ['crouch', False])
-        self.app.accept('c', self.toggle_crouch)
-        self.app.accept('space', self.jump)
+        self.bind_input('shift', self.set_key, 'sprint', True)
+        self.bind_input('shift-up', self.set_key, 'sprint', False)
+        self.bind_input('control', self.set_key, 'crouch', True)
+        self.bind_input('control-up', self.set_key, 'crouch', False)
+        self.bind_input('c', self.toggle_crouch)
+        self.bind_input('space', self.jump)
         
         # Mouse
-        self.app.accept('mouse1', self.on_mouse_down)
-        self.app.accept('mouse1-up', self.set_key, ['fire', False])
-        self.app.accept('mouse3', self.set_key, ['ads', True])
-        self.app.accept('mouse3-up', self.set_key, ['ads', False])
+        self.bind_input('mouse1', self.on_mouse_down)
+        self.bind_input('mouse1-up', self.set_key, 'fire', False)
+        self.bind_input('mouse3', self.set_key, 'ads', True)
+        self.bind_input('mouse3-up', self.set_key, 'ads', False)
         
         # Weapon switching
-        self.app.accept('1', self.switch_weapon, [0])
-        self.app.accept('2', self.switch_weapon, [1])
-        self.app.accept('3', self.switch_weapon, [2])
-        self.app.accept('4', self.switch_weapon, [3])
-        self.app.accept('wheel_up', self.next_weapon)
-        self.app.accept('wheel_down', self.prev_weapon)
+        self.bind_input('1', self.switch_weapon, 0)
+        self.bind_input('2', self.switch_weapon, 1)
+        self.bind_input('3', self.switch_weapon, 2)
+        self.bind_input('4', self.switch_weapon, 3)
+        self.bind_input('wheel_up', self.next_weapon)
+        self.bind_input('wheel_down', self.prev_weapon)
         
         # Reload & Inspect
-        self.app.accept('r', self.reload_weapon)
-        self.app.accept('f', self.inspect_weapon)
-        self.app.accept('m', self.toggle_minimap)
+        self.bind_input('r', self.reload_weapon)
+        self.bind_input('f', self.inspect_weapon)
+        self.bind_input('m', self.toggle_minimap)
+
+    def bind_input(self, event, callback, *extra_args):
+        self.input_router.accept(event, callback, list(extra_args))
+        self.input_bindings.append((event, callback))
+
+    def cleanup(self):
+        if self.is_cleaned_up:
+            return
+        self.is_cleaned_up = True
+        for event, _callback in self.input_bindings:
+            self.input_router.ignore(event)
+        self.input_bindings.clear()
+        for weapon in self.weapons:
+            if weapon.muzzle_light:
+                self.app.render.clear_light(weapon.muzzle_light)
+            weapon.root.remove_node()
 
     def on_mouse_down(self):
         if not self.app.mouse_locked:
@@ -175,9 +196,13 @@ class Player:
     def switch_weapon(self, index):
         if index == self.current_weapon_idx or index < 0 or index >= len(self.weapons):
             return
-        self.weapons[self.current_weapon_idx].hide()
+        previous_weapon = self.weapons[self.current_weapon_idx]
+        previous_weapon.is_aiming = False
+        previous_weapon.hide()
         self.current_weapon_idx = index
-        self.weapons[self.current_weapon_idx].show()
+        selected_weapon = self.weapons[self.current_weapon_idx]
+        selected_weapon.start_draw()
+        selected_weapon.show()
 
     def next_weapon(self):
         self.switch_weapon((self.current_weapon_idx + 1) % len(self.weapons))
@@ -448,8 +473,11 @@ class Player:
         if self.is_moving:
             move_vec.normalize()
             speed = self.sprint_speed if self.is_sprinting else (self.crouch_speed if self.is_crouching else self.walk_speed)
-            self.vel.x = move_vec.x * speed
-            self.vel.y = move_vec.y * speed
+            target_x = move_vec.x * speed
+            target_y = move_vec.y * speed
+            accel_blend = 1.0 - math.exp(-20.0 * dt)
+            self.vel.x += (target_x - self.vel.x) * accel_blend
+            self.vel.y += (target_y - self.vel.y) * accel_blend
             
             if self.is_grounded:
                 self.footstep_timer += dt
@@ -459,8 +487,9 @@ class Player:
                     if self.app.sound_mgr and 'footstep' in self.app.sound_mgr:
                         self.app.sound_mgr['footstep'].play()
         else:
-            self.vel.x *= math.exp(-16.0 * dt)
-            self.vel.y *= math.exp(-16.0 * dt)
+            decel = math.exp(-16.0 * dt)
+            self.vel.x *= decel
+            self.vel.y *= decel
             self.footstep_timer = 0.0
 
         # Gravity
@@ -477,8 +506,16 @@ class Player:
 
         # Camera
         eye_pos = self.pos + Vec3(0, 0, self.current_height)
+        if self.is_moving and self.is_grounded:
+            bob_speed = 17.0 if self.is_sprinting else 12.0
+            bob_amount = 0.032 if self.is_sprinting else 0.014
+            eye_pos.z += abs(math.sin(current_time * bob_speed)) * bob_amount
+            eye_pos += right_dir * (math.cos(current_time * bob_speed * 0.5) * bob_amount * 0.25)
+        strafe = float(self.keys['left']) - float(self.keys['right'])
+        target_roll = strafe * (2.0 if self.is_moving else 0.0)
+        self.camera_roll += (target_roll - self.camera_roll) * min(1.0, dt * 8.0)
         self.camera.set_pos(eye_pos)
-        self.camera.set_hpr(self.yaw + self.recoil_cam_yaw, self.pitch + self.recoil_cam_pitch, 0)
+        self.camera.set_hpr(self.yaw + self.recoil_cam_yaw, self.pitch + self.recoil_cam_pitch, self.camera_roll)
 
         # Dynamic FOV
         weapon = self.get_current_weapon()
