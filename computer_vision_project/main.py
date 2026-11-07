@@ -10,7 +10,7 @@ APPS = [
     ("Face Detection", "face_detection.py", "Find faces live with OpenCV"),
     ("Color Tracking", "color_tracking.py", "Track a color with HSV sliders"),
     ("Emotion Recognition", "emotion_recognition.py", "Estimate facial expressions"),
-    ("Hand Plane", "hand_plane.py", "Steer a plane with your hand"),
+    ("Spatial Sketch", "hand_plane.py", "Draw planes and 3D-style meshes"),
     ("Finger Arithmetic", "finger_arithmetic.py", "Solve sums with your fingers"),
 ]
 
