@@ -46,6 +46,7 @@ class HUD:
         self.health_np = None
         self.wave_text_node = None
         self.wave_np = None
+        self.weapon_slot_nodes = []
         self.shield_alert_node = None
         self.shield_alert_np = None
         
@@ -150,6 +151,17 @@ class HUD:
         self.wave_np = self.root.attach_new_node(self.wave_text_node)
         self.wave_np.set_pos(0, 0, 0.90)
         self.wave_np.set_scale(0.044)
+
+        # Persistent weapon selector makes the 1-4 / scroll-wheel controls visible.
+        slot_names = ("RIFLE", "SHOTGUN", "SNIPER", "PISTOL")
+        for index, short_name in enumerate(slot_names):
+            slot = TextNode(f"weapon_slot_{index + 1}")
+            slot.set_align(TextNode.A_center)
+            slot.set_text(f"[{index + 1}] {short_name}")
+            slot_np = self.root.attach_new_node(slot)
+            slot_np.set_pos((-0.54 + index * 0.36), 0, -0.72)
+            slot_np.set_scale(0.025)
+            self.weapon_slot_nodes.append(slot)
 
         # Deploy Shield Alert
         self.shield_alert_node = TextNode("shield_alert")
@@ -302,6 +314,11 @@ class HUD:
         reload_badge = " [RELOADING...]" if current_weapon.is_reloading else ""
         self.weapon_name_node.set_text(f"{current_weapon.name.upper()}{inspect_badge}{reload_badge}")
         self.ammo_text_node.set_text(f"{current_weapon.current_ammo} / {current_weapon.reserve_ammo}")
+        for index, slot in enumerate(self.weapon_slot_nodes):
+            if index == player.current_weapon_idx:
+                slot.set_text_color(0.15, 0.92, 1.0, 1.0)
+            else:
+                slot.set_text_color(0.58, 0.68, 0.74, 0.82)
         
         # Wave banner
         alive = enemy_manager.get_alive_count()
