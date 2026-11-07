@@ -2,6 +2,8 @@
 
 Five small webcam projects: face detection, HSV color tracking, facial emotion recognition, a hand controlled plane game, and finger arithmetic.
 
+![Computer Vision Playground poster](assets/playground-poster.svg)
+
 ## Setup
 
 Use Python 3.10 or 3.11 for the smoothest MediaPipe support.
@@ -13,7 +15,7 @@ source .venv/bin/activate      # Windows: .venv\\Scripts\\activate
 python -m pip install -r requirements.txt
 ```
 
-Launch the menu with `python main.py`, or run any app directly:
+Launch the menu with `python main.py`. Choose **6** to upgrade pip and install all app dependencies, including the optional emotion recognition packages. This may take several minutes; press **Ctrl+C** to cancel. Or run any app directly:
 
 ```bash
 python apps/face_detection.py
@@ -24,6 +26,8 @@ python apps/finger_arithmetic.py
 ```
 
 Allow camera access when prompted. On macOS, if access was denied, open **System Settings → Privacy & Security → Camera**, enable access for the app running Python (such as Terminal or VS Code), then quit and reopen that app. The webcam apps select macOS AVFoundation automatically. Press **q** or **Esc** to quit webcam apps. The plane game uses **q** to quit too.
+
+In the launcher menu, **Ctrl+C**, **Ctrl+X**, and **Ctrl+D** are ignored. During dependency installation, **Ctrl+C** cancels pip. Selecting an app prints its name, and closing the app returns to the launcher. Choose **q** to see the goodbye message.
 
 ### Emotion recognition
 
