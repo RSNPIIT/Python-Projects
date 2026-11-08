@@ -76,6 +76,10 @@ class PrismCalcApp(tk.Tk):
         except Exception:
             pass
 
+    def report_callback_exception(self, exc, val, tb) -> None:
+        """Prevent raw callback tracebacks from corrupting the stty-guarded terminal."""
+        return
+
     def _tty_flush_heartbeat(self) -> None:
         """Periodically discard any unread terminal keystrokes (Ctrl+C/X/D, exit, quit)."""
         if self._tty_fd is not None and _termios is not None:
