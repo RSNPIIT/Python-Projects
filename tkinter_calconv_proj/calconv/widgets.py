@@ -192,9 +192,9 @@ class RoundedButton(tk.Canvas):
         fsize = self.font_size
         if fsize is None:
             if self.kind == "num":
-                fsize = 15
+                fsize = 16
             elif self.kind in ("op", "eq"):
-                fsize = 15
+                fsize = 18
             else:
                 fsize = 12
         weight = "bold" if self.kind in ("num", "op", "eq") or self.active else "normal"
@@ -723,10 +723,10 @@ class DropdownPill(tk.Canvas):
             highlightthickness=0,
             height=min(280, len(self.items) * 32 + 6),
         )
-        scrollbar = tk.Scrollbar(outer, orient="vertical", command=list_canvas.yview)
+        scrollbar = ThemedScrollbar(outer, command=list_canvas.yview, bg=p["surface"], thumb_color=p["card_border"], active_color=p["accent"])
         list_canvas.configure(yscrollcommand=scrollbar.set)
         if len(self.items) > 8:
-            scrollbar.pack(side="right", fill="y")
+            scrollbar.pack(side="right", fill="y", padx=(0, 2), pady=4)
         list_canvas.pack(side="left", fill="both", expand=True)
 
         inner = tk.Frame(list_canvas, bg=p["surface"])
@@ -827,16 +827,234 @@ class DropdownPill(tk.Canvas):
             self._close_popup()
 
 
-class ScrollableFrame(tk.Frame):
-    """Vertical scrollable container with smooth mousewheel support."""
+class HamburgerButton(tk.Canvas):
+    """Android-style three-horizontal-lines ('☰') drawer button with optional count badge."""
 
-    def __init__(self, parent: tk.Widget, *, bg: str) -> None:
+    def __init__(
+        self,
+        parent: tk.Widget,
+        command: Callable[[], None],
+        *,
+        fonts: FontSet,
+        palette: Dict[str, str],
+        parent_bg: Optional[str] = None,
+        width: int = 40,
+        height: int = 30,
+        radius: int = 9,
+    ) -> None:
+        self.palette = palette
+        self.parent_bg = parent_bg or palette["display_bg"]
+        self.command = command
+        self.fonts = fonts
+        self.radius = radius
+        self.active = False
+        self.badge_count = 0
+        self._hovered = False
+        self._pressed = False
+
+        super().__init__(
+            parent,
+            width=width,
+            height=height,
+            bg=self.parent_bg,
+            bd=0,
+            highlightthickness=0,
+            cursor="hand2",
+        )
+        self.bind("<Configure>", lambda _e: self._redraw())
+        self.bind("<Enter>", self._on_enter)
+        self.bind("<Leave>", self._on_leave)
+        self.bind("<ButtonPress-1>", self._on_press)
+        self.bind("<ButtonRelease-1>", self._on_release)
+
+    def set_active(self, active: bool) -> None:
+        self.active = active
+        self._redraw()
+
+    def set_badge(self, count: int) -> None:
+        self.badge_count = max(0, int(count))
+        self._redraw()
+
+    def apply_theme(self, palette: Dict[str, str], parent_bg: Optional[str] = None) -> None:
+        self.palette = palette
+        self.parent_bg = parent_bg or palette["display_bg"]
+        self.configure(bg=self.parent_bg)
+        self._redraw()
+
+    def _redraw(self) -> None:
+        self.delete("all")
+        w = max(24, self.winfo_width())
+        h = max(20, self.winfo_height())
+        if w <= 1:
+            w = int(self["width"])
+            h = int(self["height"])
+
+        p = self.palette
+        if self.active:
+            fill = p["accent"]
+            bar_col = p["eq_text"]
+            border = blend_hex(p["accent"], "#ffffff", 0.25)
+        else:
+            fill = p["surface_hi"] if self._hovered else p["surface_alt"]
+            bar_col = p["text"] if self._hovered else p["text_sub"]
+            border = p["accent"] if self._hovered else p["card_border"]
+
+        dy = 1.0 if self._pressed else 0.0
+        draw_rounded_rect(self, 1.5, 1.5 + dy, w - 1.5, h - 1.5 + dy, self.radius, fill=fill, outline=border, width=1)
+
+        # Three crisp horizontal lines stacked one below another
+        cx = w / 2.0
+        cy = h / 2.0 + dy
+        half_len = 8.0
+        spacing = 4.8
+        for offset in (-spacing, 0.0, spacing):
+            y = cy + offset
+            self.create_line(
+                cx - half_len,
+                y,
+                cx + half_len,
+                y,
+                fill=bar_col,
+                width=2,
+                capstyle="round",
+            )
+
+        if self.badge_count > 0 and not self.active:
+            bx, by = w - 7, 7 + dy
+            self.create_oval(bx - 3.5, by - 3.5, bx + 3.5, by + 3.5, fill=p["secondary"], outline=fill, width=1)
+
+    def _on_enter(self, _e: tk.Event) -> None:
+        self._hovered = True
+        self._redraw()
+
+    def _on_leave(self, _e: tk.Event) -> None:
+        self._hovered = False
+        self._pressed = False
+        self._redraw()
+
+    def _on_press(self, _e: tk.Event) -> None:
+        self._pressed = True
+        self._redraw()
+
+    def _on_release(self, event: tk.Event) -> None:
+        was_pressed = self._pressed
+        self._pressed = False
+        self._redraw()
+        if was_pressed and 0 <= event.x <= self.winfo_width() and 0 <= event.y <= self.winfo_height():
+            self.command()
+
+
+class ThemedScrollbar(tk.Canvas):
+    """Slim dark-theme Canvas scrollbar (eliminates bright-white native macOS tk.Scrollbar)."""
+
+    def __init__(
+        self,
+        parent: tk.Widget,
+        *,
+        command: Callable[..., None],
+        bg: str,
+        thumb_color: str = "#293556",
+        active_color: str = "#6c8cff",
+        width: int = 8,
+    ) -> None:
+        super().__init__(parent, width=width, bg=bg, bd=0, highlightthickness=0)
+        self.command = command
+        self.thumb_color = thumb_color
+        self.active_color = active_color
+        self._first = 0.0
+        self._last = 1.0
+        self._hovered = False
+        self._drag_start_y: Optional[int] = None
+        self._drag_start_first: float = 0.0
+
+        self.bind("<Configure>", lambda _e: self._redraw())
+        self.bind("<Enter>", self._on_enter)
+        self.bind("<Leave>", self._on_leave)
+        self.bind("<ButtonPress-1>", self._on_press)
+        self.bind("<B1-Motion>", self._on_drag)
+        self.bind("<ButtonRelease-1>", self._on_release)
+
+    def set(self, first: float | str, last: float | str) -> None:
+        self._first = max(0.0, min(1.0, float(first)))
+        self._last = max(0.0, min(1.0, float(last)))
+        self._redraw()
+
+    def apply_colors(self, bg: str, thumb_color: str, active_color: str) -> None:
+        self.configure(bg=bg)
+        self.thumb_color = thumb_color
+        self.active_color = active_color
+        self._redraw()
+
+    def _redraw(self) -> None:
+        self.delete("all")
+        if self._first <= 0.001 and self._last >= 0.999:
+            return
+        w = max(6, self.winfo_width())
+        h = max(20, self.winfo_height())
+        y0 = 2 + self._first * (h - 4)
+        y1 = max(y0 + 22, 2 + self._last * (h - 4))
+        col = self.active_color if (self._hovered or self._drag_start_y is not None) else self.thumb_color
+        draw_rounded_rect(self, 1.5, y0, w - 1.5, min(h - 2, y1), (w - 3) / 2.0, fill=col, outline="")
+
+    def _on_enter(self, _e: tk.Event) -> None:
+        self._hovered = True
+        self._redraw()
+
+    def _on_leave(self, _e: tk.Event) -> None:
+        self._hovered = False
+        self._redraw()
+
+    def _on_press(self, event: tk.Event) -> None:
+        if self._first <= 0.001 and self._last >= 0.999:
+            return
+        h = max(20, self.winfo_height())
+        y0 = 2 + self._first * (h - 4)
+        y1 = max(y0 + 22, 2 + self._last * (h - 4))
+        if y0 <= event.y <= y1:
+            self._drag_start_y = event.y
+            self._drag_start_first = self._first
+        else:
+            span = self._last - self._first
+            target = (event.y / h) - span / 2.0
+            self.command("moveto", max(0.0, min(1.0 - span, target)))
+        self._redraw()
+
+    def _on_drag(self, event: tk.Event) -> None:
+        if self._drag_start_y is None:
+            return
+        h = max(20, self.winfo_height() - 4)
+        delta = (event.y - self._drag_start_y) / h
+        span = self._last - self._first
+        self.command("moveto", max(0.0, min(1.0 - span, self._drag_start_first + delta)))
+
+    def _on_release(self, _e: tk.Event) -> None:
+        self._drag_start_y = None
+        self._redraw()
+
+
+class ScrollableFrame(tk.Frame):
+    """Vertical scrollable container with custom slim dark scrollbar & smooth mousewheel."""
+
+    def __init__(
+        self,
+        parent: tk.Widget,
+        *,
+        bg: str,
+        thumb_color: str = "#293556",
+        active_color: str = "#6c8cff",
+    ) -> None:
         super().__init__(parent, bg=bg, bd=0, highlightthickness=0)
         self.canvas = tk.Canvas(self, bg=bg, bd=0, highlightthickness=0)
-        self.scrollbar = tk.Scrollbar(self, orient="vertical", command=self.canvas.yview)
+        self.scrollbar = ThemedScrollbar(
+            self,
+            command=self.canvas.yview,
+            bg=bg,
+            thumb_color=thumb_color,
+            active_color=active_color,
+        )
         self.canvas.configure(yscrollcommand=self.scrollbar.set)
 
-        self.scrollbar.pack(side="right", fill="y")
+        self.scrollbar.pack(side="right", fill="y", padx=(2, 0))
         self.canvas.pack(side="left", fill="both", expand=True)
 
         self.inner = tk.Frame(self.canvas, bg=bg, bd=0, highlightthickness=0)
@@ -848,10 +1066,11 @@ class ScrollableFrame(tk.Frame):
         self.canvas.bind("<Enter>", self._bind_wheel)
         self.canvas.bind("<Leave>", self._unbind_wheel)
 
-    def apply_bg(self, bg: str) -> None:
+    def apply_bg(self, bg: str, thumb_color: str = "#293556", active_color: str = "#6c8cff") -> None:
         self.configure(bg=bg)
         self.canvas.configure(bg=bg)
         self.inner.configure(bg=bg)
+        self.scrollbar.apply_colors(bg, thumb_color, active_color)
 
     def _on_wheel(self, event: tk.Event) -> None:
         if getattr(event, "num", None) == 4:
