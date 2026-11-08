@@ -3,8 +3,14 @@
 from __future__ import annotations
 
 import signal
+import sys
 import tkinter as tk
-from typing import Dict
+from typing import Dict, Optional
+
+try:
+    import termios as _termios
+except ImportError:
+    _termios = None
 
 from . import __app_name__, __version__
 from .theme import THEME_ORDER, THEMES, FontSet
@@ -27,21 +33,31 @@ class PrismCalcApp(tk.Tk):
 
         self.title(f"{__app_name__}  ·  Scientific Calculator & Measuring Converter")
         self.configure(bg=self.palette["bg"])
-        self.minsize(940, 630)
+        self.minsize(940, 640)
         self._center_window(1100, 720)
 
         self.fonts = FontSet()
         self.active_mode = "scientific"
+        self._tty_fd: Optional[int] = None
+        if _termios is not None:
+            try:
+                if sys.stdin and sys.stdin.isatty():
+                    self._tty_fd = sys.stdin.fileno()
+            except Exception:
+                self._tty_fd = None
 
         self._build_shell()
         self.bind_all("<Key>", self._on_global_key)
 
-        # Allow Ctrl+C in terminal to close the app cleanly instead of hanging in C mainloop
-        try:
-            signal.signal(signal.SIGINT, lambda *_: self.after(0, self.destroy))
-        except Exception:
-            pass
-        self.after(250, self._signal_heartbeat)
+        # Ignore terminal Ctrl+C / Ctrl+\ / Ctrl+Z signals while app is running
+        for sig_name in ("SIGINT", "SIGQUIT", "SIGTSTP", "SIGBREAK"):
+            sig = getattr(signal, sig_name, None)
+            if sig is not None:
+                try:
+                    signal.signal(sig, signal.SIG_IGN)
+                except (OSError, ValueError):
+                    pass
+        self.after(350, self._tty_flush_heartbeat)
 
         # Bring window cleanly to front & force initial layout pass on macOS
         self.update_idletasks()
@@ -60,10 +76,16 @@ class PrismCalcApp(tk.Tk):
         except Exception:
             pass
 
-    def _signal_heartbeat(self) -> None:
+    def _tty_flush_heartbeat(self) -> None:
+        """Periodically discard any unread terminal keystrokes (Ctrl+C/X/D, exit, quit)."""
+        if self._tty_fd is not None and _termios is not None:
+            try:
+                _termios.tcflush(self._tty_fd, _termios.TCIFLUSH)
+            except Exception:
+                pass
         try:
             if self.winfo_exists():
-                self.after(250, self._signal_heartbeat)
+                self.after(350, self._tty_flush_heartbeat)
         except Exception:
             pass
 
@@ -143,7 +165,7 @@ class PrismCalcApp(tk.Tk):
         )
         self.nav_bar.grid(row=0, column=1, sticky="ew", padx=8)
 
-        # Theme Cycle Button
+        # Theme Cycle Button (wide enough for full theme label)
         self.theme_btn = RoundedButton(
             self.header,
             f"◐  {self.theme_name}",
@@ -152,7 +174,7 @@ class PrismCalcApp(tk.Tk):
             fonts=self.fonts,
             palette=p,
             parent_bg=p["bg"],
-            width=168,
+            width=192,
             height=38,
             radius=19,
             font_size=11,
@@ -196,7 +218,6 @@ class PrismCalcApp(tk.Tk):
         c.delete("all")
         p = self.palette
         c.configure(bg=p["bg"])
-        # Faceted prism diamond/triangle
         c.create_polygon(17, 3, 31, 29, 3, 29, fill=p["accent"], outline="")
         c.create_polygon(17, 3, 31, 29, 17, 23, fill=p["secondary"], outline="")
         c.create_polygon(17, 23, 31, 29, 3, 29, fill=p["op_btn"], outline="")
@@ -209,7 +230,6 @@ class PrismCalcApp(tk.Tk):
         self.active_mode = mode_key
         self._views[mode_key].grid(row=0, column=0, sticky="nsew")
         self.nav_bar.set_selected(mode_key)
-        # Defocus text entries when switching to Scientific or Programmer
         if mode_key in ("scientific", "programmer"):
             self.focus_set()
 
@@ -244,7 +264,11 @@ class PrismCalcApp(tk.Tk):
             view.apply_theme(p)
 
     def _on_global_key(self, event: tk.Event) -> None:
-        # Quick mode switching with Ctrl/Cmd + 1..5
+        # Ignore Ctrl+C / Ctrl+X / Ctrl+D shortcuts
+        if (event.state & 0x4) and event.keysym.lower() in ("c", "x", "d", "z", "q"):
+            return
+
+        # Quick mode switching with Cmd/Ctrl + 1..5
         if (event.state & 0x4) or (event.state & 0x8):
             shortcut_map = {
                 "1": "scientific",
