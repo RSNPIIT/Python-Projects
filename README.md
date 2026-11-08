@@ -2,11 +2,11 @@
 
 <div align="center">
 
-[![Commits](https://img.shields.io/badge/Commits-1%2C016%2B%20Milestone-8A2BE2?style=for-the-badge&logo=git&logoColor=white)](#)
-[![Python](https://img.shields.io/badge/Python-3.10%20%7C%203.14-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://python.org)
-[![Game Engines](https://img.shields.io/badge/Engines-ModernGL%20%7C%20Raylib%20%7C%20Panda3D-E65100?style=for-the-badge&logo=opengl&logoColor=white)](#-flagship-game-engines)
-[![Deployments](https://img.shields.io/badge/Deployments-112%20Active-00C853?style=for-the-badge&logo=githubpages&logoColor=white)](#)
-[![Polyglot](https://img.shields.io/badge/Polyglot-Julia%20%7C%20R%20%7C%20Shell-00599C?style=for-the-badge)](about_this_dir.jl)
+[![Commits](https://img.shields.io/badge/Commits-1016+_Milestone-8A2BE2?style=for-the-badge&logo=git&logoColor=white)](#)
+[![Python](https://img.shields.io/badge/Python-3.10_/_3.14-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://python.org)
+[![Game Engines](https://img.shields.io/badge/Engines-ModernGL_·_Raylib_·_Panda3D-E65100?style=for-the-badge&logo=opengl&logoColor=white)](#-flagship-game-engines)
+[![Deployments](https://img.shields.io/badge/Deployments-112_Active-00C853?style=for-the-badge&logo=github&logoColor=white)](#)
+[![Polyglot](https://img.shields.io/badge/Polyglot-Julia_·_R_·_Shell-00599C?style=for-the-badge)](about_this_dir.jl)
 [![License](https://img.shields.io/badge/License-GPL--3.0-4CAF50?style=for-the-badge)](LICENSE)
 
 **An expansive, production-grade monorepo containing 100+ computational projects, custom graphics & shader engines, AI/ML pipelines, automated scrapers, and mathematical simulations.**
