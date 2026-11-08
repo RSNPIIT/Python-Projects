@@ -1,4 +1,4 @@
-"""Scientific Calculator view with live preview, 2nd-shift pad, constants popover & tape."""
+"""Scientific Calculator view: full-width spacious display + Android-style '☰' tape drawer."""
 
 from __future__ import annotations
 
@@ -13,11 +13,17 @@ from ..evaluator import (
     format_plain,
 )
 from ..theme import FontSet
-from ..widgets import RoundedButton, RoundedCard, ScrollableFrame, SegmentedBar
+from ..widgets import (
+    HamburgerButton,
+    RoundedButton,
+    RoundedCard,
+    ScrollableFrame,
+    SegmentedBar,
+)
 
 
 class ScientificView(tk.Frame):
-    """Flagship Scientific Calculator tab."""
+    """Full-width Scientific Calculator with Android-style 3-line ('☰') Calculation Tape drawer."""
 
     def __init__(
         self,
@@ -41,44 +47,40 @@ class ScientificView(tk.Frame):
         self.sci_notation: bool = False
         self.second_mode: bool = False
         self.just_evaluated: bool = False
+        self.drawer_open: bool = False
         self.history: List[Tuple[str, float, str]] = []
         self._const_popup: Optional[tk.Toplevel] = None
 
         self._buttons: List[Tuple[RoundedButton, str]] = []
-        self._shiftable_specs: List[Tuple[RoundedButton, Tuple[str, str, Callable[[], None]], Tuple[str, str, Callable[[], None]]]] = []
+        self._shiftable_specs: List[
+            Tuple[RoundedButton, Tuple[str, str, Callable[[], None]], Tuple[str, str, Callable[[], None]]]
+        ] = []
 
         self._build_ui()
         self._refresh_display()
 
     # ------------------------------------------------------------------
-    # UI Construction
+    # UI Construction (100% Full Width — No Permanent Right Sidebar)
     # ------------------------------------------------------------------
     def _build_ui(self) -> None:
         p = self.palette
-        self.grid_columnconfigure(0, weight=7)
-        self.grid_columnconfigure(1, weight=3, minsize=250)
-        self.grid_rowconfigure(0, weight=1)
+        self.grid_columnconfigure(0, weight=1)
+        self.grid_rowconfigure(0, weight=0, minsize=172)
+        self.grid_rowconfigure(1, weight=0)
+        self.grid_rowconfigure(2, weight=1)
 
-        # Left calculator stack
-        self.left_col = tk.Frame(self, bg=p["bg"], bd=0, highlightthickness=0)
-        self.left_col.grid(row=0, column=0, sticky="nsew", padx=(0, 10))
-        self.left_col.grid_columnconfigure(0, weight=1)
-        self.left_col.grid_rowconfigure(0, weight=0, minsize=142)
-        self.left_col.grid_rowconfigure(1, weight=0)
-        self.left_col.grid_rowconfigure(2, weight=1)
-
-        # 1) Display Card
+        # 1) Spacious Full-Width Display Card
         self.display_card = RoundedCard(
-            self.left_col,
+            self,
             palette=p,
             parent_bg=p["bg"],
             fill_key="display_bg",
             border_key="display_border",
-            radius=16,
-            pad_x=18,
-            pad_y=12,
+            radius=18,
+            pad_x=22,
+            pad_y=14,
         )
-        self.display_card.configure(height=144)
+        self.display_card.configure(height=174)
         self.display_card.grid(row=0, column=0, sticky="ew", pady=(0, 10))
 
         db = self.display_card.body
@@ -87,12 +89,25 @@ class ScientificView(tk.Frame):
         self.top_meta = tk.Frame(db, bg=p["display_bg"])
         self.top_meta.grid(row=0, column=0, sticky="ew")
 
+        # Android-style 3-horizontal-lines ('☰') button opening the Calculation Tape drawer
+        self.drawer_btn = HamburgerButton(
+            self.top_meta,
+            command=self.toggle_drawer,
+            fonts=self.fonts,
+            palette=p,
+            parent_bg=p["display_bg"],
+            width=40,
+            height=30,
+            radius=9,
+        )
+        self.drawer_btn.pack(side="left", padx=(0, 10))
+
         self.badge_lbl = tk.Label(
             self.top_meta,
             text="DEG  ·  STD",
             bg=p["display_bg"],
             fg=p["accent"],
-            font=self.fonts.mono(10, "bold"),
+            font=self.fonts.mono(11, "bold"),
         )
         self.badge_lbl.pack(side="left")
 
@@ -101,8 +116,8 @@ class ScientificView(tk.Frame):
             text="",
             bg=p["display_bg"],
             fg=p["tertiary"],
-            font=self.fonts.mono(10, "bold"),
-            padx=10,
+            font=self.fonts.mono(11, "bold"),
+            padx=12,
         )
         self.mem_lbl.pack(side="left")
 
@@ -114,12 +129,12 @@ class ScientificView(tk.Frame):
             fonts=self.fonts,
             palette=p,
             parent_bg=p["display_bg"],
-            width=96,
-            height=24,
-            radius=8,
+            width=104,
+            height=28,
+            radius=9,
             font_size=10,
         )
-        self.send_conv_btn.pack(side="right", padx=(6, 0))
+        self.send_conv_btn.pack(side="right", padx=(8, 0))
         self._buttons.append((self.send_conv_btn, "display_bg"))
 
         self.copy_btn = RoundedButton(
@@ -130,9 +145,9 @@ class ScientificView(tk.Frame):
             fonts=self.fonts,
             palette=p,
             parent_bg=p["display_bg"],
-            width=60,
-            height=24,
-            radius=8,
+            width=66,
+            height=28,
+            radius=9,
             font_size=10,
         )
         self.copy_btn.pack(side="right")
@@ -144,9 +159,9 @@ class ScientificView(tk.Frame):
             anchor="e",
             bg=p["display_bg"],
             fg=p["text_muted"],
-            font=self.fonts.mono(12),
+            font=self.fonts.mono(13),
         )
-        self.formula_lbl.grid(row=1, column=0, sticky="ew", pady=(4, 0))
+        self.formula_lbl.grid(row=1, column=0, sticky="ew", pady=(6, 0))
 
         self.main_lbl = tk.Label(
             db,
@@ -154,7 +169,7 @@ class ScientificView(tk.Frame):
             anchor="e",
             bg=p["display_bg"],
             fg=p["text"],
-            font=self.fonts.mono(28, "bold"),
+            font=self.fonts.mono(38, "bold"),
         )
         self.main_lbl.grid(row=2, column=0, sticky="ew", pady=(2, 0))
 
@@ -164,19 +179,19 @@ class ScientificView(tk.Frame):
             anchor="e",
             bg=p["display_bg"],
             fg=p["secondary"],
-            font=self.fonts.mono(12),
+            font=self.fonts.mono(13),
         )
         self.preview_lbl.grid(row=3, column=0, sticky="ew")
 
-        # 2) Control & Memory Ribbon Card
+        # 2) Full-Width Control & Memory Ribbon Card
         self.ribbon_card = RoundedCard(
-            self.left_col,
+            self,
             palette=p,
             parent_bg=p["bg"],
             fill_key="surface",
             border_key="card_border",
             radius=14,
-            pad_x=12,
+            pad_x=14,
             pad_y=8,
         )
         self.ribbon_card.configure(height=54)
@@ -192,10 +207,10 @@ class ScientificView(tk.Frame):
             palette=p,
             parent_bg=p["surface"],
             height=34,
-            font_size=10,
+            font_size=11,
         )
-        self.angle_bar.configure(width=168)
-        self.angle_bar.pack(side="left", padx=(0, 8))
+        self.angle_bar.configure(width=198)
+        self.angle_bar.pack(side="left", padx=(0, 10))
 
         self.btn_2nd = RoundedButton(
             rb,
@@ -205,7 +220,7 @@ class ScientificView(tk.Frame):
             fonts=self.fonts,
             palette=p,
             parent_bg=p["surface"],
-            width=52,
+            width=60,
             height=34,
             radius=9,
             font_size=11,
@@ -221,7 +236,7 @@ class ScientificView(tk.Frame):
             fonts=self.fonts,
             palette=p,
             parent_bg=p["surface"],
-            width=52,
+            width=60,
             height=34,
             radius=9,
             font_size=11,
@@ -237,12 +252,12 @@ class ScientificView(tk.Frame):
             fonts=self.fonts,
             palette=p,
             parent_bg=p["surface"],
-            width=102,
+            width=116,
             height=34,
             radius=9,
             font_size=11,
         )
-        self.btn_consts.pack(side="left", padx=(3, 8))
+        self.btn_consts.pack(side="left", padx=(6, 8))
         self._buttons.append((self.btn_consts, "surface"))
 
         for m_lbl, m_cmd in (
@@ -260,24 +275,24 @@ class ScientificView(tk.Frame):
                 fonts=self.fonts,
                 palette=p,
                 parent_bg=p["surface"],
-                width=42,
+                width=52,
                 height=34,
                 radius=9,
-                font_size=10,
+                font_size=11,
                 mono=True,
             )
-            b.pack(side="right", padx=2)
+            b.pack(side="right", padx=3)
             self._buttons.append((b, "surface"))
 
-        # 3) Main 6x8 Keypad Card
+        # 3) Full-Width 6x8 Scientific & Numeric Keypad Card
         self.pad_card = RoundedCard(
-            self.left_col,
+            self,
             palette=p,
             parent_bg=p["bg"],
             fill_key="surface",
             border_key="card_border",
             radius=16,
-            pad_x=12,
+            pad_x=14,
             pad_y=12,
         )
         self.pad_card.grid(row=2, column=0, sticky="nsew")
@@ -306,10 +321,10 @@ class ScientificView(tk.Frame):
                 fonts=self.fonts,
                 palette=p,
                 parent_bg=p["surface"],
-                radius=11,
+                radius=12,
                 subtext=subtext,
             )
-            b.grid(row=r, column=c, columnspan=colspan, sticky="nsew", padx=3, pady=3)
+            b.grid(row=r, column=c, columnspan=colspan, sticky="nsew", padx=4, pady=3)
             self._buttons.append((b, "surface"))
             if alt is not None:
                 alt_lbl, alt_cmd = alt
@@ -375,31 +390,46 @@ class ScientificView(tk.Frame):
         _add_btn(5, 5, ",", lambda: self._insert_token(","), kind="fn")
         _add_btn(5, 6, "=", self.evaluate_now, kind="eq", colspan=2)
 
-        # Right column: Calculation Tape / History Card
-        self.hist_card = RoundedCard(
+        # 4) Slide-Over Android-Style Calculation Tape Drawer (hidden until '☰' is clicked)
+        self.drawer_scrim = tk.Frame(self, bg=p["bg"])
+        self.drawer_scrim.bind("<ButtonRelease-1>", lambda _e: self.close_drawer())
+
+        self.drawer_panel = RoundedCard(
             self,
             palette=p,
             parent_bg=p["bg"],
             fill_key="surface",
-            border_key="card_border",
+            border_key="accent",
             radius=16,
-            pad_x=12,
+            pad_x=14,
             pad_y=12,
         )
-        self.hist_card.grid(row=0, column=1, sticky="nsew")
-        hb = self.hist_card.body
+        hb = self.drawer_panel.body
         hb.grid_columnconfigure(0, weight=1)
         hb.grid_rowconfigure(1, weight=1)
 
         self.hist_hdr = tk.Frame(hb, bg=p["surface"])
         self.hist_hdr.grid(row=0, column=0, sticky="ew", pady=(0, 8))
 
+        self.close_drawer_btn = HamburgerButton(
+            self.hist_hdr,
+            command=self.close_drawer,
+            fonts=self.fonts,
+            palette=p,
+            parent_bg=p["surface"],
+            width=36,
+            height=28,
+            radius=8,
+        )
+        self.close_drawer_btn.set_active(True)
+        self.close_drawer_btn.pack(side="left", padx=(0, 8))
+
         self.hist_title = tk.Label(
             self.hist_hdr,
             text="CALCULATION TAPE",
             bg=p["surface"],
-            fg=p["text_sub"],
-            font=self.fonts.ui(10, "bold"),
+            fg=p["text"],
+            font=self.fonts.ui(11, "bold"),
         )
         self.hist_title.pack(side="left")
 
@@ -407,21 +437,63 @@ class ScientificView(tk.Frame):
             self.hist_hdr,
             "Clear",
             command=self._clear_history,
-            kind="ghost",
+            kind="danger",
             fonts=self.fonts,
             palette=p,
             parent_bg=p["surface"],
-            width=54,
-            height=24,
-            radius=7,
+            width=58,
+            height=26,
+            radius=8,
             font_size=10,
         )
         self.clear_hist_btn.pack(side="right")
         self._buttons.append((self.clear_hist_btn, "surface"))
 
-        self.hist_scroll = ScrollableFrame(hb, bg=p["surface"])
+        self.hist_scroll = ScrollableFrame(
+            hb,
+            bg=p["surface"],
+            thumb_color=p["card_border"],
+            active_color=p["accent"],
+        )
         self.hist_scroll.grid(row=1, column=0, sticky="nsew")
         self._render_history()
+
+        # Clicking outside the open drawer (on display, ribbon, or keypad) closes it smoothly
+        for w in (
+            self.display_card,
+            self.display_card.body,
+            self.formula_lbl,
+            self.main_lbl,
+            self.preview_lbl,
+            self.ribbon_card,
+            self.ribbon_card.body,
+            self.pad_card,
+            self.pad_card.body,
+        ):
+            w.bind("<ButtonPress-1>", lambda _e: self.close_drawer(), add="+")
+
+    # ------------------------------------------------------------------
+    # Slide-Over Drawer Controls
+    # ------------------------------------------------------------------
+    def toggle_drawer(self) -> None:
+        if self.drawer_open:
+            self.close_drawer()
+        else:
+            self.open_drawer()
+
+    def open_drawer(self) -> None:
+        self.drawer_open = True
+        self.drawer_btn.set_active(True)
+        self._render_history()
+        self.drawer_panel.place(x=0, y=0, relheight=1.0, width=326)
+        self.drawer_panel.tkraise()
+
+    def close_drawer(self) -> None:
+        if not self.drawer_open:
+            return
+        self.drawer_open = False
+        self.drawer_btn.set_active(False)
+        self.drawer_panel.place_forget()
 
     # ------------------------------------------------------------------
     # Actions & Expression Editing
@@ -448,7 +520,6 @@ class ScientificView(tk.Frame):
             self.expr = ""
             self.just_evaluated = False
         if ch == ".":
-            # Prevent double decimal in current trailing number token
             tail = ""
             for c in reversed(self.expr):
                 if c.isdigit() or c == ".":
@@ -474,8 +545,6 @@ class ScientificView(tk.Frame):
 
     def _insert_fn(self, fn_prefix: str) -> None:
         if self.just_evaluated:
-            # Wrap previous answer if user hits a function right after '='?
-            # Cleanest calculator UX: start fresh expression with function, Ans is available
             self.expr = ""
             self.just_evaluated = False
         self.expr += fn_prefix
@@ -491,7 +560,6 @@ class ScientificView(tk.Frame):
                 self._refresh_display()
                 return
             self.expr = format_plain(self.ans)
-        # Replace trailing binary operator if user changes mind
         stripped = self.expr.rstrip()
         if stripped and stripped[-1] in "+−×÷^*/-" and op_str.strip() in ("+", "−", "×", "÷", "^"):
             self.expr = stripped[:-1] + op_str
@@ -539,8 +607,14 @@ class ScientificView(tk.Frame):
             self.just_evaluated = False
         if not self.expr:
             return
-        # Remove multi-char tokens cleanly
-        for suffix in (" nCr ", " nPr ", " mod ", " yroot ", "asinh(", "acosh(", "atanh(", "log10(", "floor(", "sinh(", "cosh(", "tanh(", "asin(", "acos(", "atan(", "log2(", "sqrt(", "cbrt(", "ceil(", "sin(", "cos(", "tan(", "sec(", "csc(", "cot(", "exp(", "abs(", "gcd(", "lcm(", "ln(", "Ans"):
+        for suffix in (
+            " nCr ", " nPr ", " mod ", " yroot ",
+            "asinh(", "acosh(", "atanh(", "log10(", "floor(",
+            "sinh(", "cosh(", "tanh(", "asin(", "acos(", "atan(",
+            "log2(", "sqrt(", "cbrt(", "ceil(",
+            "sin(", "cos(", "tan(", "sec(", "csc(", "cot(",
+            "exp(", "abs(", "gcd(", "lcm(", "ln(", "Ans",
+        ):
             if self.expr.endswith(suffix):
                 self.expr = self.expr[: -len(suffix)]
                 self._refresh_display()
@@ -564,10 +638,12 @@ class ScientificView(tk.Frame):
         self.history.insert(0, (target, val, formatted))
         if len(self.history) > 60:
             self.history.pop()
+        self.drawer_btn.set_badge(len(self.history))
         self.expr = format_plain(val)
         self.just_evaluated = True
         self._refresh_display()
-        self._render_history()
+        if self.drawer_open:
+            self._render_history()
 
     # ------------------------------------------------------------------
     # Memory & Clipboard & Constants Popover
@@ -653,7 +729,7 @@ class ScientificView(tk.Frame):
             anchor="w",
         ).pack(fill="x", padx=6, pady=(0, 6))
 
-        sf = ScrollableFrame(wrap, bg=p["surface"])
+        sf = ScrollableFrame(wrap, bg=p["surface"], thumb_color=p["card_border"], active_color=p["accent"])
         sf.configure(width=360, height=280)
         sf.pack(fill="both", expand=True)
 
@@ -732,7 +808,7 @@ class ScientificView(tk.Frame):
             self._const_popup = None
 
     # ------------------------------------------------------------------
-    # Rendering Display & History
+    # Rendering Display & History Drawer
     # ------------------------------------------------------------------
     def _refresh_display(self) -> None:
         p = self.palette
@@ -750,12 +826,10 @@ class ScientificView(tk.Frame):
             except ValueError:
                 pass
 
-        # Dynamic font scaling for long expressions
         length = len(shown)
-        fsize = 28 if length <= 18 else (22 if length <= 26 else (17 if length <= 36 else 14))
+        fsize = 38 if length <= 22 else (30 if length <= 32 else (22 if length <= 46 else 16))
         self.main_lbl.configure(text=shown, font=self.fonts.mono(fsize, "bold"))
 
-        # Live instant preview when typing compound expressions
         if self.expr and not self.just_evaluated:
             try:
                 val = evaluate(self.expr, angle_mode=self.angle_mode, ans=self.ans)
@@ -771,6 +845,7 @@ class ScientificView(tk.Frame):
 
     def _clear_history(self) -> None:
         self.history.clear()
+        self.drawer_btn.set_badge(0)
         self._render_history()
 
     def _render_history(self) -> None:
@@ -781,12 +856,12 @@ class ScientificView(tk.Frame):
         if not self.history:
             tk.Label(
                 self.hist_scroll.inner,
-                text="Evaluated expressions\nappear here.\n\nClick any entry to\nreuse its formula or result.",
+                text="No calculations yet.\n\nEvaluated expressions appear here.\nClick any entry to reuse it.",
                 justify="center",
                 bg=p["surface"],
                 fg=p["text_muted"],
                 font=self.fonts.ui(11),
-                pady=36,
+                pady=42,
             ).pack(fill="x")
             return
 
@@ -794,8 +869,8 @@ class ScientificView(tk.Frame):
             item = tk.Frame(
                 self.hist_scroll.inner,
                 bg=p["surface_alt"],
-                padx=10,
-                pady=7,
+                padx=12,
+                pady=8,
                 cursor="hand2",
             )
             item.pack(fill="x", pady=3, padx=2)
@@ -816,13 +891,14 @@ class ScientificView(tk.Frame):
                 anchor="e",
                 bg=p["surface_alt"],
                 fg=p["text"],
-                font=self.fonts.mono(13, "bold"),
+                font=self.fonts.mono(14, "bold"),
             )
             rlbl.pack(fill="x")
 
             def _load_expr(_e: tk.Event, ex: str = expr_str) -> None:
                 self.expr = ex
                 self.just_evaluated = False
+                self.close_drawer()
                 self._refresh_display()
 
             def _load_val(_e: tk.Event, v: float = val) -> None:
@@ -831,6 +907,7 @@ class ScientificView(tk.Frame):
                 else:
                     self.expr += format_plain(v)
                 self.just_evaluated = False
+                self.close_drawer()
                 self._refresh_display()
 
             elbl.bind("<ButtonRelease-1>", _load_expr)
@@ -844,7 +921,13 @@ class ScientificView(tk.Frame):
         keysym = event.keysym
         ch = event.char
 
-        if (event.state & 0x4) or (event.state & 0x8):  # Ctrl or Cmd
+        # Ignore Ctrl+C / Ctrl+X / Ctrl+D shortcuts
+        if event.state & 0x4:
+            if keysym.lower() in ("c", "x", "d", "z", "q"):
+                return
+
+        # Support macOS Cmd+C / Cmd+V
+        if event.state & 0x8:
             if keysym.lower() == "c":
                 self._copy_result()
                 return
@@ -857,11 +940,21 @@ class ScientificView(tk.Frame):
                     pass
                 return
 
+        if keysym == "Escape":
+            if self.drawer_open:
+                self.close_drawer()
+            else:
+                self.clear_all()
+            return
+
+        if self.drawer_open and ch:
+            self.close_drawer()
+
         if keysym in ("Return", "KP_Enter", "equal"):
             self.evaluate_now()
         elif keysym == "BackSpace":
             self.backspace()
-        elif keysym in ("Escape", "Delete"):
+        elif keysym == "Delete":
             self.clear_all()
         elif ch and ch in "0123456789.":
             self._insert_digit(ch)
@@ -884,10 +977,10 @@ class ScientificView(tk.Frame):
         self.palette = palette
         p = palette
         self.configure(bg=p["bg"])
-        self.left_col.configure(bg=p["bg"])
 
         self.display_card.apply_theme(p, p["bg"])
         self.top_meta.configure(bg=p["display_bg"])
+        self.drawer_btn.apply_theme(p, p["display_bg"])
         self.badge_lbl.configure(bg=p["display_bg"], fg=p["accent"])
         self.mem_lbl.configure(bg=p["display_bg"], fg=p["tertiary"])
         self.formula_lbl.configure(bg=p["display_bg"], fg=p["text_muted"])
@@ -897,10 +990,12 @@ class ScientificView(tk.Frame):
         self.ribbon_card.apply_theme(p, p["bg"])
         self.angle_bar.apply_theme(p, p["surface"])
         self.pad_card.apply_theme(p, p["bg"])
-        self.hist_card.apply_theme(p, p["bg"])
+
+        self.drawer_panel.apply_theme(p, p["bg"])
         self.hist_hdr.configure(bg=p["surface"])
-        self.hist_title.configure(bg=p["surface"], fg=p["text_sub"])
-        self.hist_scroll.apply_bg(p["surface"])
+        self.close_drawer_btn.apply_theme(p, p["surface"])
+        self.hist_title.configure(bg=p["surface"], fg=p["text"])
+        self.hist_scroll.apply_bg(p["surface"], p["card_border"], p["accent"])
 
         for btn, bg_key in self._buttons:
             btn.apply_theme(p, p[bg_key])
