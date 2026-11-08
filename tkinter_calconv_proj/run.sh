@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 # Launch PRISM CALC using a Python 3 interpreter with modern Tcl/Tk (>= 8.6).
-# Rejects Apple's broken deprecated /usr/bin/python3 system Tk 8.5 on modern macOS.
-set -e
-cd "$(dirname "$0")"
+# Ignores Ctrl+C, Ctrl+X, Ctrl+D, Ctrl+\, and Ctrl+Z in the terminal while running.
+trap '' INT QUIT TSTP
+
+cd "$(dirname "$0")" || exit 1
 
 export TK_SILENCE_DEPRECATION=1
 
@@ -72,4 +73,17 @@ if [ -z "$SELECTED_PY" ]; then
   exit 1
 fi
 
-exec "$SELECTED_PY" main.py "$@"
+SAVED_STTY=""
+if [ -t 0 ]; then
+  SAVED_STTY=$(stty -g 2>/dev/null || true)
+  cleanup_tty() {
+    "$SELECTED_PY" -c "import sys, termios; termios.tcflush(sys.stdin.fileno(), termios.TCIFLUSH)" 2>/dev/null || true
+    if [ -n "$SAVED_STTY" ]; then
+      stty "$SAVED_STTY" 2>/dev/null || true
+    fi
+  }
+  trap cleanup_tty EXIT
+  stty -echo -icanon -isig intr undef quit undef eof undef susp undef dsusp undef 2>/dev/null || true
+fi
+
+"$SELECTED_PY" main.py "$@"
