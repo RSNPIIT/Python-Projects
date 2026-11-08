@@ -1,0 +1,6 @@
+.venv/
+__pycache__/
+*.pyc
+save.json
+screenshots/capture_*.png
+screenshots/shot_*.png
