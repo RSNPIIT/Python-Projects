@@ -77,7 +77,7 @@ class ConverterView(tk.Frame):
         )
         self.cat_hdr.grid(row=0, column=0, sticky="ew", pady=(0, 8))
 
-        self.cat_scroll = ScrollableFrame(cb, bg=p["surface"])
+        self.cat_scroll = ScrollableFrame(cb, bg=p["surface"], thumb_color=p["card_border"], active_color=p["accent"])
         self.cat_scroll.grid(row=1, column=0, sticky="nsew")
         self._populate_categories()
 
@@ -306,7 +306,7 @@ class ConverterView(tk.Frame):
         )
         self.all_hdr.grid(row=0, column=0, sticky="ew", pady=(0, 8))
 
-        self.all_scroll = ScrollableFrame(ab, bg=p["surface"])
+        self.all_scroll = ScrollableFrame(ab, bg=p["surface"], thumb_color=p["card_border"], active_color=p["accent"])
         self.all_scroll.grid(row=1, column=0, sticky="nsew")
 
     # ------------------------------------------------------------------
@@ -499,7 +499,7 @@ class ConverterView(tk.Frame):
 
         self.cat_card.apply_theme(p, p["bg"])
         self.cat_hdr.configure(bg=p["surface"], fg=p["text_sub"])
-        self.cat_scroll.apply_bg(p["surface"])
+        self.cat_scroll.apply_bg(p["surface"], p["card_border"], p["accent"])
         self._populate_categories()
 
         self.conv_card.apply_theme(p, p["bg"])
@@ -517,7 +517,7 @@ class ConverterView(tk.Frame):
 
         self.all_card.apply_theme(p, p["bg"])
         self.all_hdr.configure(bg=p["surface"], fg=p["text_sub"])
-        self.all_scroll.apply_bg(p["surface"])
+        self.all_scroll.apply_bg(p["surface"], p["card_border"], p["accent"])
 
         for btn, bg_key in self._buttons:
             btn.apply_theme(p, p[bg_key])
