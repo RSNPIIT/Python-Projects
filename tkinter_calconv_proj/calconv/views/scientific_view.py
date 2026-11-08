@@ -64,14 +64,21 @@ class ScientificView(tk.Frame):
     # ------------------------------------------------------------------
     def _build_ui(self) -> None:
         p = self.palette
-        self.grid_columnconfigure(0, weight=1)
-        self.grid_rowconfigure(0, weight=0, minsize=172)
-        self.grid_rowconfigure(1, weight=0)
-        self.grid_rowconfigure(2, weight=1)
+        self.grid_columnconfigure(0, weight=0, minsize=0)
+        self.grid_columnconfigure(1, weight=1)
+        self.grid_rowconfigure(0, weight=1)
+
+        # Main Full-Width Calculator Stack (occupies 100% width when '☰' drawer is closed)
+        self.main_col = tk.Frame(self, bg=p["bg"], bd=0, highlightthickness=0)
+        self.main_col.grid(row=0, column=1, sticky="nsew")
+        self.main_col.grid_columnconfigure(0, weight=1)
+        self.main_col.grid_rowconfigure(0, weight=0, minsize=172)
+        self.main_col.grid_rowconfigure(1, weight=0)
+        self.main_col.grid_rowconfigure(2, weight=1)
 
         # 1) Spacious Full-Width Display Card
         self.display_card = RoundedCard(
-            self,
+            self.main_col,
             palette=p,
             parent_bg=p["bg"],
             fill_key="display_bg",
@@ -185,7 +192,7 @@ class ScientificView(tk.Frame):
 
         # 2) Full-Width Control & Memory Ribbon Card
         self.ribbon_card = RoundedCard(
-            self,
+            self.main_col,
             palette=p,
             parent_bg=p["bg"],
             fill_key="surface",
@@ -286,7 +293,7 @@ class ScientificView(tk.Frame):
 
         # 3) Full-Width 6x8 Scientific & Numeric Keypad Card
         self.pad_card = RoundedCard(
-            self,
+            self.main_col,
             palette=p,
             parent_bg=p["bg"],
             fill_key="surface",
@@ -390,10 +397,7 @@ class ScientificView(tk.Frame):
         _add_btn(5, 5, ",", lambda: self._insert_token(","), kind="fn")
         _add_btn(5, 6, "=", self.evaluate_now, kind="eq", colspan=2)
 
-        # 4) Slide-Over Android-Style Calculation Tape Drawer (hidden until '☰' is clicked)
-        self.drawer_scrim = tk.Frame(self, bg=p["bg"])
-        self.drawer_scrim.bind("<ButtonRelease-1>", lambda _e: self.close_drawer())
-
+        # 4) Collapsible Android-Style Calculation Tape Drawer (hidden until '☰' is clicked)
         self.drawer_panel = RoundedCard(
             self,
             palette=p,
@@ -404,6 +408,7 @@ class ScientificView(tk.Frame):
             pad_x=14,
             pad_y=12,
         )
+        self.drawer_panel.configure(width=292)
         hb = self.drawer_panel.body
         hb.grid_columnconfigure(0, weight=1)
         hb.grid_rowconfigure(1, weight=1)
@@ -458,22 +463,8 @@ class ScientificView(tk.Frame):
         self.hist_scroll.grid(row=1, column=0, sticky="nsew")
         self._render_history()
 
-        # Clicking outside the open drawer (on display, ribbon, or keypad) closes it smoothly
-        for w in (
-            self.display_card,
-            self.display_card.body,
-            self.formula_lbl,
-            self.main_lbl,
-            self.preview_lbl,
-            self.ribbon_card,
-            self.ribbon_card.body,
-            self.pad_card,
-            self.pad_card.body,
-        ):
-            w.bind("<ButtonPress-1>", lambda _e: self.close_drawer(), add="+")
-
     # ------------------------------------------------------------------
-    # Slide-Over Drawer Controls
+    # Collapsible Drawer Controls (zero Canvas.tkraise / z-order bugs)
     # ------------------------------------------------------------------
     def toggle_drawer(self) -> None:
         if self.drawer_open:
@@ -485,15 +476,16 @@ class ScientificView(tk.Frame):
         self.drawer_open = True
         self.drawer_btn.set_active(True)
         self._render_history()
-        self.drawer_panel.place(x=0, y=0, relheight=1.0, width=326)
-        self.drawer_panel.tkraise()
+        self.grid_columnconfigure(0, weight=0, minsize=296)
+        self.drawer_panel.grid(row=0, column=0, sticky="nsew", padx=(0, 10))
 
     def close_drawer(self) -> None:
         if not self.drawer_open:
             return
         self.drawer_open = False
         self.drawer_btn.set_active(False)
-        self.drawer_panel.place_forget()
+        self.drawer_panel.grid_remove()
+        self.grid_columnconfigure(0, weight=0, minsize=0)
 
     # ------------------------------------------------------------------
     # Actions & Expression Editing
@@ -947,9 +939,6 @@ class ScientificView(tk.Frame):
                 self.clear_all()
             return
 
-        if self.drawer_open and ch:
-            self.close_drawer()
-
         if keysym in ("Return", "KP_Enter", "equal"):
             self.evaluate_now()
         elif keysym == "BackSpace":
@@ -977,6 +966,7 @@ class ScientificView(tk.Frame):
         self.palette = palette
         p = palette
         self.configure(bg=p["bg"])
+        self.main_col.configure(bg=p["bg"])
 
         self.display_card.apply_theme(p, p["bg"])
         self.top_meta.configure(bg=p["display_bg"])
