@@ -1,29 +1,28 @@
 #!/bin/bash
 
-# Get a list of all modified and untracked files
-files=$(git status --porcelain | awk '{print $2}')
+# Extract only the modified/tracked file paths from git status
+files=$(git status --porcelain | grep '^.M' | awk '{print $2}')
 
-# Check if there are any changes to process
 if [ -z "$files" ]; then
-    echo "No changes to commit."
+    echo "No modified files found to process."
     exit 0
 fi
 
-# Loop through each file one by one
 for file in $files; do
     echo "----------------------------------------"
-    echo "Processing file: $file"
+    echo "Processing: $file"
     
     # 1. Add the specific file
     git add "$file"
     
-    # 2. Commit the specific file
-    git commit -m "Update: $file"
+    # 2. Extract just the filename for a clean commit message
+    filename=$(basename "$file")
+    git commit -m "Update $filename"
     
-    # 3. Push the specific commit
+    # 3. Push the individual commit
     git push origin main
 done
 
 echo "----------------------------------------"
-echo "All files have been pushed individually!"
+echo "Done! Both files have been pushed individually."
 
