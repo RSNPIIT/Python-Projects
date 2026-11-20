@@ -12,10 +12,10 @@ class BlackHoleSpacetimeFlip(Scene):
             axis_config={"color": GREY_B, "include_tip": True},
         ).to_edge(DOWN, buff=0.8).to_edge(LEFT, buff=1.0)
 
-        x_label = axes.get_x_axis_label(MathTex("r \\text{ (Space)}"), edge=RIGHT, direction=DOWN)
-        y_label = axes.get_y_axis_label(MathTex("ct \\text{ (Time)}"), edge=UP, direction=LEFT)
+        x_label = axes.get_x_axis_label(Text("r (Space)", font_size=24), edge=RIGHT, direction=DOWN)
+        y_label = axes.get_y_axis_label(Text("ct (Time)", font_size=24), edge=UP, direction=LEFT)
 
-        title = Title("Black Hole Event Horizon: Time–Space Axis Flip", font_size=36)
+        title = Text("Black Hole Event Horizon: Time–Space Axis Flip", font_size=30).to_edge(UP, buff=0.3)
         self.add(title)
         self.play(Create(axes), Write(x_label), Write(y_label))
 
@@ -27,7 +27,7 @@ class BlackHoleSpacetimeFlip(Scene):
             color=RED_E,
             stroke_width=6
         )
-        singularity_label = Text("Singularity (r = 0)", font_size=20, color=RED_E).next_to(singularity_line, UP)
+        singularity_label = Text("Singularity (r = 0)", font_size=18, color=RED_E).next_to(singularity_line, UP)
 
         horizon_line = DashedLine(
             start=axes.c2p(Rs, 0),
@@ -35,7 +35,7 @@ class BlackHoleSpacetimeFlip(Scene):
             color=YELLOW,
             stroke_width=4
         )
-        horizon_label = Text("Event Horizon (r = Rs)", font_size=20, color=YELLOW).next_to(horizon_line, UP)
+        horizon_label = Text("Event Horizon (r = Rs)", font_size=18, color=YELLOW).next_to(horizon_line, UP)
 
         # Shade the interior region (r < Rs)
         interior_region = Polygon(
@@ -49,21 +49,14 @@ class BlackHoleSpacetimeFlip(Scene):
             Create(horizon_line), Write(horizon_label)
         )
 
-        # 3. Helper Function to Create Tilted Light Cones in Schwarzschild Coordinates
+        # 3. Helper Function to Create Tilted Light Cones
         def create_light_cone(r_val, t_val, scale=0.45):
             center = axes.c2p(r_val, t_val)
+            outgoing_slope = 1.0 - (Rs / max(r_val, 0.25))
             
-            # Coordinate speed of light: dr/dt = +/- (1 - Rs/r)
-            # In standard Schwarzschild coords, cones narrow at Rs; 
-            # using Eddington-Finkelstein tilt angle for visual clarity across the horizon:
-            # Angle of ingoing ray = -45 deg; outgoing ray tilts inward as r decreases
-            outgoing_slope = 1.0 - (Rs / max(r_val, 0.25))  # >0 outside, 0 at Rs, <0 inside
-            
-            # Left (ingoing) ray always points inward toward r=0
             ingoing_vec = np.array([-1.0, 1.0, 0.0])
             ingoing_vec = ingoing_vec / np.linalg.norm(ingoing_vec) * scale
 
-            # Right (outgoing) ray tilts across the vertical time axis
             outgoing_vec = np.array([outgoing_slope, 1.0, 0.0])
             outgoing_vec = outgoing_vec / np.linalg.norm(outgoing_vec) * scale
 
@@ -85,23 +78,22 @@ class BlackHoleSpacetimeFlip(Scene):
         radii = [4.2, 3.0, 2.0, 1.3, 0.7]
         cones = VGroup(*[create_light_cone(r, 1.8) for r in radii])
 
-        cone_caption = Text("Light cones tip inward as gravity increases", font_size=22, color=BLUE_B).to_edge(RIGHT).shift(UP * 1.5)
+        cone_caption = Text("Light cones tip inward\nas gravity increases", font_size=20, color=BLUE_B).to_edge(RIGHT, buff=0.6).shift(UP * 1.5)
         self.play(Write(cone_caption))
         for cone in cones:
-            self.play(FadeIn(cone), run_time=0.5)
+            self.play(FadeIn(cone), run_time=0.4)
 
-        self.wait(1)
+        self.wait(0.8)
 
         # 5. Animate the Time-Space Axis Flip Inside r < Rs
-        flip_box = RoundedRectangle(corner_radius=0.15, width=4.5, height=3.2, color=TEAL).to_edge(RIGHT, buff=0.5).shift(DOWN * 0.8)
-        flip_title = Text("Inside Event Horizon (r < Rs)", font_size=22, color=TEAL).next_to(flip_box.get_top(), DOWN, buff=0.2)
+        flip_box = RoundedRectangle(corner_radius=0.15, width=4.6, height=3.2, color=TEAL).to_edge(RIGHT, buff=0.4).shift(DOWN * 0.7)
+        flip_title = Text("Inside Event Horizon (r < Rs)", font_size=20, color=TEAL).next_to(flip_box.get_top(), DOWN, buff=0.2)
 
-        # Mini axes inside the callout box that physically rotate/swap
-        mini_origin = flip_box.get_center() + DOWN * 0.3
+        mini_origin = flip_box.get_center() + DOWN * 0.3 + LEFT * 0.4
         t_arrow = Arrow(mini_origin, mini_origin + UP * 1.1, buff=0, color=GREEN)
         r_arrow = Arrow(mini_origin, mini_origin + RIGHT * 1.1, buff=0, color=ORANGE)
-        t_text = MathTex("t \\text{ (Timelike)}", color=GREEN, font_size=24).next_to(t_arrow, UP, buff=0.1)
-        r_text = MathTex("r \\text{ (Spacelike)}", color=ORANGE, font_size=24).next_to(r_arrow, RIGHT, buff=0.1)
+        t_text = Text("t (Timelike)", color=GREEN, font_size=18).next_to(t_arrow, UP, buff=0.1)
+        r_text = Text("r (Spacelike)", color=ORANGE, font_size=18).next_to(r_arrow, RIGHT, buff=0.1)
 
         self.play(Create(flip_box), Write(flip_title))
         self.play(GrowArrow(t_arrow), Write(t_text), GrowArrow(r_arrow), Write(r_text))
@@ -110,15 +102,15 @@ class BlackHoleSpacetimeFlip(Scene):
         # Swap the roles: r becomes future-directed timelike (-r), t becomes spacelike
         new_r_arrow = Arrow(mini_origin, mini_origin + UP * 1.1, buff=0, color=ORANGE)
         new_t_arrow = Arrow(mini_origin, mini_origin + RIGHT * 1.1, buff=0, color=GREEN)
-        new_r_text = MathTex("-r \\text{ (Future Time)}", color=ORANGE, font_size=24).next_to(new_r_arrow, UP, buff=0.1)
-        new_t_text = MathTex("t \\text{ (Space)}", color=GREEN, font_size=24).next_to(new_t_arrow, RIGHT, buff=0.1)
+        new_r_text = Text("-r (Future Time)", color=ORANGE, font_size=18).next_to(new_r_arrow, UP, buff=0.1)
+        new_t_text = Text("t (Space)", color=GREEN, font_size=18).next_to(new_t_arrow, RIGHT, buff=0.1)
 
         explanation = Text(
             "Moving forward in time\nnow means decreasing r\n(falling to singularity).",
-            font_size=18,
+            font_size=17,
             color=WHITE,
             line_spacing=1.2
-        ).next_to(flip_box, DOWN, buff=0.25)
+        ).next_to(flip_box, DOWN, buff=0.2)
 
         self.play(
             Transform(r_arrow, new_r_arrow),
