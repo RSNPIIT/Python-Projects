@@ -1,4 +1,5 @@
-"""Block Blast - Main Game Engine, Waves, and Collision Coordinator"""
+"""Block Blast - Polished Game Engine and High-End Arcade UI"""
+import math
 import random
 import pygame
 from core.constants import (
@@ -18,37 +19,35 @@ from systems.screen_shake import ScreenShake
 
 class BlockBlastGame:
     def __init__(self):
-        # Subsystems
         self.particles = ParticleSystem()
         self.sound = SoundManager()
         self.screen_shake = ScreenShake()
         self.cannon = Cannon()
 
-        # Fonts
+        # Reliable Cross-Platform Fonts
         pygame.font.init()
-        self.font_title = pygame.font.SysFont("Helvetica Neue, Arial, sans-serif", 32, bold=True)
-        self.font_score = pygame.font.SysFont("Helvetica Neue, Arial, sans-serif", 24, bold=True)
-        self.font_block = pygame.font.SysFont("Helvetica Neue, Arial, sans-serif", 18, bold=True)
-        self.font_small = pygame.font.SysFont("Helvetica Neue, Arial, sans-serif", 13)
-        self.font_popup = pygame.font.SysFont("Helvetica Neue, Arial, sans-serif", 16, bold=True)
+        font_names = ["Arial", "Trebuchet MS", "Helvetica", "DejaVu Sans", "sans-serif"]
+        self.font_title = pygame.font.SysFont(font_names, 34, bold=True)
+        self.font_score = pygame.font.SysFont(font_names, 22, bold=True)
+        self.font_block = pygame.font.SysFont(font_names, 17, bold=True)
+        self.font_small = pygame.font.SysFont(font_names, 12, bold=True)
+        self.font_popup = pygame.font.SysFont(font_names, 15, bold=True)
+        self.font_badge = pygame.font.SysFont(font_names, 11, bold=True)
 
-        # Game State
         self.score = 0
         self.high_score = 0
         self.wave = 1
         self.game_over = False
         self.is_firing = False
         
-        # Wave Timing
-        self.wave_interval = 7.5  # Seconds between new row descending
+        self.wave_interval = 7.5
         self.wave_timer = self.wave_interval
+        self.pulse_time = 0.0
 
-        # Entities
         self.blocks: list[Block] = []
         self.rockets: list[Rocket] = []
         self.powerups: list[PowerUp] = []
 
-        # Start game
         self.start_new_game()
 
     def start_new_game(self):
@@ -61,13 +60,11 @@ class BlockBlastGame:
         self.powerups.clear()
         self.cannon = Cannon()
 
-        # Initial 3 rows of blocks
+        # Spawn initial 3 rows
         for r in range(3):
             self._spawn_row(row_idx=r, offset_y=BOARD_TOP_MARGIN + r * (BLOCK_HEIGHT + BLOCK_PADDING))
 
     def _spawn_row(self, row_idx: int = 0, offset_y: float = BOARD_TOP_MARGIN):
-        """Spawn a new row of blocks at the top."""
-        # 1 to 5 blocks per row with varying health
         col_indices = list(range(GRID_COLS))
         random.shuffle(col_indices)
         num_blocks = random.randint(3, 5)
@@ -76,27 +73,22 @@ class BlockBlastGame:
             bx = BLOCK_PADDING + col * (BLOCK_WIDTH + BLOCK_PADDING)
             by = offset_y
             
-            # Base HP scales with wave number
             min_hp = max(3, self.wave * 2)
             max_hp = max(8, self.wave * 5 + random.randint(0, 10))
             hp = random.randint(min_hp, max_hp)
 
-            # 12% chance of being a Bomb block
             is_bomb = random.random() < 0.12
             self.blocks.append(Block(col, row_idx, bx, by, hp, is_bomb=is_bomb))
 
     def advance_wave(self):
-        """Push all active blocks down by 1 row step."""
         shift_y = BLOCK_HEIGHT + BLOCK_PADDING
         for b in self.blocks:
             b.y += shift_y
 
-        # Spawn new top row
         self.wave += 1
         self._spawn_row(row_idx=0, offset_y=BOARD_TOP_MARGIN)
         self.wave_timer = max(5.0, self.wave_interval - self.wave * 0.15)
 
-        # Check if blocks hit deadline
         for b in self.blocks:
             if b.y + b.height >= DEADLINE_Y:
                 self.trigger_game_over()
@@ -110,7 +102,6 @@ class BlockBlastGame:
             self.high_score = self.score
 
     def trigger_bomb_explosion(self, center_block: Block):
-        """Detonate 3x3 surrounding radius of blocks."""
         cx = center_block.x + center_block.width / 2
         cy = center_block.y + center_block.height / 2
         blast_radius = BLOCK_WIDTH * 1.8
@@ -126,20 +117,21 @@ class BlockBlastGame:
             bcy = b.y + b.height / 2
             dist = ((bcx - cx)**2 + (bcy - cy)**2)**0.5
             if dist <= blast_radius:
-                destroyed = b.hit(damage=30)
+                destroyed = b.hit(damage=35)
                 if destroyed and b in self.blocks:
                     self.blocks.remove(b)
                     self.score += b.max_hp * 5
                     self.particles.emit_explosion(bcx, bcy, b.color, count=25)
 
     def trigger_freeze_pushback(self):
-        """Push all blocks up by 1 row (giving breathing room)."""
         shift_y = BLOCK_HEIGHT + BLOCK_PADDING
         for b in self.blocks:
             b.y = max(BOARD_TOP_MARGIN, b.y - shift_y)
-        self.particles.add_floating_text(SCREEN_WIDTH / 2 - 40, SCREEN_HEIGHT / 2, "PUSHBACK!", (100, 240, 255), self.font_popup)
+        self.particles.add_floating_text(SCREEN_WIDTH / 2 - 45, SCREEN_HEIGHT / 2, "PUSHBACK!", (100, 240, 255), self.font_popup)
 
     def update(self, dt: float, mouse_pos: tuple[int, int]):
+        self.pulse_time += dt
+
         if self.game_over:
             self.particles.update(dt)
             return
@@ -160,10 +152,10 @@ class BlockBlastGame:
         if self.wave_timer <= 0:
             self.advance_wave()
 
-        # Warning sound when near deadline
+        # Warning pulse when near deadline
         for b in self.blocks:
             if b.y + b.height >= DEADLINE_Y - (BLOCK_HEIGHT + BLOCK_PADDING):
-                if random.random() < 0.03:
+                if random.random() < 0.025:
                     self.sound.play("warning")
                 break
 
@@ -173,14 +165,11 @@ class BlockBlastGame:
                 self.rockets.remove(r)
                 continue
 
-            # Emit smoke/fire trail
             self.particles.emit_rocket_trail(r.x, r.y)
 
-            # Check collision with blocks
             rocket_rect = pygame.Rect(r.x - r.radius, r.y - r.radius, r.radius * 2, r.radius * 2)
             for b in list(self.blocks):
                 if rocket_rect.colliderect(b.rect):
-                    # Hit block
                     self.particles.emit_sparks(r.x, r.y, b.color, count=8)
                     self.sound.play("hit")
                     destroyed = b.hit(r.damage)
@@ -193,11 +182,10 @@ class BlockBlastGame:
                         self.particles.emit_explosion(b.x + b.width / 2, b.y + b.height / 2, b.color, count=30)
                         self.particles.add_floating_text(b.x + 10, b.y, f"+{b.max_hp * 3}", COLOR_TEXT_GOLD, self.font_popup)
 
-                        # Bomb detonation
                         if b.is_bomb:
                             self.trigger_bomb_explosion(b)
 
-                        # Powerup Drop Chance (20%)
+                        # 20% Powerup Drop Chance
                         if random.random() < 0.20:
                             p_type = random.choice([
                                 PowerUpType.SPREAD_SHOT,
@@ -207,32 +195,29 @@ class BlockBlastGame:
                             ])
                             self.powerups.append(PowerUp(b.x + b.width / 2, b.y + b.height / 2, p_type))
 
-                    # Non-piercing rocket vanishes on hit
                     if not r.is_piercing:
                         if r in self.rockets:
                             self.rockets.remove(r)
                         break
 
-        # 5. Update Powerups & Collection
-        cannon_rect = pygame.Rect(self.cannon.x - 40, self.cannon.y - 40, 80, 80)
+        # 5. Update Powerups
+        cannon_rect = pygame.Rect(self.cannon.x - 45, self.cannon.y - 45, 90, 90)
         for p in list(self.powerups):
             if not p.update(dt):
                 self.powerups.remove(p)
                 continue
 
-            # Collect when it reaches near the player launcher
             p_rect = pygame.Rect(p.x - p.radius, p.y - p.radius, p.radius * 2, p.radius * 2)
-            if p_rect.colliderect(cannon_rect) or p.y >= self.cannon.y - 15:
+            if p_rect.colliderect(cannon_rect) or p.y >= self.cannon.y - 10:
                 self.powerups.remove(p)
                 self.sound.play("powerup")
                 if p.type == PowerUpType.FREEZE:
                     self.trigger_freeze_pushback()
                 else:
                     self.cannon.activate_powerup(p.type, duration=8.0)
-                self.particles.add_floating_text(self.cannon.x - 30, self.cannon.y - 60, f"{p.label} ACTIVE!", p.color, self.font_popup)
+                self.particles.add_floating_text(self.cannon.x - 45, self.cannon.y - 70, f"{p.label}!", p.color, self.font_popup)
                 self.particles.emit_explosion(p.x, p.y, p.color, count=25)
 
-        # 6. Update Blocks & Particles
         for b in self.blocks:
             b.update(dt)
 
@@ -241,120 +226,159 @@ class BlockBlastGame:
     def draw(self, surface: pygame.Surface, mouse_pos: tuple[int, int]):
         shake_offset = self.screen_shake.update(1.0 / 60.0)
 
-        # 1. Background
+        # 1. Sleek Dark Canvas Background
         surface.fill(COLOR_BG)
 
-        # 2. Danger Deadline Line
-        danger_y = DEADLINE_Y + shake_offset[1]
-        pygame.draw.line(surface, COLOR_DEADLINE, (0, danger_y), (SCREEN_WIDTH, danger_y), 3)
-        
-        # Danger warning label
-        danger_text = self.font_small.render("▼ DANGER DEADLINE ▼", True, (255, 80, 100))
-        surface.blit(danger_text, (SCREEN_WIDTH / 2 - danger_text.get_width() / 2, danger_y + 6))
+        # Subtle vertical grid line accents
+        for col in range(GRID_COLS + 1):
+            gx = BLOCK_PADDING + col * (BLOCK_WIDTH + BLOCK_PADDING) - BLOCK_PADDING / 2
+            pygame.draw.line(surface, (20, 24, 36), (gx, BOARD_TOP_MARGIN), (gx, DEADLINE_Y), 1)
 
-        # 3. Draw Blocks
+        # 2. Polished Danger Barrier (No tofu boxes, pure glowing vector graphics)
+        self._draw_danger_barrier(surface, shake_offset)
+
+        # 3. Blocks
         for b in self.blocks:
             b.draw(surface, shake_offset, self.font_block)
 
-        # 4. Draw Powerups
+        # 4. Powerups
         for p in self.powerups:
-            p.draw(surface, shake_offset, self.font_popup)
+            p.draw(surface, shake_offset, self.font_badge)
 
-        # 5. Draw Rockets
+        # 5. Rockets
         for r in self.rockets:
             r.draw(surface, shake_offset)
 
-        # 6. Draw Particles and Floating Texts
+        # 6. Particles
         self.particles.draw(surface, shake_offset)
 
-        # 7. Draw Cannon Launcher
+        # 7. Cannon
         self.cannon.draw(surface, shake_offset, mouse_pos)
 
-        # 8. Draw HUD / Top Bar
+        # 8. HUD & Top Bar
         self._draw_hud(surface)
 
-        # 9. Draw Game Over Overlay
+        # 9. Game Over Overlay
         if self.game_over:
             self._draw_game_over(surface)
 
+    def _draw_danger_barrier(self, surface: pygame.Surface, offset: tuple[float, float]):
+        danger_y = int(DEADLINE_Y + offset[1])
+
+        # Soft red warning glow band
+        glow_surf = pygame.Surface((SCREEN_WIDTH, 24), pygame.SRCALPHA)
+        pygame.draw.rect(glow_surf, (255, 40, 70, 35), (0, 0, SCREEN_WIDTH, 24))
+        surface.blit(glow_surf, (0, danger_y - 12))
+
+        # Main laser deadline
+        pygame.draw.line(surface, (255, 50, 80), (0, danger_y), (SCREEN_WIDTH, danger_y), 2)
+        # Inner white laser core
+        pygame.draw.line(surface, (255, 200, 215), (0, danger_y), (SCREEN_WIDTH, danger_y), 1)
+
+        # Centered Sleek Danger Badge
+        badge_w = 140
+        badge_h = 20
+        badge_x = (SCREEN_WIDTH - badge_w) // 2
+        badge_y = danger_y + 4
+
+        # Badge pill
+        pygame.draw.rect(surface, (28, 18, 26), (badge_x, badge_y, badge_w, badge_h), border_radius=10)
+        pygame.draw.rect(surface, (255, 60, 90), (badge_x, badge_y, badge_w, badge_h), width=1, border_radius=10)
+
+        # Hand-drawn antialiased triangle caution markers (guaranteed NO tofu squares)
+        # Left warning triangle: ▲
+        lt_pts = [(badge_x + 12, badge_y + 5), (badge_x + 8, badge_y + 15), (badge_x + 16, badge_y + 15)]
+        pygame.draw.polygon(surface, (255, 75, 100), lt_pts)
+
+        # Right warning triangle: ▲
+        rt_pts = [(badge_x + badge_w - 12, badge_y + 5), (badge_x + badge_w - 16, badge_y + 15), (badge_x + badge_w - 8, badge_y + 15)]
+        pygame.draw.polygon(surface, (255, 75, 100), rt_pts)
+
+        # Clean ASCII text label
+        lbl = self.font_badge.render("DANGER LINE", True, (255, 160, 180))
+        surface.blit(lbl, (badge_x + (badge_w - lbl.get_width()) // 2, badge_y + 3))
+
     def _draw_hud(self, surface: pygame.Surface):
-        # Header banner
-        header_rect = pygame.Rect(0, 0, SCREEN_WIDTH, BOARD_TOP_MARGIN - 15)
-        pygame.draw.rect(surface, (20, 24, 36), header_rect)
-        pygame.draw.line(surface, (40, 48, 68), (0, BOARD_TOP_MARGIN - 15), (SCREEN_WIDTH, BOARD_TOP_MARGIN - 15), 1)
+        # 1. Dark Glass Header Card
+        header_h = BOARD_TOP_MARGIN - 16
+        header_rect = pygame.Rect(12, 10, SCREEN_WIDTH - 24, header_h)
+        
+        # Rounded header container
+        pygame.draw.rect(surface, (22, 27, 40), header_rect, border_radius=14)
+        pygame.draw.rect(surface, (38, 46, 68), header_rect, width=1, border_radius=14)
 
-        # Score
-        score_lbl = self.font_small.render("SCORE", True, COLOR_TEXT_MUTED)
-        score_val = self.font_score.render(f"{self.score:,}", True, COLOR_TEXT_WHITE)
-        surface.blit(score_lbl, (20, 12))
-        surface.blit(score_val, (20, 28))
+        # Score Section
+        s_lbl = self.font_small.render("SCORE", True, COLOR_TEXT_MUTED)
+        s_val = self.font_score.render(f"{self.score:,}", True, COLOR_TEXT_WHITE)
+        surface.blit(s_lbl, (30, 16))
+        surface.blit(s_val, (30, 32))
 
-        # Wave
-        wave_lbl = self.font_small.render("WAVE", True, COLOR_TEXT_MUTED)
-        wave_val = self.font_score.render(f"{self.wave}", True, (50, 220, 255))
-        surface.blit(wave_lbl, (SCREEN_WIDTH / 2 - 25, 12))
-        surface.blit(wave_val, (SCREEN_WIDTH / 2 - 25, 28))
+        # Wave Pill Badge in Center
+        w_text = self.font_score.render(f"WAVE {self.wave}", True, (50, 220, 255))
+        w_rect = w_text.get_rect(center=(SCREEN_WIDTH // 2, 38))
+        pill_rect = pygame.Rect(w_rect.x - 14, w_rect.y - 4, w_rect.width + 28, w_rect.height + 8)
+        pygame.draw.rect(surface, (14, 18, 28), pill_rect, border_radius=12)
+        pygame.draw.rect(surface, (40, 180, 220), pill_rect, width=1, border_radius=12)
+        surface.blit(w_text, w_rect)
 
-        # High Score
+        # Best Score Section
         hi_lbl = self.font_small.render("BEST", True, COLOR_TEXT_MUTED)
         hi_val = self.font_score.render(f"{max(self.score, self.high_score):,}", True, COLOR_TEXT_GOLD)
-        surface.blit(hi_lbl, (SCREEN_WIDTH - 110, 12))
-        surface.blit(hi_val, (SCREEN_WIDTH - 110, 28))
+        surface.blit(hi_lbl, (SCREEN_WIDTH - 110, 16))
+        surface.blit(hi_val, (SCREEN_WIDTH - 110, 32))
 
-        # Wave progress countdown bar
+        # 2. Wave Countdown Progress Bar
         progress = max(0.0, min(1.0, self.wave_timer / self.wave_interval))
-        bar_w = SCREEN_WIDTH - 40
-        bar_h = 4
-        bar_x = 20
+        bar_w = SCREEN_WIDTH - 50
+        bar_h = 3
+        bar_x = 25
         bar_y = 66
-        pygame.draw.rect(surface, (35, 42, 58), (bar_x, bar_y, bar_w, bar_h), border_radius=2)
-        pygame.draw.rect(surface, (255, 100, 60), (bar_x, bar_y, bar_w * (1.0 - progress), bar_h), border_radius=2)
+        pygame.draw.rect(surface, (35, 42, 60), (bar_x, bar_y, bar_w, bar_h), border_radius=2)
+        fill_w = int(bar_w * (1.0 - progress))
+        if fill_w > 0:
+            pygame.draw.rect(surface, (255, 95, 65), (bar_x, bar_y, fill_w, bar_h), border_radius=2)
 
-        # Active Powerup Badges
+        # 3. Active Power-Up Badges at Bottom
         badge_x = 20
         badge_y = SCREEN_HEIGHT - 32
         for ptype, timer in self.cannon.powerup_timers.items():
             if timer > 0:
                 name = {
                     PowerUpType.SPREAD_SHOT: "3X SPREAD",
-                    PowerUpType.PIERCE: "PIERCE",
-                    PowerUpType.RAPID_FIRE: "RAPID",
+                    PowerUpType.PIERCE: "LASER DRILL",
+                    PowerUpType.RAPID_FIRE: "RAPID FIRE",
                 }.get(ptype, "")
                 badge_text = self.font_small.render(f"{name} {timer:.1f}s", True, (255, 255, 255))
-                bw = badge_text.get_width() + 16
-                pygame.draw.rect(surface, (40, 50, 75), (badge_x, badge_y, bw, 22), border_radius=4)
-                surface.blit(badge_text, (badge_x + 8, badge_y + 3))
+                bw = badge_text.get_width() + 18
+                # Glowing badge
+                pygame.draw.rect(surface, (32, 42, 64), (badge_x, badge_y, bw, 22), border_radius=6)
+                pygame.draw.rect(surface, (60, 190, 240), (badge_x, badge_y, bw, 22), width=1, border_radius=6)
+                surface.blit(badge_text, (badge_x + 9, badge_y + 3))
                 badge_x += bw + 8
 
     def _draw_game_over(self, surface: pygame.Surface):
-        # Dark modal overlay
         overlay = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.SRCALPHA)
-        overlay.fill((10, 12, 18, 220))
+        overlay.fill((10, 12, 18, 225))
         surface.blit(overlay, (0, 0))
 
-        # Game Over Card
-        card_w = 400
-        card_h = 280
+        card_w = 380
+        card_h = 260
         card_rect = pygame.Rect((SCREEN_WIDTH - card_w) / 2, (SCREEN_HEIGHT - card_h) / 2, card_w, card_h)
-        pygame.draw.rect(surface, (25, 28, 42), card_rect, border_radius=16)
-        pygame.draw.rect(surface, COLOR_DEADLINE, card_rect, width=2, border_radius=16)
+        pygame.draw.rect(surface, (24, 28, 42), card_rect, border_radius=18)
+        pygame.draw.rect(surface, COLOR_DEADLINE, card_rect, width=2, border_radius=18)
 
-        # Title
         t = self.font_title.render("GAME OVER", True, COLOR_DEADLINE)
         tr = t.get_rect(center=(SCREEN_WIDTH / 2, card_rect.top + 45))
         surface.blit(t, tr)
 
-        # Final Score
         s = self.font_score.render(f"Final Score: {self.score:,}", True, COLOR_TEXT_WHITE)
-        sr = s.get_rect(center=(SCREEN_WIDTH / 2, card_rect.top + 105))
+        sr = s.get_rect(center=(SCREEN_WIDTH / 2, card_rect.top + 100))
         surface.blit(s, sr)
 
-        # Wave Reached
         w = self.font_block.render(f"Reached Wave {self.wave}", True, COLOR_TEXT_MUTED)
-        wr = w.get_rect(center=(SCREEN_WIDTH / 2, card_rect.top + 145))
+        wr = w.get_rect(center=(SCREEN_WIDTH / 2, card_rect.top + 138))
         surface.blit(w, wr)
 
-        # Restart Instruction
         r_text = self.font_popup.render("Click Anywhere or Press [R] to Play Again", True, COLOR_TEXT_GOLD)
-        rr = r_text.get_rect(center=(SCREEN_WIDTH / 2, card_rect.top + 215))
+        rr = r_text.get_rect(center=(SCREEN_WIDTH / 2, card_rect.top + 205))
         surface.blit(r_text, rr)
