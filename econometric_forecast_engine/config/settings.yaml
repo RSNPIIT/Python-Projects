@@ -1,0 +1,63 @@
+# ==============================================================================
+# Econometric Forecast Engine - Configuration Settings
+# ==============================================================================
+
+app:
+  title: "Econometric Forecast Engine"
+  version: "1.0.0"
+  host: "0.0.0.0"
+  port: 8000
+  debug: false
+
+data:
+  default_tickers:
+    - "SPY"
+    - "QQQ"
+    - "TLT"
+    - "GLD"
+  default_fred_series:
+    - "CPIAUCSL"   # Consumer Price Index
+    - "UNRATE"     # Unemployment Rate
+    - "FEDFUNDS"   # Federal Funds Effective Rate
+    - "DGS10"      # 10-Year Treasury Constant Maturity Rate
+  cache_dir: ".cache/market_data"
+  default_start_date: "2020-01-01"
+  default_frequency: "D"  # D = Daily, W = Weekly, M = Monthly
+
+econometrics:
+  forecast_horizon: 14     # Default forward steps
+  confidence_levels: [80, 95]
+  stationarity:
+    adf_lag_selection: "AIC"
+    kpss_null: "Level"    # "Level" or "Trend"
+    significance_alpha: 0.05
+  univariate:
+    auto_arima:
+      max_p: 5
+      max_d: 2
+      max_q: 5
+      seasonal: true
+      stepwise: true
+      information_criterion: "aicc"
+    ets:
+      model: "ZZZ"         # Automatically select error, trend, seasonal
+      damped: null
+    tbats:
+      use_box_cox: true
+  multivariate:
+    var:
+      max_lag: 5
+      ic: "AIC"
+      type: "const"        # "const", "trend", "both", "none"
+    granger_max_lag: 4
+
+evaluation:
+  rolling_origin:
+    initial_train_window: 120
+    forecast_horizon: 14
+    step_size: 7
+  metrics:
+    - "RMSE"
+    - "MAE"
+    - "MAPE"
+    - "MASE"
