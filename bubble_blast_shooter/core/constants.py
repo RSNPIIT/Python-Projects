@@ -1,0 +1,60 @@
+"""Bubble Blast Shooter - Constants & Configuration"""
+import math
+
+# Screen Dimensions (Iconic Mobile Portrait Layout)
+SCREEN_WIDTH = 540
+SCREEN_HEIGHT = 860
+FPS = 60
+
+# Bubble & Hexagonal Grid Dimensions
+BUBBLE_RADIUS = 22
+BUBBLE_DIAMETER = BUBBLE_RADIUS * 2
+HEX_ROW_HEIGHT = int(BUBBLE_RADIUS * math.sqrt(3))  # ~38 pixels
+EVEN_COLS = 11
+ODD_COLS = 10
+GRID_TOP_MARGIN = 75
+MARGIN_LEFT = (SCREEN_WIDTH - EVEN_COLS * BUBBLE_DIAMETER) // 2  # 28 px
+
+# Gameplay Thresholds
+MAX_ROWS = 16
+DEADLINE_ROW = 14
+DEADLINE_Y = GRID_TOP_MARGIN + DEADLINE_ROW * HEX_ROW_HEIGHT  # ~607 px
+SHOOTER_X = SCREEN_WIDTH // 2
+SHOOTER_Y = 755
+SHOOTER_RING_RADIUS = 36
+PROJECTILE_SPEED = 1250.0  # px/s fast responsive launch
+
+# Vibrant Bubble Color Palette (Matching User Screenshot)
+COLOR_RED = (245, 50, 65)
+COLOR_ORANGE = (255, 135, 25)
+COLOR_YELLOW = (255, 215, 30)
+COLOR_GREEN = (45, 215, 80)
+COLOR_BLUE = (40, 105, 255)
+COLOR_PURPLE = (185, 55, 245)
+
+BUBBLE_COLORS = {
+    0: COLOR_RED,
+    1: COLOR_ORANGE,
+    2: COLOR_YELLOW,
+    3: COLOR_GREEN,
+    4: COLOR_BLUE,
+    5: COLOR_PURPLE,
+}
+
+COLOR_NAMES = {
+    0: "RED",
+    1: "ORANGE",
+    2: "YELLOW",
+    3: "GREEN",
+    4: "BLUE",
+    5: "PURPLE"
+}
+
+# Theme Colors
+COLOR_BG = (14, 18, 34)
+COLOR_CARD_BG = (22, 28, 48)
+COLOR_ACCENT = (70, 150, 255)
+COLOR_TEXT_WHITE = (245, 248, 255)
+COLOR_TEXT_GOLD = (255, 215, 50)
+COLOR_TEXT_MUTED = (140, 160, 195)
+COLOR_DEADLINE = (255, 60, 80)
