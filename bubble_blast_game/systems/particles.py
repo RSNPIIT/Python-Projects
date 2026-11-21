@@ -1,4 +1,4 @@
-"""Bubble Blast - Visual Particles & Shockwave Effects"""
+"""Archer Bubble Blast - Particles & Visual Effects"""
 import math
 import random
 import pygame
@@ -21,7 +21,7 @@ class DropletParticle:
             return False
         self.x += self.vx * dt
         self.y += self.vy * dt
-        self.vy += 220.0 * dt  # Gravity
+        self.vy += 320.0 * dt  # Gravity
         self.size = self.orig_size * (self.lifetime / self.max_lifetime)
         return True
 
@@ -34,21 +34,21 @@ class DropletParticle:
 
 
 class ShockwaveRing:
-    def __init__(self, x: float, y: float, color: tuple[int, int, int], max_radius: float = 40.0):
+    def __init__(self, x: float, y: float, color: tuple[int, int, int], max_radius: float = 38.0):
         self.x = x
         self.y = y
         self.color = color
-        self.radius = 8.0
+        self.radius = 6.0
         self.max_radius = max_radius
-        self.lifetime = 0.25
-        self.max_lifetime = 0.25
+        self.lifetime = 0.22
+        self.max_lifetime = 0.22
 
     def update(self, dt: float) -> bool:
         self.lifetime -= dt
         if self.lifetime <= 0:
             return False
         progress = 1.0 - (self.lifetime / self.max_lifetime)
-        self.radius = 8.0 + (self.max_radius - 8.0) * progress
+        self.radius = 6.0 + (self.max_radius - 6.0) * progress
         return True
 
     def draw(self, surface: pygame.Surface):
@@ -67,9 +67,9 @@ class FloatingText:
         self.text = text
         self.color = color
         self.font = font
-        self.lifetime = 0.8
-        self.max_lifetime = 0.8
-        self.vy = -50.0
+        self.lifetime = 0.65
+        self.max_lifetime = 0.65
+        self.vy = -45.0
 
     def update(self, dt: float) -> bool:
         self.lifetime -= dt
@@ -94,9 +94,9 @@ class ParticleSystem:
         self.rings.append(ShockwaveRing(x, y, color))
         for _ in range(count):
             angle = random.random() * math.pi * 2
-            speed = random.uniform(80, 260)
+            speed = random.uniform(90, 260)
             vx = math.cos(angle) * speed
-            vy = math.sin(angle) * speed - 40.0
+            vy = math.sin(angle) * speed - 50.0
             self.droplets.append(DropletParticle(x, y, vx, vy, color))
 
     def add_floating_text(self, x: float, y: float, text: str, color: tuple[int, int, int], font: pygame.font.Font):
