@@ -1,32 +1,33 @@
-# Bubble Blast • Classic Chain Reaction Puzzle
+# Bubble Blast - Archer Harpoon Arcade
 
-A recreation of the classic touch-puzzle game built with **Pygame** and **NumPy**.
+A modern, high-polish recreation of the arcade classic (**Pang / Bubble Trouble**) built with **Pygame** and **NumPy**. Control an archer equipped with a bow and harpoon rope to pop and split giant bouncing bubbles!
 
 ---
 
-## 🎯 Gameplay & Chain Reaction Mechanics
+## 🎯 Gameplay Mechanics
 
-1. **Bubble Evolution & Stages**:
-   - **🔵 Blue Bubble**: Needs 4 hits to pop (Blue → Yellow → Green → Red → POP).
-   - **🟡 Yellow Bubble**: Needs 3 hits to pop (Yellow → Green → Red → POP).
-   - **🟢 Green Bubble**: Needs 2 hits to pop (Green → Red → POP).
-   - **🔴 Red Bubble (Critical)**: Needs **1 hit/tap**! When it pops, it bursts into **4 plasma darts** shooting in all 4 cardinal directions (North, South, East, West).
+1. **Archer Harpoon Shooting**:
+   - The archer moves along the arena floor and shoots vertical steel harpoon arrows straight up towards the ceiling.
+   - The arrow leaves a vertical trailing cable/rope from the floor up to the arrowhead tip. Any bubble touching the tip or cable splits!
 
-2. **The Domino Effect**:
-   - Flying darts trigger other bubbles along their path:
-     - Hitting a **Red Bubble** causes it to immediately pop and launch 4 more darts!
-     - Hitting Green, Yellow, or Blue bubbles advances their stage.
-   - A single strategic touch can unleash a cascading chain reaction that wipes out the entire board!
+2. **Bubble Splitting Physics**:
+   - Bubbles bounce realistically with gravitational acceleration, rebounding off walls, floor, and ceiling.
+   - Popping a bubble splits it in half with opposing horizontal velocities and an upward hop:
+     - **Huge (Crimson)**: Radius 46px -> Splits into 2 **Large** bubbles.
+     - **Large (Orange)**: Radius 34px -> Splits into 2 **Medium** bubbles.
+     - **Medium (Emerald)**: Radius 23px -> Splits into 2 **Small** bubbles.
+     - **Small (Cyan)**: Radius 13px -> Pops completely into droplet particles!
 
-3. **Game Modes**:
-   - **Puzzle Mode**: 10+ handcrafted levels with limited touches (1-3 taps) where you must find the exact trigger bubble to clear the board.
-   - **Arcade / Endless Mode**: Continuous waves of randomized boards with score tracking and replenishment touches.
+3. **Power-Ups (18% Drop Chance)**:
+   - **2X (Double Arrow)**: Allows firing two simultaneous harpoons on screen for 14 seconds.
+   - **SHIELD**: Grants an energy barrier absorbing 1 bubble hit safely.
+   - **SLOW**: Slows game physics by 50% for 6 seconds.
+   - **TNT**: Detonates immediately, splitting all active bubbles on screen.
+   - **+1 LIFE**: Restores one heart (up to 5 max).
 
-4. **Visual & Audio Polish**:
-   - 3D glossy liquid bubble spheres with specular reflections and breathing wobble.
-   - Expanding shockwave rings and liquid splash droplet particles.
-   - Procedural audio synthesized via NumPy: bubble pops, liquid bloops, ascending combo chimes, and victory fanfares.
-   - Full Quit Confirmation Dialog on `[Esc]`, `Cmd+Q`, `Alt+F4`, or window cross (`X`).
+4. **Game Modes**:
+   - **Campaign Levels**: 8 handcrafted stages of increasing challenge and bubble count.
+   - **Endless Survival**: Fight escalating waves of bouncing titans for high scores.
 
 ---
 
@@ -34,10 +35,10 @@ A recreation of the classic touch-puzzle game built with **Pygame** and **NumPy*
 
 | Action | Control |
 |---|---|
-| **Tap / Pop Bubble** | Left Click on any bubble |
-| **Retry Level** | Click `RETRY` button or press **`[R]`** |
-| **Return to Menu** | Click `< MENU` button or press **`[Esc]`** |
-| **Quit Game Dialog** | Press **`Cmd+Q`** / **`Alt+F4`** or **`[Esc]`** from Main Menu |
+| **Move Left / Right** | **`[A]`** / **`[D]`** or **`[Left]`** / **`[Right]`** |
+| **Shoot Harpoon Arrow** | **`[Space]`**, **`[W]`**, or **`[Up]`** |
+| **Restart Current Stage** | **`[R]`** |
+| **Quit Game Dialog** | **`[Esc]`**, **`Cmd+Q`**, **`Alt+F4`**, or Close (`X`) |
 
 ---
 
@@ -45,5 +46,6 @@ A recreation of the classic touch-puzzle game built with **Pygame** and **NumPy*
 
 ```bash
 cd /Users/ramrupsatpati/Desktop/Python/bubble_blast_game
-/Users/ramrupsatpati/Desktop/Python/venv/bin/python main.py
+python3 main.py
 ```
+*(Or run with `/Users/ramrupsatpati/Desktop/Python/venv/bin/python main.py`)*
