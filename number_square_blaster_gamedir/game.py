@@ -39,6 +39,16 @@ class BlockBlastGame:
         self.wave = 1
         self.game_over = False
         self.is_firing = False
+        self.show_quit_dialog = False
+
+        # Quit dialog buttons
+        card_w, card_h = 390, 220
+        card_x = (SCREEN_WIDTH - card_w) // 2
+        card_y = (SCREEN_HEIGHT - card_h) // 2
+        btn_w, btn_h = 150, 44
+        btn_y = card_y + card_h - 66
+        self.btn_quit_rect = pygame.Rect(card_x + 28, btn_y, btn_w, btn_h)
+        self.btn_cancel_rect = pygame.Rect(card_x + card_w - btn_w - 28, btn_y, btn_w, btn_h)
         
         self.wave_interval = 7.5
         self.wave_timer = self.wave_interval
@@ -49,6 +59,23 @@ class BlockBlastGame:
         self.powerups: list[PowerUp] = []
 
         self.start_new_game()
+
+    def request_quit(self):
+        self.show_quit_dialog = True
+        self.is_firing = False
+
+    def cancel_quit(self):
+        self.show_quit_dialog = False
+
+    def handle_quit_click(self, mouse_pos: tuple[int, int]) -> str | None:
+        if not self.show_quit_dialog:
+            return None
+        if self.btn_quit_rect.collidepoint(mouse_pos):
+            return "quit"
+        if self.btn_cancel_rect.collidepoint(mouse_pos):
+            self.cancel_quit()
+            return "cancel"
+        return None
 
     def start_new_game(self):
         self.score = 0
@@ -185,6 +212,9 @@ class BlockBlastGame:
     def update(self, dt: float, mouse_pos: tuple[int, int]):
         self.pulse_time += dt
 
+        if self.show_quit_dialog:
+            return
+
         if self.game_over:
             self.particles.update(dt)
             return
@@ -318,6 +348,10 @@ class BlockBlastGame:
         if self.game_over:
             self._draw_game_over(surface)
 
+        # 10. Quit Confirmation Dialog Overlay
+        if self.show_quit_dialog:
+            self._draw_quit_dialog(surface, mouse_pos)
+
     def _draw_danger_barrier(self, surface: pygame.Surface, offset: tuple[float, float]):
         danger_y = int(DEADLINE_Y + offset[1])
 
@@ -438,3 +472,51 @@ class BlockBlastGame:
         r_text = self.font_popup.render("Click Anywhere or Press [R] to Play Again", True, COLOR_TEXT_GOLD)
         rr = r_text.get_rect(center=(SCREEN_WIDTH / 2, card_rect.top + 205))
         surface.blit(r_text, rr)
+
+    def _draw_quit_dialog(self, surface: pygame.Surface, mouse_pos: tuple[int, int]):
+        # Dim backdrop
+        overlay = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.SRCALPHA)
+        overlay.fill((8, 10, 16, 220))
+        surface.blit(overlay, (0, 0))
+
+        # Modal Card
+        card_w, card_h = 390, 220
+        card_x = (SCREEN_WIDTH - card_w) // 2
+        card_y = (SCREEN_HEIGHT - card_h) // 2
+        card_rect = pygame.Rect(card_x, card_y, card_w, card_h)
+
+        # Drop shadow
+        shadow_surf = pygame.Surface((card_w, card_h), pygame.SRCALPHA)
+        pygame.draw.rect(shadow_surf, (0, 0, 0, 150), (0, 0, card_w, card_h), border_radius=18)
+        surface.blit(shadow_surf, (card_x + 3, card_y + 6))
+
+        # Card container
+        pygame.draw.rect(surface, (22, 27, 40), card_rect, border_radius=18)
+        pygame.draw.rect(surface, (255, 65, 95), card_rect, width=2, border_radius=18)
+
+        # Title
+        title_text = self.font_title.render("QUIT GAME?", True, (255, 75, 105))
+        title_rect = title_text.get_rect(center=(SCREEN_WIDTH // 2, card_y + 45))
+        surface.blit(title_text, title_rect)
+
+        # Message
+        msg_text = self.font_popup.render("Are you sure you want to quit?", True, (230, 235, 245))
+        msg_rect = msg_text.get_rect(center=(SCREEN_WIDTH // 2, card_y + 92))
+        surface.blit(msg_text, msg_rect)
+
+        # Buttons
+        # 1. QUIT Button
+        is_quit_hover = self.btn_quit_rect.collidepoint(mouse_pos)
+        quit_bg = (235, 55, 80) if is_quit_hover else (175, 38, 56)
+        pygame.draw.rect(surface, quit_bg, self.btn_quit_rect, border_radius=10)
+        pygame.draw.rect(surface, (255, 120, 140), self.btn_quit_rect, width=1, border_radius=10)
+        q_label = self.font_popup.render("YES, QUIT [Y]", True, (255, 255, 255))
+        surface.blit(q_label, q_label.get_rect(center=self.btn_quit_rect.center))
+
+        # 2. CANCEL Button
+        is_cancel_hover = self.btn_cancel_rect.collidepoint(mouse_pos)
+        cancel_bg = (55, 68, 95) if is_cancel_hover else (35, 44, 62)
+        pygame.draw.rect(surface, cancel_bg, self.btn_cancel_rect, border_radius=10)
+        pygame.draw.rect(surface, (80, 105, 145), self.btn_cancel_rect, width=1, border_radius=10)
+        c_label = self.font_popup.render("CANCEL [Esc]", True, (255, 255, 255))
+        surface.blit(c_label, c_label.get_rect(center=self.btn_cancel_rect.center))
