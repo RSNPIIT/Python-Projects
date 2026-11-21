@@ -1,40 +1,63 @@
 # 🧭 Explore My Other Works
 
-Welcome! If you enjoyed browsing **`Python-Projects`**, here is a curated map of my other repositories, systems experiments, and cross-language builds across **Python, C, Rust, R, and Julia**.
+Welcome! Beyond **`Python-Projects`**, here is a curated map of my standalone repositories spanning **Generative AI, Edge NPU Inference, Systems Programming (Rust & C), Full-Stack Web Apps, and Competition Builds**.
 
 ---
 
-## 🚀 Featured Repositories
+## 🧠 AI, LLMs & Edge Computing
 
-| Repository | Primary Stack | Focus & What's Inside |
+| Repository | Stack | Overview |
 | :--- | :--- | :--- |
-| [**Strategies_for_Professional_Growth**](https://github.com) | `Python` | Structured workflows, career growth engineering, and productivity automation |
-| [**Rust-Projects**](https://github.com) | `Rust` | Systems-level tools, memory-safe algorithms, and low-level Rust experiments |
-| [**sandbox-cli**](https://github.com) | `Rust` | Fast, lightweight command-line sandbox utility built in pure Rust |
-| [**Tokens_to_Transformers_GAI_LLM**](https://github.com) | `Python` | From tokenization fundamentals to Transformer architectures and Generative AI |
-| [**LLM_Using_Python_project**](https://github.com) | `Python` | Practical Large Language Model pipelines, prompting, and Python integrations |
-| [**Household_Electricity_Price_Prediction**](https://github.com) | `Python` | Time-series and machine learning forecasting for household energy pricing |
+| [**SnapEdge-Vision-Snapdragon-AI**](https://github.com) | `Python` | Zero-latency on-device multimodal workspace intelligence engine optimized for Qualcomm Snapdragon X Series NPUs |
+| [**Tokens_to_Transformers_GAI_LLM**](https://github.com) | `Python` | Built for the Unstop × IIT Guwahati competition and actively maintained beyond—covering tokenization to Transformer architectures |
+| [**LLM_Using_Python_project**](https://github.com) | `Python` | Building a Large Language Model from scratch in pure Python |
+| [**ML_in_Production**](https://github.com) | `Python` | End-to-end machine learning deployment workflows and production engineering patterns |
+| [**Household_Electricity_Price_Prediction**](https://github.com) | `Python` | Predictive modeling for household electricity pricing using key econometric and consumption parameters |
 
 ---
 
-## 🛠️ Highlights Inside `Python-Projects`
+## ⚙️ Systems & CLI Engineering
 
-Even though this repository is primarily **Python (~89%)**, it also serves as a playground for cross-language interoperability, graphics engines, and pure C architecture:
-
-* **Pure C Object-Oriented Architecture (`pong_c_oop/`):** A complete Pong engine written in pure C using `struct` encapsulation, function-pointer vtables, and modular scene management (`Makefile` included).
-* **OpenGL & ModernGL Game Engines (`modern_chess_game/`, `chess_engine/`):** Hardware-accelerated chess rendering paired with custom board evaluation and minimax/AI search.
-* **Arcade Physics & Neural Experiments (`number_square_blaster_gamedir/`, `bubble_blast_shooter/`, `person_ball_shooter/`, `reimagined_tetris/`, `mario-neural-network/`):** Custom game loops, particle systems, neuroevolution, and perceptrons built from scratch.
-* **Python + R Econometric Bridge (`rpy_usecase/`):** Seamless in-memory time-series forecasting (`auto.arima`) calling R directly from Python via `rpy2`.
-* **Data Visualization (`matplotlib_practice/`):** Custom dark-mode analytics and GitHub contribution visualizers.
+| Repository | Stack | Overview |
+| :--- | :--- | :--- |
+| [**sandbox-cli**](https://github.com) | `Rust` | Secure, high-performance, single-file binary vault sandbox built with Rust and Python (`GPLv3`) |
+| [**Rust-Projects**](https://github.com) | `Rust` / `Python` | Systems programming experiments, memory-safe algorithms, and Rust learning implementations |
 
 ---
 
-## 🔗 Connect & Follow Along
+## 🌐 Full-Stack Web Apps & Interactive Portfolios
+
+| Repository | Stack | Overview |
+| :--- | :--- | :--- |
+| [**Portfolio_Repository**](https://github.com) | `TypeScript` | Interactive developer portfolio website (`MPL-2.0`) |
+| [**Streamlit-Portfolio**](https://github.com) | `Python` | Interactive Streamlit showcase highlighting Python (AI/ML/NLP/DL/CyberSec), Rust, and Vue.js projects |
+| [**Placement-Portal-Application**](https://github.com) | `Vue` | Full-featured placement portal web application (`GPLv3`) |
+| [**Vue-Projects**](https://github.com) | `JavaScript` | Frontend components, reactive interfaces, and Vue.js engineering experiments |
+| [**JSP_WebApp_Project**](https://github.com) | `Java` | JavaServer Pages (JSP) and Servlet-based web architecture (`GPLv3`) |
+
+---
+
+## 🏆 Hackathons, Competitions & Coursework
+
+| Repository | Stack | Overview |
+| :--- | :--- | :--- |
+| [**AtomQuest_Round2_ProtoRepo**](https://github.com) | `Python` | Engineering prototype repository built for Atomberg atomQUEST Round 2 |
+| [**Romeo_And_Juilet_Submission**](https://github.com) | `Python` | Custom competition build for the Romeo and Juliet Hackathon sponsored by Adaption |
+| [**Strategies_for_Professional_Growth**](https://github.com) | `Python` | Degree-level project repository for Strategies for Professional Growth |
+
+---
+
+## 🛠️ Highlights Inside This Monorepo (`Python-Projects`)
+
+* **Pure C Object-Oriented Architecture (`pong_c_oop/`):** Complete Pong engine written in pure C using `struct` encapsulation, function-pointer vtables, and modular scene management (`Makefile` included).
+* **OpenGL & ModernGL Engines (`modern_chess_game/`, `chess_engine/`):** Hardware-accelerated chess rendering paired with custom board evaluation and minimax/AI search.
+* **Arcade Physics & Neuroevolution (`number_square_blaster_gamedir/`, `bubble_blast_shooter/`, `person_ball_shooter/`, `reimagined_tetris/`, `mario-neural-network/`):** Custom game loops, particle systems, and neural networks from scratch.
+* **Python + R Econometric Bridge (`rpy_usecase/`):** In-memory time-series forecasting (`auto.arima`) calling R directly from Python via `rpy2`.
+* **Data Visualization (`matplotlib_practice/`):** Custom dark-theme analytics and contribution visualizers.
+
+---
+
+## 🔗 Connect & Setup
 
 * **GitHub Profile:** [@RSNPIIT](https://github.com)
-* **Development Environment:** Apple Silicon (M4) configured as an open-source Unix/KDE workstation (`Zsh`, `Vim`, `KDevelop`, `Krita`, `Kdenlive`, `OnlyOffice`).
-
----
-
-> *Feel free to star ⭐ any repository you find useful, open an issue to discuss ideas, or fork a project to experiment on your own!*
-
+* **License Philosophy:** Predominantly copyleft under **GNU GPLv3** to ensure software freedom.
