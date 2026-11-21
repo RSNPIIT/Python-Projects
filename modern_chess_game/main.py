@@ -108,9 +108,11 @@ def main():
                            (event.key == pygame.K_F4 and (event.mod & pygame.KMOD_ALT)):
                             game.request_quit()
                         elif event.key == pygame.K_ESCAPE:
-                            if game.selected_sq is not None:
+                            if game.state == "GAME" and game.selected_sq is not None:
                                 game.selected_sq = None
                                 game.valid_moves.clear()
+                            elif game.state == "GAME":
+                                game.return_to_menu()
                             else:
                                 game.request_quit()
                         else:
