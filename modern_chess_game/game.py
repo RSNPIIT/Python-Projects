@@ -23,6 +23,9 @@ class ChessGame:
         self.sound = sound_mgr
         self.board = Board()
         
+        # Game State: "MENU" (Main Title Menu) or "GAME" (Active Chess Match)
+        self.state = "MENU"
+
         # UI & Interaction State
         self.flipped = False
         self.auto_flip = False
@@ -52,7 +55,17 @@ class ChessGame:
         self.is_ai_thinking = False
         self.pending_ai_move: Optional[Move] = None
 
-        # UI Buttons in Side Panel
+        # Main Menu Buttons (Centered in 560x560 container at x=210, y=80)
+        self.menu_btn_pvp = pygame.Rect(260, 215, 460, 85)
+        self.menu_btn_pve = pygame.Rect(260, 320, 460, 130)
+        self.menu_diff_rects = {
+            "Easy": pygame.Rect(440, 395, 70, 26),
+            "Medium": pygame.Rect(520, 395, 86, 26),
+            "Hard": pygame.Rect(616, 395, 70, 26),
+        }
+        self.menu_btn_quit = pygame.Rect(410, 470, 160, 34)
+
+        # In-Game Side Panel Buttons
         self.btn_mode_rect = pygame.Rect(BOARD_PIXELS + 16, 46, SIDE_PANEL_WIDTH - 32, 28)
         self.btn_diff_rect = pygame.Rect(BOARD_PIXELS + 16, 78, SIDE_PANEL_WIDTH - 32, 24)
 
@@ -69,6 +82,18 @@ class ChessGame:
         btn_y = card_y + card_h - 66
         self.btn_quit_rect = pygame.Rect(card_x + 32, btn_y, btn_w, btn_h)
         self.btn_cancel_rect = pygame.Rect(card_x + card_w - btn_w - 32, btn_y, btn_w, btn_h)
+
+    def start_game(self, mode: str):
+        self.game_mode = mode
+        self.reset_game()
+        self.state = "GAME"
+        self.sound.play("move")
+
+    def return_to_menu(self):
+        self.state = "MENU"
+        self.is_ai_thinking = False
+        self.pending_ai_move = None
+        self.sound.play("move")
 
     def toggle_game_mode(self):
         if self.game_mode == "Human vs AI":
@@ -169,12 +194,10 @@ class ChessGame:
         if not matching_moves:
             return False
 
-        # Check if move is pawn promotion
         if any(m.promotion is not None for m in matching_moves):
             self.pending_promotion_move = matching_moves[0]
             return True
 
-        # Normal move
         self.handle_move_execution(matching_moves[0])
         return True
 
@@ -195,6 +218,38 @@ class ChessGame:
 
         mx, my = pos
 
+        # =================================================================
+        # MAIN MENU INTERACTION
+        # =================================================================
+        if self.state == "MENU":
+            # 1. Human vs Human clicked
+            if self.menu_btn_pvp.collidepoint(mx, my):
+                self.start_game("Human vs Human")
+                return
+
+            # 2. Check Difficulty Chips inside Human vs Bot card
+            for dname, drect in self.menu_diff_rects.items():
+                if drect.collidepoint(mx, my):
+                    self.ai_difficulty = dname
+                    self.ai.set_difficulty(dname)
+                    self.sound.play("move")
+                    return
+
+            # 3. Human vs Bot clicked
+            if self.menu_btn_pve.collidepoint(mx, my):
+                self.start_game("Human vs AI")
+                return
+
+            # 4. Quit Game Button clicked
+            if self.menu_btn_quit.collidepoint(mx, my):
+                self.request_quit()
+                return
+
+            return
+
+        # =================================================================
+        # IN-GAME INTERACTION
+        # =================================================================
         # If promotion popup is active
         if self.pending_promotion_move is not None:
             col = self.pending_promotion_move.target_sq[1]
@@ -212,7 +267,8 @@ class ChessGame:
 
         # Check Side Panel Button clicks
         if self.btn_mode_rect.collidepoint(mx, my):
-            self.toggle_game_mode()
+            # Return to Main Menu
+            self.return_to_menu()
             return
         if self.game_mode == "Human vs AI" and self.btn_diff_rect.collidepoint(mx, my):
             self.cycle_ai_difficulty()
@@ -250,15 +306,16 @@ class ChessGame:
 
     def handle_mouse_move(self, pos: tuple[int, int]):
         mx, my = pos
-        self.hovered_sq = self.renderer.px_to_square(mx, my, self.flipped)
-        if self.is_dragging:
-            self.drag_mouse_pos = (float(mx), float(my))
+        if self.state == "GAME":
+            self.hovered_sq = self.renderer.px_to_square(mx, my, self.flipped)
+            if self.is_dragging:
+                self.drag_mouse_pos = (float(mx), float(my))
 
     def handle_mouse_up(self, pos: tuple[int, int], button: int):
         if button != 1:
             return
 
-        if self.is_dragging and self.dragged_orig_sq:
+        if self.state == "GAME" and self.is_dragging and self.dragged_orig_sq:
             mx, my = pos
             target_sq = self.renderer.px_to_square(mx, my, self.flipped)
             dist_dragged = ((mx - self.drag_start_pos[0])**2 + (my - self.drag_start_pos[1])**2)**0.5
@@ -271,8 +328,20 @@ class ChessGame:
             self.dragged_orig_sq = None
 
     def handle_key_down(self, event: pygame.event.Event):
+        if self.state == "MENU":
+            if event.key == pygame.K_1:
+                self.start_game("Human vs Human")
+            elif event.key == pygame.K_2:
+                self.start_game("Human vs AI")
+            elif event.key == pygame.K_d:
+                self.cycle_ai_difficulty()
+            elif event.key == pygame.K_ESCAPE:
+                self.request_quit()
+            return
+
+        # In-game shortcuts
         if event.key == pygame.K_m:
-            self.toggle_game_mode()
+            self.return_to_menu()
         elif event.key == pygame.K_d:
             self.cycle_ai_difficulty()
         elif event.key == pygame.K_f:
@@ -284,7 +353,6 @@ class ChessGame:
         elif event.key == pygame.K_r:
             self.reset_game()
         elif event.key == pygame.K_u or (event.key == pygame.K_z and (event.mod & pygame.KMOD_META or event.mod & pygame.KMOD_CTRL)):
-            # In PvE mode, undo 2 moves (both AI and human) to restore human turn!
             if self.game_mode == "Human vs AI" and len(self.board.move_history) >= 2:
                 self.board.undo_move()
                 self.board.undo_move()
@@ -301,6 +369,9 @@ class ChessGame:
                         self.flipped = not self.flipped
 
     def update(self, dt: float):
+        if self.state != "GAME":
+            return
+
         # AI Turn Handling in PvE mode
         if (self.game_mode == "Human vs AI" and
             self.board.turn == self.ai_color and
@@ -312,7 +383,7 @@ class ChessGame:
                 self.is_ai_thinking = True
                 
                 def ai_worker():
-                    time.sleep(0.30)  # Pacing delay so moves don't look instant
+                    time.sleep(0.30)
                     best_move = self.ai.compute_best_move(self.board)
                     self.pending_ai_move = best_move
                     self.is_ai_thinking = False
@@ -326,45 +397,54 @@ class ChessGame:
             self.handle_move_execution(move)
 
     def render(self, time_sec: float, mouse_pos: tuple[int, int] = (0, 0)):
-        # 1. Render Board & Squares
-        self.renderer.render_board(
-            self.board,
-            self.selected_sq,
-            self.valid_moves,
-            self.hovered_sq,
-            self.flipped,
-            time_sec
-        )
-
-        # 2. Render Pieces & Active Animations
-        self.renderer.render_pieces(
-            self.board,
-            self.flipped,
-            self.dragged_piece if self.is_dragging else None,
-            self.drag_mouse_pos if self.is_dragging else None,
-            self.dragged_orig_sq if self.is_dragging else None
-        )
-
-        # 3. Render Side Panel UI (Mode, Difficulty, Move Log, Shortcuts)
-        self.renderer.render_side_panel(
-            self.board,
-            self.flipped,
-            self.game_mode,
-            self.ai_difficulty,
-            self.is_ai_thinking,
-            self.btn_mode_rect,
-            self.btn_diff_rect,
-            mouse_pos
-        )
-
-        # 4. Render Promotion Dialog if pending
-        if self.pending_promotion_move:
-            self.renderer.render_promotion_dialog(
-                self.pending_promotion_move.piece.color,
-                self.pending_promotion_move.target_sq[1],
-                self.flipped
+        # 1. Main Menu State
+        if self.state == "MENU":
+            self.renderer.render_main_menu(
+                mouse_pos,
+                self.menu_btn_pvp,
+                self.menu_btn_pve,
+                self.menu_diff_rects,
+                self.ai_difficulty,
+                self.menu_btn_quit,
+                time_sec
+            )
+        else:
+            # 2. In-Game Chess Playing State
+            self.renderer.render_board(
+                self.board,
+                self.selected_sq,
+                self.valid_moves,
+                self.hovered_sq,
+                self.flipped,
+                time_sec
             )
 
-        # 5. Render Quit Confirmation Dialog if requested
+            self.renderer.render_pieces(
+                self.board,
+                self.flipped,
+                self.dragged_piece if self.is_dragging else None,
+                self.drag_mouse_pos if self.is_dragging else None,
+                self.dragged_orig_sq if self.is_dragging else None
+            )
+
+            self.renderer.render_side_panel(
+                self.board,
+                self.flipped,
+                self.game_mode,
+                self.ai_difficulty,
+                self.is_ai_thinking,
+                self.btn_mode_rect,
+                self.btn_diff_rect,
+                mouse_pos
+            )
+
+            if self.pending_promotion_move:
+                self.renderer.render_promotion_dialog(
+                    self.pending_promotion_move.piece.color,
+                    self.pending_promotion_move.target_sq[1],
+                    self.flipped
+                )
+
+        # 3. Quit Confirmation Dialog Overlay (Active across all states)
         if self.show_quit_dialog:
             self.renderer.render_quit_dialog(mouse_pos, self.btn_quit_rect, self.btn_cancel_rect)
