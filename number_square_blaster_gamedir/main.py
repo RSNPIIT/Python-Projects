@@ -50,27 +50,47 @@ def main():
             # Handle Events
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
-                    running = False
+                    # If quit dialog is already shown, second cross click exits immediately
+                    if game.show_quit_dialog:
+                        running = False
+                    else:
+                        game.request_quit()
+
                 elif event.type == pygame.MOUSEBUTTONDOWN:
                     if event.button == 1:  # Left click
-                        if game.game_over:
+                        if game.show_quit_dialog:
+                            action = game.handle_quit_click(event.pos)
+                            if action == "quit":
+                                running = False
+                        elif game.game_over:
                             game.start_new_game()
                         else:
                             game.is_firing = True
+
                 elif event.type == pygame.MOUSEBUTTONUP:
                     if event.button == 1:
                         game.is_firing = False
+
                 elif event.type == pygame.KEYDOWN:
-                    if (event.key == pygame.K_q and (event.mod & (pygame.KMOD_CTRL | pygame.KMOD_META))) or \
-                       (event.key == pygame.K_F4 and (event.mod & pygame.KMOD_ALT)):
-                        running = False
-                    elif event.key == pygame.K_r:
-                        game.start_new_game()
-                    elif event.key == pygame.K_SPACE:
-                        if game.game_over:
+                    if game.show_quit_dialog:
+                        if event.key in (pygame.K_y, pygame.K_RETURN):
+                            running = False
+                        elif event.key in (pygame.K_n, pygame.K_ESCAPE):
+                            game.cancel_quit()
+                    else:
+                        # Quit shortcuts: Cmd+Q on Mac, Ctrl+Q, Alt+F4, or Esc
+                        if (event.key == pygame.K_q and (event.mod & (pygame.KMOD_CTRL | pygame.KMOD_META))) or \
+                           (event.key == pygame.K_F4 and (event.mod & pygame.KMOD_ALT)) or \
+                           event.key == pygame.K_ESCAPE:
+                            game.request_quit()
+                        elif event.key == pygame.K_r:
                             game.start_new_game()
-                        else:
-                            game.is_firing = True
+                        elif event.key == pygame.K_SPACE:
+                            if game.game_over:
+                                game.start_new_game()
+                            else:
+                                game.is_firing = True
+
                 elif event.type == pygame.KEYUP:
                     if event.key == pygame.K_SPACE:
                         game.is_firing = False
