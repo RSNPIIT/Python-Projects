@@ -4,8 +4,25 @@ import sys
 import signal
 from pathlib import Path
 
-# 1. Hide Pygame support prompt before importing pygame
+# 1. Suppress all terminal output & pygame banner
 os.environ["PYGAME_HIDE_SUPPORT_PROMPT"] = "1"
+
+# 2. Lock the terminal by completely ignoring terminal interrupt and suspend signals
+# Ctrl+C (SIGINT), Ctrl+Z (SIGTSTP), Ctrl+\ (SIGQUIT)
+try:
+    signal.signal(signal.SIGINT, signal.SIG_IGN)
+except Exception:
+    pass
+
+try:
+    signal.signal(signal.SIGTSTP, signal.SIG_IGN)
+except Exception:
+    pass
+
+try:
+    signal.signal(signal.SIGQUIT, signal.SIG_IGN)
+except Exception:
+    pass
 
 import pygame
 import moderngl
@@ -21,19 +38,6 @@ from audio.sound_manager import SoundManager
 from game import ChessGame
 
 def main():
-    running = True
-
-    # 2. Graceful signal handling for SIGINT (Ctrl+C) and SIGTERM
-    def handle_exit_signal(sig, frame):
-        nonlocal running
-        running = False
-
-    try:
-        signal.signal(signal.SIGINT, handle_exit_signal)
-        signal.signal(signal.SIGTERM, handle_exit_signal)
-    except Exception:
-        pass
-
     # 3. Initialize Pygame with OpenGL Core Profile 3.3
     pygame.init()
     pygame.display.set_caption("Modern Chess • OpenGL & ModernGL")
@@ -47,15 +51,10 @@ def main():
     flags = pygame.OPENGL | pygame.DOUBLEBUF
     window = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT), flags)
 
-    # 4. Initialize ModernGL Context
+    # 4. Initialize ModernGL Context (Silent, no print output)
     ctx = moderngl.create_context()
-    
-    # Viewport matching logical dimensions
     fb_w, fb_h = pygame.display.get_surface().get_size()
     ctx.viewport = (0, 0, fb_w, fb_h)
-
-    print(f"ModernGL Active: {ctx.info['GL_RENDERER']} ({ctx.info['GL_VERSION']})")
-    print(f"Framebuffer: {fb_w}x{fb_h}, Logical: {WINDOW_WIDTH}x{WINDOW_HEIGHT}")
 
     # 5. Initialize Audio & Graphics
     assets_dir = BASE_DIR / "assets"
@@ -63,8 +62,9 @@ def main():
     renderer = ModernRenderer(ctx, assets_dir)
     game = ChessGame(renderer, sound_mgr)
 
-    # 6. Main Game Loop
+    # 6. Main Game Loop (Only exits when the GUI window is closed)
     clock = pygame.time.Clock()
+    running = True
 
     try:
         while running:
@@ -73,6 +73,7 @@ def main():
 
             # Handle Pygame Events
             for event in pygame.event.get():
+                # Only the GUI window close event or Cmd+Q/Alt+F4 terminates the game
                 if event.type == pygame.QUIT:
                     running = False
                 elif event.type == pygame.MOUSEBUTTONDOWN:
@@ -82,7 +83,6 @@ def main():
                 elif event.type == pygame.MOUSEBUTTONUP:
                     game.handle_mouse_up(event.pos, event.button)
                 elif event.type == pygame.KEYDOWN:
-                    # Quit shortcuts: Cmd+Q on Mac, Ctrl+Q, Alt+F4
                     if (event.key == pygame.K_q and (event.mod & (pygame.KMOD_CTRL | pygame.KMOD_META))) or \
                        (event.key == pygame.K_F4 and (event.mod & pygame.KMOD_ALT)):
                         running = False
@@ -105,11 +105,8 @@ def main():
             # Swap Double Buffers
             pygame.display.flip()
 
-    except (KeyboardInterrupt, EOFError):
-        # Graceful silent exit on Ctrl+C or Ctrl+D
-        pass
     finally:
-        # Clean up resources safely
+        # Clean up resources safely and silently
         try:
             renderer.texture_mgr.release_all()
         except Exception:
@@ -118,11 +115,7 @@ def main():
             pygame.quit()
         except Exception:
             pass
-        print("\n[Modern Chess] Application closed cleanly.")
         sys.exit(0)
 
 if __name__ == "__main__":
-    try:
-        main()
-    except (KeyboardInterrupt, EOFError):
-        sys.exit(0)
+    main()
