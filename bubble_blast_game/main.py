@@ -1,4 +1,4 @@
-"""Bubble Blast - Main Application Entry Point"""
+"""Archer Bubble Blast - Main Application Entry Point"""
 import os
 import sys
 import signal
@@ -7,7 +7,7 @@ from pathlib import Path
 # 1. Suppress pygame banner
 os.environ["PYGAME_HIDE_SUPPORT_PROMPT"] = "1"
 
-# 2. Lock terminal against Ctrl+C and Ctrl+Z
+# 2. Lock terminal against Ctrl+C and Ctrl+Z signals
 try:
     signal.signal(signal.SIGINT, signal.SIG_IGN)
 except Exception:
@@ -35,7 +35,7 @@ from game import BubbleBlastGame
 
 def main():
     pygame.init()
-    pygame.display.set_caption("Bubble Blast • Classic Chain Reaction Puzzle")
+    pygame.display.set_caption("Bubble Blast - Archer Harpoon Arcade")
     screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
     clock = pygame.time.Clock()
 
@@ -45,52 +45,41 @@ def main():
     try:
         while running:
             dt = clock.tick(FPS) / 1000.0
-            mouse_pos = pygame.mouse.get_pos()
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     if game.show_quit_dialog:
                         running = False
                     else:
-                        game.request_quit()
+                        game.show_quit_dialog = True
 
                 elif event.type == pygame.MOUSEBUTTONDOWN:
                     if event.button == 1:
-                        if game.show_quit_dialog:
-                            action = game.handle_quit_click(event.pos)
-                            if action == "quit":
-                                running = False
-                        else:
-                            game.handle_mouse_down(event.pos, event.button)
+                        game.handle_click(event.pos)
+                        if game.should_exit:
+                            running = False
 
                 elif event.type == pygame.KEYDOWN:
-                    if game.show_quit_dialog:
-                        if event.key in (pygame.K_y, pygame.K_RETURN):
-                            running = False
-                        elif event.key in (pygame.K_n, pygame.K_ESCAPE):
-                            game.cancel_quit()
+                    # Cmd+Q / Ctrl+Q / Alt+F4 intercept
+                    is_cmd_q = (event.key == pygame.K_q and (event.mod & (pygame.KMOD_CTRL | pygame.KMOD_META)))
+                    is_alt_f4 = (event.key == pygame.K_F4 and (event.mod & pygame.KMOD_ALT))
+                    if is_cmd_q or is_alt_f4:
+                        game.show_quit_dialog = True
                     else:
-                        # Quit triggers: Cmd+Q on Mac, Ctrl+Q, Alt+F4
-                        if (event.key == pygame.K_q and (event.mod & (pygame.KMOD_CTRL | pygame.KMOD_META))) or \
-                           (event.key == pygame.K_F4 and (event.mod & pygame.KMOD_ALT)):
-                            game.request_quit()
-                        elif event.key == pygame.K_ESCAPE:
-                            if game.state in ("PLAYING", "VICTORY", "DEFEAT"):
-                                game.state = "MENU"
-                            else:
-                                game.request_quit()
-                        elif event.key == pygame.K_r:
-                            if game.state in ("PLAYING", "VICTORY", "DEFEAT"):
-                                game.retry_current_level()
+                        game.handle_keydown(event.key)
+                        if game.should_exit:
+                            running = False
 
             if not running:
                 break
 
-            # Update & Draw
+            # Update simulation
             game.update(dt)
-            game.draw(screen, mouse_pos)
 
-            # Flip Buffer
+            # Render frame
+            game.draw(screen)
+
+            # Flip buffer
             pygame.display.flip()
 
     finally:
