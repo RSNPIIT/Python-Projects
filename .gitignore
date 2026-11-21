@@ -149,3 +149,20 @@ flask_apps/login_app/downloads/
 # ========================
 media/
 *.ttf
+
+# =========================
+# C / C++ Compiled Artifacts
+# =========================
+bin/
+obj/
+*.o
+*.obj
+*.out
+*.exe
+*.app
+*.so
+*.dylib
+*.dll
+*.a
+*.lib
+*.dSYM/
