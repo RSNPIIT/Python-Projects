@@ -18,6 +18,19 @@ class Board:
         
         self.setup_initial_position()
 
+    def clone(self) -> "Board":
+        """Create a deep copy of the board for AI simulation without mutating live state."""
+        new_b = Board.__new__(Board)
+        new_b.grid = [[p.clone() if p is not None else None for p in row] for row in self.grid]
+        new_b.turn = self.turn
+        new_b.en_passant_target = self.en_passant_target
+        new_b.halfmove_clock = self.halfmove_clock
+        new_b.fullmove_number = self.fullmove_number
+        new_b.move_history = []
+        new_b.captured_white = []
+        new_b.captured_black = []
+        return new_b
+
     def setup_initial_position(self):
         """Set up standard starting chess position."""
         self.grid = [[None for _ in range(BOARD_SIZE)] for _ in range(BOARD_SIZE)]
