@@ -362,11 +362,22 @@ class ModernRenderer:
                 self.draw_textured_quad(tex, (dpos[0] + 10, dpos[1] + 16), (dsize, dsize), opacity=0.8, is_shadow=True)
                 self.draw_textured_quad(tex, dpos, (dsize, dsize), opacity=1.0)
 
-    def render_side_panel(self, board: Board, flipped: bool):
+    def render_side_panel(
+        self,
+        board: Board,
+        flipped: bool,
+        game_mode: str = "Human vs Human",
+        ai_difficulty: str = "Medium",
+        is_ai_thinking: bool = False,
+        btn_mode_rect: pygame.Rect = None,
+        btn_diff_rect: pygame.Rect = None,
+        mouse_pos: tuple[int, int] = (0, 0)
+    ):
         theme = self.current_theme
         panel_x = BOARD_PIXELS
         panel_w = SIDE_PANEL_WIDTH
         panel_h = WINDOW_HEIGHT
+        mx, my = mouse_pos
 
         # Panel Background with subtle border
         self.draw_rect((panel_x, 0), (panel_w, panel_h), theme["panel_bg"])
@@ -378,18 +389,39 @@ class ModernRenderer:
         )
 
         # Title
-        self.draw_text("MODERN CHESS", (panel_x + 20, 20), self.font_title, color=(245, 245, 250))
-        self.draw_text(f"Theme: {self.current_theme_name}", (panel_x + 20, 52), self.font_small, color=(140, 160, 180))
+        self.draw_text("MODERN CHESS", (panel_x + 20, 16), self.font_title, color=(245, 245, 250))
 
-        # Turn indicator card
+        # 1. Game Mode Button Pill
+        if btn_mode_rect:
+            is_hover = btn_mode_rect.collidepoint(mx, my)
+            btn_bg = (0.24, 0.32, 0.45, 0.9) if is_hover else (0.14, 0.18, 0.26, 0.8)
+            border_col = (0.45, 0.70, 0.95, 0.8) if is_hover else (0.28, 0.36, 0.48, 0.6)
+            self.draw_rect((btn_mode_rect.x, btn_mode_rect.y), (btn_mode_rect.w, btn_mode_rect.h), btn_bg, radius=6.0, border_color=border_col, border_width=1.0)
+            mode_lbl = f"{game_mode} [M]"
+            self.draw_text(mode_lbl, (btn_mode_rect.x + 12, btn_mode_rect.y + 6), self.font_small, color=(240, 245, 255))
+
+        # 2. AI Difficulty Pill / Status (if in Human vs AI mode)
+        if game_mode == "Human vs AI" and btn_diff_rect:
+            is_diff_hover = btn_diff_rect.collidepoint(mx, my)
+            diff_bg = (0.22, 0.28, 0.40, 0.9) if is_diff_hover else (0.12, 0.16, 0.24, 0.8)
+            diff_border = (0.40, 0.65, 0.90, 0.7) if is_diff_hover else (0.25, 0.32, 0.44, 0.5)
+            self.draw_rect((btn_diff_rect.x, btn_diff_rect.y), (btn_diff_rect.w, btn_diff_rect.h), diff_bg, radius=6.0, border_color=diff_border, border_width=1.0)
+
+            if is_ai_thinking:
+                self.draw_text("AI Thinking...", (btn_diff_rect.x + 12, btn_diff_rect.y + 5), self.font_small, color=(255, 215, 80))
+            else:
+                diff_lbl = f"AI Level: {ai_difficulty} [D]"
+                self.draw_text(diff_lbl, (btn_diff_rect.x + 12, btn_diff_rect.y + 5), self.font_small, color=(160, 210, 255))
+
+        # 3. Turn indicator card
         turn_color_str = board.turn.name_str
-        card_y = 80
-        self.draw_rect((panel_x + 16, card_y), (panel_w - 32, 54), (0.15, 0.18, 0.22, 0.8), radius=8.0)
+        card_y = 110
+        self.draw_rect((panel_x + 16, card_y), (panel_w - 32, 50), (0.15, 0.18, 0.22, 0.8), radius=8.0)
         
         # Turn dot
         dot_col = (1.0, 1.0, 1.0, 1.0) if board.turn == Color.WHITE else (0.1, 0.1, 0.1, 1.0)
-        self.draw_circle((panel_x + 28, card_y + 16), (22, 22), dot_col, outer_radius=0.48)
-        self.draw_circle((panel_x + 28, card_y + 16), (22, 22), (0.5, 0.5, 0.5, 0.8), inner_radius=0.45, outer_radius=0.50)
+        self.draw_circle((panel_x + 28, card_y + 14), (22, 22), dot_col, outer_radius=0.48)
+        self.draw_circle((panel_x + 28, card_y + 14), (22, 22), (0.5, 0.5, 0.5, 0.8), inner_radius=0.45, outer_radius=0.50)
 
         status_text = f"{turn_color_str} to move"
         if board.is_checkmate():
@@ -399,33 +431,30 @@ class ModernRenderer:
         elif board.is_in_check(board.turn):
             status_text = f"{turn_color_str} is in Check!"
 
-        self.draw_text(status_text, (panel_x + 58, card_y + 16), self.font_main, color=(255, 215, 100) if board.is_in_check(board.turn) else (230, 235, 240))
+        self.draw_text(status_text, (panel_x + 58, card_y + 14), self.font_main, color=(255, 215, 100) if board.is_in_check(board.turn) else (230, 235, 240))
 
-        # Captured Pieces Section
-        cap_y = 150
+        # 4. Captured Pieces Section
+        cap_y = 170
         self.draw_text("CAPTURED PIECES", (panel_x + 20, cap_y), self.font_small, color=(140, 150, 170))
 
-        # Render captured by White (Black pieces)
-        row1_y = cap_y + 22
-        icon_size = 28
+        row1_y = cap_y + 20
+        icon_size = 26
         for i, piece in enumerate(board.captured_black[:8]):
             tex = self.texture_mgr.get(piece.texture_key)
             if tex:
                 self.draw_textured_quad(tex, (panel_x + 20 + i * 26, row1_y), (icon_size, icon_size))
         
-        # Render captured by Black (White pieces)
-        row2_y = row1_y + 32
+        row2_y = row1_y + 28
         for i, piece in enumerate(board.captured_white[:8]):
             tex = self.texture_mgr.get(piece.texture_key)
             if tex:
                 self.draw_textured_quad(tex, (panel_x + 20 + i * 26, row2_y), (icon_size, icon_size))
 
-        # Move History Section
+        # 5. Move History Section
         hist_y = 250
         self.draw_text("MOVE LOG", (panel_x + 20, hist_y), self.font_small, color=(140, 150, 170))
-        self.draw_rect((panel_x + 16, hist_y + 20), (panel_w - 32, 280), (0.07, 0.08, 0.10, 0.8), radius=6.0)
+        self.draw_rect((panel_x + 16, hist_y + 20), (panel_w - 32, 250), (0.07, 0.08, 0.10, 0.8), radius=6.0)
 
-        # Show last 10 move pairs
         history = board.move_history
         moves_to_show = history[-14:]
         lines = []
@@ -439,16 +468,18 @@ class ModernRenderer:
             lines.append(line)
 
         for idx, line in enumerate(lines[-10:]):
-            self.draw_text(line, (panel_x + 28, hist_y + 30 + idx * 24), self.font_history, color=(200, 210, 225))
+            self.draw_text(line, (panel_x + 28, hist_y + 28 + idx * 23), self.font_history, color=(200, 210, 225))
 
-        # Shortcuts Info Card at Bottom
-        info_y = 560
-        self.draw_rect((panel_x + 16, info_y), (panel_w - 32, 140), (0.12, 0.14, 0.18, 0.6), radius=8.0)
-        self.draw_text("SHORTCUTS & CONTROLS", (panel_x + 28, info_y + 12), self.font_small, color=(130, 170, 220))
-        self.draw_text("[F] Flip Board", (panel_x + 28, info_y + 36), self.font_small, color=(180, 190, 205))
-        self.draw_text("[U] / [Ctrl+Z] Undo Move", (panel_x + 28, info_y + 58), self.font_small, color=(180, 190, 205))
-        self.draw_text("[T] Switch Color Theme", (panel_x + 28, info_y + 80), self.font_small, color=(180, 190, 205))
-        self.draw_text("[R] Reset / New Game", (panel_x + 28, info_y + 102), self.font_small, color=(180, 190, 205))
+        # 6. Shortcuts Info Card at Bottom
+        info_y = 530
+        self.draw_rect((panel_x + 16, info_y), (panel_w - 32, 175), (0.12, 0.14, 0.18, 0.6), radius=8.0)
+        self.draw_text("CONTROLS & SHORTCUTS", (panel_x + 26, info_y + 10), self.font_small, color=(130, 170, 220))
+        self.draw_text("[M] Mode: PvP / PvE", (panel_x + 26, info_y + 32), self.font_small, color=(180, 190, 205))
+        self.draw_text("[D] AI Level (Easy/Med/Hard)", (panel_x + 26, info_y + 54), self.font_small, color=(180, 190, 205))
+        self.draw_text("[F] Flip Board View", (panel_x + 26, info_y + 76), self.font_small, color=(180, 190, 205))
+        self.draw_text("[U] / [Ctrl+Z] Undo Move", (panel_x + 26, info_y + 98), self.font_small, color=(180, 190, 205))
+        self.draw_text("[T] Theme  |  [R] Reset", (panel_x + 26, info_y + 120), self.font_small, color=(180, 190, 205))
+        self.draw_text("[Esc] / [Cmd+Q] Quit Dialog", (panel_x + 26, info_y + 142), self.font_small, color=(180, 190, 205))
 
     def render_promotion_dialog(self, color: Color, col: int, flipped: bool):
         """Draw sleek promotion choice overlay when a pawn is promoted."""
@@ -470,3 +501,31 @@ class ModernRenderer:
             tex = self.texture_mgr.get(tex_key)
             if tex:
                 self.draw_textured_quad(tex, (base_x, py), (SQUARE_PIXELS, SQUARE_PIXELS))
+
+    def render_quit_dialog(self, mouse_pos: tuple[int, int], btn_quit_rect: pygame.Rect, btn_cancel_rect: pygame.Rect):
+        """Draw sleek confirmation dialog when user attempts to quit."""
+        # 1. Dark frosted backdrop
+        self.draw_rect((0, 0), (WINDOW_WIDTH, WINDOW_HEIGHT), (0.04, 0.05, 0.08, 0.82))
+
+        # 2. Centered Modal Card
+        card_w, card_h = 420, 220
+        card_x = (WINDOW_WIDTH - card_w) / 2
+        card_y = (WINDOW_HEIGHT - card_h) / 2
+
+        self.draw_rect((card_x, card_y), (card_w, card_h), (0.09, 0.11, 0.15, 0.98), radius=16.0, border_color=(0.95, 0.25, 0.35, 0.7), border_width=2.0)
+
+        # Title & Subtitle
+        self.draw_text("QUIT CHESS?", (card_x + 130, card_y + 35), self.font_title, color=(255, 80, 100))
+        self.draw_text("Are you sure you want to quit the game?", (card_x + 55, card_y + 85), self.font_main, color=(230, 235, 245))
+
+        # Buttons
+        mx, my = mouse_pos
+        is_quit_hover = btn_quit_rect.collidepoint(mx, my)
+        q_bg = (0.85, 0.20, 0.28, 1.0) if is_quit_hover else (0.65, 0.15, 0.22, 1.0)
+        self.draw_rect((btn_quit_rect.x, btn_quit_rect.y), (btn_quit_rect.w, btn_quit_rect.h), q_bg, radius=8.0)
+        self.draw_text("YES, QUIT [Y]", (btn_quit_rect.x + 22, btn_quit_rect.y + 12), self.font_main, color=(255, 255, 255))
+
+        is_cancel_hover = btn_cancel_rect.collidepoint(mx, my)
+        c_bg = (0.22, 0.28, 0.38, 1.0) if is_cancel_hover else (0.15, 0.18, 0.25, 1.0)
+        self.draw_rect((btn_cancel_rect.x, btn_cancel_rect.y), (btn_cancel_rect.w, btn_cancel_rect.h), c_bg, radius=8.0)
+        self.draw_text("CANCEL [Esc]", (btn_cancel_rect.x + 22, btn_cancel_rect.y + 12), self.font_main, color=(255, 255, 255))
