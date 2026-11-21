@@ -123,6 +123,59 @@ class BlockBlastGame:
                     self.score += b.max_hp * 5
                     self.particles.emit_explosion(bcx, bcy, b.color, count=25)
 
+    def trigger_vicinity_blast(self, knocked_block: Block):
+        """
+        Vicinity Blast Mechanic:
+        When a block with a bigger number is knocked down,
+        any neighboring blocks in its vicinity with a LESSER number
+        are automatically blasted in a cascading chain reaction!
+        """
+        queue = [knocked_block]
+        chain_count = 0
+
+        # Vicinity distance threshold (8-neighborhood: horizontal, vertical, diagonal)
+        max_dist_x = (BLOCK_WIDTH + BLOCK_PADDING) * 1.35
+        max_dist_y = (BLOCK_HEIGHT + BLOCK_PADDING) * 1.35
+
+        while queue:
+            source = queue.pop(0)
+            src_cx = source.x + source.width / 2
+            src_cy = source.y + source.height / 2
+            src_val = source.max_hp
+
+            # Find all neighbors in vicinity
+            for nb in list(self.blocks):
+                nb_cx = nb.x + nb.width / 2
+                nb_cy = nb.y + nb.height / 2
+
+                dx = abs(nb_cx - src_cx)
+                dy = abs(nb_cy - src_cy)
+
+                if dx <= max_dist_x and dy <= max_dist_y and (dx > 4 or dy > 4):
+                    # Lesser number condition: neighbor's remaining HP or max_hp is less than the knocked block!
+                    if nb.hp < src_val or nb.max_hp < src_val:
+                        if nb in self.blocks:
+                            self.blocks.remove(nb)
+                            chain_count += 1
+
+                            # Visual electric arc connecting source to blasted neighbor
+                            self.particles.emit_lightning_arc((src_cx, src_cy), (nb_cx, nb_cy), color=(255, 225, 60))
+                            self.particles.emit_explosion(nb_cx, nb_cy, nb.color, count=28)
+                            self.sound.play("explode")
+                            self.screen_shake.add_shake(4.0 + min(6.0, chain_count * 1.2), duration=0.2)
+
+                            bonus_pts = nb.max_hp * (4 + chain_count)
+                            self.score += bonus_pts
+
+                            combo_tag = f"VICINITY BLAST! +{bonus_pts}" if chain_count == 1 else f"{chain_count}x CHAIN! +{bonus_pts}"
+                            self.particles.add_floating_text(nb.x, nb.y, combo_tag, (255, 230, 80), self.font_popup)
+
+                            if nb.is_bomb:
+                                self.trigger_bomb_explosion(nb)
+
+                            # Continue cascade
+                            queue.append(nb)
+
     def trigger_freeze_pushback(self):
         shift_y = BLOCK_HEIGHT + BLOCK_PADDING
         for b in self.blocks:
@@ -184,6 +237,9 @@ class BlockBlastGame:
 
                         if b.is_bomb:
                             self.trigger_bomb_explosion(b)
+
+                        # Trigger vicinity chain blast on neighboring lesser numbers
+                        self.trigger_vicinity_blast(b)
 
                         # 20% Powerup Drop Chance
                         if random.random() < 0.20:
