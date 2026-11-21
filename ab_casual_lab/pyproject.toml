@@ -1,0 +1,26 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ab-causal-lab"
+version = "1.0.0"
+description = "Professional Clustered Experimentation & Mixed-Effects Causal Laboratory"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "numpy>=1.24.0",
+    "pandas>=2.0.0",
+    "scipy>=1.10.0",
+    "statsmodels>=0.14.0",
+    "rpy2>=3.5.0",
+    "rich>=13.0.0"
+]
+
+[tool.setuptools.packages.find]
+include = ["causal_lab*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+pythonpath = ["."]
