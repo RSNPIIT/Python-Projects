@@ -1,89 +1,64 @@
 # Modern Chess (ModernGL + Pygame + NumPy + OOP)
 
-A modern, hardware-accelerated chess game built with **OpenGL 3.3 Core (ModernGL)**, **Pygame**, and **NumPy**, refactored from Python Turtle into a clean, modular **Object-Oriented (OOP)** architecture.
+A modern, hardware-accelerated chess game built with **OpenGL 3.3 Core (ModernGL)**, **Pygame**, and **NumPy**, featuring both **Human vs Human (PvP)** and **Human vs AI (PvE)** modes with a clean, modular **Object-Oriented (OOP)** architecture.
 
 ---
 
 ## ✨ Features
 
-- **⚡ Hardware-Accelerated Rendering (ModernGL & GLSL Shaders)**:
+- **🤖 Human vs Computer (AI) & Human vs Human Modes**:
+  - **Human vs AI**: Play against an intelligent Minimax engine with Alpha-Beta pruning, Piece-Square Table (PST) positional heuristics, and capture move ordering.
+  - **Non-blocking Multithreading**: AI calculates its moves on a background worker thread so the 60 FPS hardware rendering loop never freezes.
+  - **3 Difficulty Tiers**:
+    - **Easy**: Fast moves with occasional casual choices.
+    - **Medium**: Depth 2 tactical search with positional evaluation.
+    - **Hard**: Depth 3 deep tactical search with Alpha-Beta pruning.
+  - **Human vs Human**: Classic local two-player pass-and-play.
+  - Toggle game mode anytime with the `[M]` key or clicking the **Mode button** in the side panel!
+- **⚡ Hardware-Accelerated ModernGL Rendering & Shaders**:
   - Custom GLSL shaders for anti-aliased rounded squares, soft drop shadows, and glowing selection rings.
   - Linear mipmapped texture filtering for crisp high-resolution piece scaling.
   - Pulsing radial glow shader for Kings in check.
 - **🎨 Modern Visuals & Themes**:
-  - **Cyber Blue** (sleek dark aesthetic preserving the original `#18242b` and `#84c9FB` board colors).
+  - **Cyber Blue** (sleek dark aesthetic preserving original `#18242b` and `#84c9FB` board colors).
   - **Neo Emerald** (clean tournament green/cream palette).
   - **Midnight Slate** (contemporary monochrome slate).
   - Cycle themes anytime in-game with the `[T]` key!
 - **🧩 Smooth Eased Animations**:
   - Moving pieces glide across the board with cubic ease-out interpolation curves.
-- **🖱️ Intuitive Controls**:
+- **🖱️ Tactile Controls**:
   - **Drag & Drop**: Click and drag pieces with elevated 3D drop-shadow feedback.
   - **Click-to-Move**: Click a piece to select, then click any destination dot or capture ring.
   - **Interactive Promotion Dialog**: Floating promotion selector when pawns reach the back rank.
-- **🔊 Procedural Sound Synthesis (NumPy + Pygame Mixer)**:
+- **🔊 Procedural Audio Synthesis (NumPy + Pygame Mixer)**:
   - 100% self-contained procedural audio: piece drop thud, capture snap, castling whoosh, and check bell chimes synthesized on-the-fly.
-- **👑 Full Chess Rules Support**:
-  - En-passant captures.
-  - Both Kingside (`O-O`) and Queenside (`O-O-O`) castling with through-check validation.
-  - Absolute pin detection & king safety checks.
-  - Pawn promotion to Queen, Rook, Bishop, or Knight.
-  - Checkmate, stalemate, and move log tracking in standard algebraic notation.
-- **⏪ Undo / Redo & Board Flipping**:
-  - Press `[U]` or `[Ctrl+Z]` / `[Cmd+Z]` to undo moves.
-  - Press `[F]` to manually flip the board view or `[A]` to toggle auto-flipping per turn.
+- **🛡️ Graceful Exit with Quit Confirmation Dialog**:
+  - Pressing `Cmd+Q`, `Alt+F4`, `Esc`, or clicking the window cross (`X`) triggers a sleek modal dialog: *"Are you sure you want to quit?"* with `[YES, QUIT]` and `[CANCEL]`.
+- **⏪ Smart Undo / Redo & Board Flipping**:
+  - In Human vs AI mode, pressing `[U]` / `[Ctrl+Z]` automatically undoes both the AI move and your move so you can try another line.
+  - Press `[F]` to flip the board view or `[A]` to toggle auto-flipping per turn.
 
 ---
 
-## 🏗️ Architecture & OOP Design
+## 🕹️ Controls & Shortcuts
 
-```text
-modern_chess_game/
-├── core/
-│   ├── constants.py      # Enums (Color, PieceType), window dimensions, color palettes
-│   ├── piece.py          # Abstract Piece class & subclasses (Pawn, Knight, Bishop, Rook, Queen, King)
-│   ├── move.py           # Move dataclass with algebraic notation generation (SAN)
-│   └── board.py          # Board state, legal move generation, pin/check validation, undo stack
-├── graphics/
-│   ├── shaders.py        # GLSL Vertex & Fragment shaders (SDF circles, quads, rounded rects)
-│   ├── texture.py        # ModernGL texture caching with mipmaps from PNG & Pygame surfaces
-│   └── renderer.py       # OpenGL VAO/VBO batching with NumPy, interpolation, and UI rendering
-├── audio/
-│   └── sound_manager.py  # Procedural audio generator using NumPy waveform synthesis
-├── game.py               # Game state controller, mouse/keyboard event handler
-├── main.py               # Application entry point with 60 FPS GL event loop
-└── requirements.txt      # Dependencies
-```
+| Key / Action | Description |
+|---|---|
+| **Left Click / Drag** | Select, drag, and move pieces |
+| **`[M]`** | Toggle Mode (`Human vs AI` ⟷ `Human vs Human`) |
+| **`[D]`** | Cycle AI Difficulty (`Easy` → `Medium` → `Hard`) |
+| **`[F]`** | Flip the board view (White ⟷ Black) |
+| **`[A]`** | Toggle Auto-Flip on every turn |
+| **`[T]`** | Cycle visual theme (Cyber Blue, Neo Emerald, Midnight Slate) |
+| **`[U]` / `[Ctrl+Z]`** | Undo move (undoes both AI and player in PvE mode) |
+| **`[R]`** | Reset / Start a new game |
+| **`[Esc]` / `Cmd+Q`** | Open Quit Confirmation Dialog |
 
 ---
 
 ## 🚀 How to Run
 
-1. Activate your virtual environment:
-   ```bash
-   source /Users/ramrupsatpati/Desktop/Python/venv/bin/activate
-   ```
-
-2. Navigate to the project directory:
-   ```bash
-   cd /Users/ramrupsatpati/Desktop/Python/modern_chess_game
-   ```
-
-3. Launch the game:
-   ```bash
-   python main.py
-   ```
-
----
-
-## ⌨️ Controls & Shortcuts
-
-| Key / Action | Description |
-|---|---|
-| **Left Click / Drag** | Select, drag, and move pieces |
-| **`[F]`** | Flip the board (White ⟷ Black perspective) |
-| **`[A]`** | Toggle Auto-Flip on every turn (like original Turtle game) |
-| **`[T]`** | Cycle visual theme (Cyber Blue, Neo Emerald, Midnight Slate) |
-| **`[U]` / `[Ctrl+Z]`** | Undo last move |
-| **`[R]`** | Reset / Start a new game |
-| **`[Esc]`** | Deselect current piece |
+```bash
+cd /Users/ramrupsatpati/Desktop/Python/modern_chess_game
+/Users/ramrupsatpati/Desktop/Python/venv/bin/python main.py
+```
