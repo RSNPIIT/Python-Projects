@@ -55,6 +55,9 @@ class ModernRenderer:
 
         # Initialize Pygame fonts
         pygame.font.init()
+        self.font_hero = pygame.font.SysFont("Helvetica Neue, Arial, sans-serif", 40, bold=True)
+        self.font_btn_title = pygame.font.SysFont("Helvetica Neue, Arial, sans-serif", 20, bold=True)
+        self.font_btn_desc = pygame.font.SysFont("Helvetica Neue, Arial, sans-serif", 13)
         self.font_main = pygame.font.SysFont("Helvetica Neue, Arial, sans-serif", 18, bold=True)
         self.font_title = pygame.font.SysFont("Helvetica Neue, Arial, sans-serif", 24, bold=True)
         self.font_small = pygame.font.SysFont("Helvetica Neue, Arial, sans-serif", 13)
@@ -391,13 +394,13 @@ class ModernRenderer:
         # Title
         self.draw_text("MODERN CHESS", (panel_x + 20, 16), self.font_title, color=(245, 245, 250))
 
-        # 1. Game Mode Button Pill
+        # 1. Main Menu Button Pill
         if btn_mode_rect:
             is_hover = btn_mode_rect.collidepoint(mx, my)
             btn_bg = (0.24, 0.32, 0.45, 0.9) if is_hover else (0.14, 0.18, 0.26, 0.8)
             border_col = (0.45, 0.70, 0.95, 0.8) if is_hover else (0.28, 0.36, 0.48, 0.6)
             self.draw_rect((btn_mode_rect.x, btn_mode_rect.y), (btn_mode_rect.w, btn_mode_rect.h), btn_bg, radius=6.0, border_color=border_col, border_width=1.0)
-            mode_lbl = f"{game_mode} [M]"
+            mode_lbl = f"< MAIN MENU [{game_mode[:3]}]"
             self.draw_text(mode_lbl, (btn_mode_rect.x + 12, btn_mode_rect.y + 6), self.font_small, color=(240, 245, 255))
 
         # 2. AI Difficulty Pill / Status (if in Human vs AI mode)
@@ -501,6 +504,95 @@ class ModernRenderer:
             tex = self.texture_mgr.get(tex_key)
             if tex:
                 self.draw_textured_quad(tex, (base_x, py), (SQUARE_PIXELS, SQUARE_PIXELS))
+
+    def render_main_menu(
+        self,
+        mouse_pos: tuple[int, int],
+        btn_pvp_rect: pygame.Rect,
+        btn_pve_rect: pygame.Rect,
+        diff_rects: dict[str, pygame.Rect],
+        current_diff: str,
+        btn_quit_rect: pygame.Rect,
+        time_sec: float
+    ):
+        """Render the sleek standalone GUI Main Menu."""
+        mx, my = mouse_pos
+
+        # 1. Background Fill
+        self.draw_rect((0, 0), (WINDOW_WIDTH, WINDOW_HEIGHT), (0.08, 0.09, 0.12, 1.0))
+
+        # 2. Subtle Decorative Checkerboard Pattern in the background
+        sq_size = 60.0
+        for r in range(12):
+            for c in range(17):
+                if (r + c) % 2 == 0:
+                    self.draw_rect((c * sq_size, r * sq_size), (sq_size, sq_size), (0.11, 0.13, 0.17, 0.45))
+
+        # 3. Main Container Card
+        container_w, container_h = 560, 560
+        cx = (WINDOW_WIDTH - container_w) / 2
+        cy = (WINDOW_HEIGHT - container_h) / 2
+        self.draw_rect((cx, cy), (container_w, container_h), (0.10, 0.12, 0.16, 0.96), radius=20.0, border_color=(0.25, 0.35, 0.50, 0.6), border_width=1.5)
+
+        # 4. Header & Branding
+        self.draw_text("MODERN CHESS", (cx + 125, cy + 35), self.font_hero, color=(245, 248, 255))
+        self.draw_text("Hardware Accelerated  •  OpenGL 3.3 Core  •  NumPy", (cx + 105, cy + 90), self.font_btn_desc, color=(120, 160, 210))
+
+        # 5. Button 1: HUMAN VS HUMAN
+        is_pvp_hover = btn_pvp_rect.collidepoint(mx, my)
+        pvp_bg = (0.20, 0.28, 0.42, 0.95) if is_pvp_hover else (0.13, 0.16, 0.23, 0.9)
+        pvp_border = (0.50, 0.80, 1.0, 0.9) if is_pvp_hover else (0.25, 0.32, 0.45, 0.6)
+        self.draw_rect((btn_pvp_rect.x, btn_pvp_rect.y), (btn_pvp_rect.w, btn_pvp_rect.h), pvp_bg, radius=12.0, border_color=pvp_border, border_width=1.5)
+
+        # Piece Icons for PvP (White King & Black King)
+        wk_tex = self.texture_mgr.get("w_king")
+        bk_tex = self.texture_mgr.get("b_king")
+        if wk_tex:
+            self.draw_textured_quad(wk_tex, (btn_pvp_rect.x + 16, btn_pvp_rect.y + 14), (56, 56))
+        if bk_tex:
+            self.draw_textured_quad(bk_tex, (btn_pvp_rect.x + 64, btn_pvp_rect.y + 14), (56, 56))
+
+        self.draw_text("HUMAN VS HUMAN", (btn_pvp_rect.x + 135, btn_pvp_rect.y + 22), self.font_btn_title, color=(245, 250, 255))
+        self.draw_text("Local 2-Player Match on One Screen", (btn_pvp_rect.x + 135, btn_pvp_rect.y + 50), self.font_btn_desc, color=(160, 180, 205))
+
+        # 6. Button 2: HUMAN VS BOT
+        is_pve_hover = btn_pve_rect.collidepoint(mx, my) and not any(r.collidepoint(mx, my) for r in diff_rects.values())
+        pve_bg = (0.20, 0.28, 0.42, 0.95) if is_pve_hover else (0.13, 0.16, 0.23, 0.9)
+        pve_border = (0.50, 0.80, 1.0, 0.9) if is_pve_hover else (0.25, 0.32, 0.45, 0.6)
+        self.draw_rect((btn_pve_rect.x, btn_pve_rect.y), (btn_pve_rect.w, btn_pve_rect.h), pve_bg, radius=12.0, border_color=pve_border, border_width=1.5)
+
+        # Piece Icon for PvE (Knight)
+        kn_tex = self.texture_mgr.get("w_knight")
+        if kn_tex:
+            self.draw_textured_quad(kn_tex, (btn_pve_rect.x + 28, btn_pve_rect.y + 22), (64, 64))
+
+        self.draw_text("HUMAN VS BOT (COMPUTER)", (btn_pve_rect.x + 115, btn_pve_rect.y + 18), self.font_btn_title, color=(245, 250, 255))
+        self.draw_text("Challenge the Minimax Engine with Positional Search", (btn_pve_rect.x + 115, btn_pve_rect.y + 44), self.font_btn_desc, color=(160, 180, 205))
+
+        # Difficulty Chips inside Human vs Bot card
+        self.draw_text("Difficulty:", (btn_pve_rect.x + 115, btn_pve_rect.y + 78), self.font_btn_desc, color=(140, 160, 185))
+        for dname, drect in diff_rects.items():
+            is_active = (dname == current_diff)
+            is_chip_hover = drect.collidepoint(mx, my)
+            if is_active:
+                chip_bg = (0.30, 0.58, 0.88, 1.0)
+                chip_col = (255, 255, 255)
+            elif is_chip_hover:
+                chip_bg = (0.22, 0.28, 0.40, 0.9)
+                chip_col = (230, 240, 255)
+            else:
+                chip_bg = (0.16, 0.20, 0.28, 0.8)
+                chip_col = (150, 170, 195)
+
+            self.draw_rect((drect.x, drect.y), (drect.w, drect.h), chip_bg, radius=6.0)
+            self.draw_text(dname, (drect.x + 14, drect.y + 5), self.font_small, color=chip_col)
+
+        # 7. Button 3: QUIT GAME
+        is_quit_hover = btn_quit_rect.collidepoint(mx, my)
+        q_bg = (0.35, 0.16, 0.22, 0.9) if is_quit_hover else (0.18, 0.14, 0.18, 0.7)
+        q_border = (0.85, 0.35, 0.45, 0.8) if is_quit_hover else (0.45, 0.25, 0.30, 0.5)
+        self.draw_rect((btn_quit_rect.x, btn_quit_rect.y), (btn_quit_rect.w, btn_quit_rect.h), q_bg, radius=8.0, border_color=q_border, border_width=1.0)
+        self.draw_text("QUIT GAME [Esc]", (btn_quit_rect.x + 22, btn_quit_rect.y + 9), self.font_small, color=(240, 210, 220))
 
     def render_quit_dialog(self, mouse_pos: tuple[int, int], btn_quit_rect: pygame.Rect, btn_cancel_rect: pygame.Rect):
         """Draw sleek confirmation dialog when user attempts to quit."""
