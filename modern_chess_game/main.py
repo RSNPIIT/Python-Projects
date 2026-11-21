@@ -70,37 +70,62 @@ def main():
         while running:
             dt = clock.tick(60) / 1000.0  # Delta time in seconds (capped at 60 FPS)
             time_sec = pygame.time.get_ticks() / 1000.0
+            mouse_pos = pygame.mouse.get_pos()
 
             # Handle Pygame Events
             for event in pygame.event.get():
-                # Only the GUI window close event or Cmd+Q/Alt+F4 terminates the game
                 if event.type == pygame.QUIT:
-                    running = False
-                elif event.type == pygame.MOUSEBUTTONDOWN:
-                    game.handle_mouse_down(event.pos, event.button)
-                elif event.type == pygame.MOUSEMOTION:
-                    game.handle_mouse_move(event.pos)
-                elif event.type == pygame.MOUSEBUTTONUP:
-                    game.handle_mouse_up(event.pos, event.button)
-                elif event.type == pygame.KEYDOWN:
-                    if (event.key == pygame.K_q and (event.mod & (pygame.KMOD_CTRL | pygame.KMOD_META))) or \
-                       (event.key == pygame.K_F4 and (event.mod & pygame.KMOD_ALT)):
+                    if game.show_quit_dialog:
                         running = False
-                    elif event.key == pygame.K_ESCAPE:
-                        game.selected_sq = None
-                        game.valid_moves.clear()
                     else:
-                        game.handle_key_down(event)
+                        game.request_quit()
+
+                elif event.type == pygame.MOUSEBUTTONDOWN:
+                    if game.show_quit_dialog:
+                        action = game.handle_quit_click(event.pos)
+                        if action == "quit":
+                            running = False
+                    else:
+                        game.handle_mouse_down(event.pos, event.button)
+
+                elif event.type == pygame.MOUSEMOTION:
+                    if not game.show_quit_dialog:
+                        game.handle_mouse_move(event.pos)
+
+                elif event.type == pygame.MOUSEBUTTONUP:
+                    if not game.show_quit_dialog:
+                        game.handle_mouse_up(event.pos, event.button)
+
+                elif event.type == pygame.KEYDOWN:
+                    if game.show_quit_dialog:
+                        if event.key in (pygame.K_y, pygame.K_RETURN):
+                            running = False
+                        elif event.key in (pygame.K_n, pygame.K_ESCAPE):
+                            game.cancel_quit()
+                    else:
+                        # Quit triggers: Cmd+Q on Mac, Ctrl+Q, Alt+F4
+                        if (event.key == pygame.K_q and (event.mod & (pygame.KMOD_CTRL | pygame.KMOD_META))) or \
+                           (event.key == pygame.K_F4 and (event.mod & pygame.KMOD_ALT)):
+                            game.request_quit()
+                        elif event.key == pygame.K_ESCAPE:
+                            if game.selected_sq is not None:
+                                game.selected_sq = None
+                                game.valid_moves.clear()
+                            else:
+                                game.request_quit()
+                        else:
+                            game.handle_key_down(event)
 
             if not running:
                 break
 
-            # Update animations
+            # Update AI & animations
+            game.update(dt)
             renderer.update_animations(dt)
 
             # Clear and Render
             ctx.clear(0.10, 0.11, 0.14)
-            game.render(time_sec)
+            game.render(time_sec, mouse_pos)
 
             # Swap Double Buffers
             pygame.display.flip()
