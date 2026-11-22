@@ -1,9 +1,11 @@
 """Kapman Game - Ghost / Mummy AI & State Machine"""
 import math
 import random
+from collections import deque
 from core.constants import (
-    TILE_SIZE,
+    TILE_SIZE, MAZE_COLS, MAZE_ROWS,
     GHOST_CHASE, GHOST_SCATTER, GHOST_FRIGHTENED, GHOST_EATEN,
+    GHOST_ENTERING, GHOST_EXITING,
     GHOST_NORMAL_SPEED, GHOST_FRIGHT_SPEED, GHOST_EATEN_SPEED, GHOST_TUNNEL_SPEED,
     DIR_NONE, DIR_UP, DIR_DOWN, DIR_LEFT, DIR_RIGHT,
     OPPOSITE_DIR
@@ -30,7 +32,14 @@ GHOST_BASE_COLORS = {
     GHOST_ORANGE: (255, 160, 40)   # Amber
 }
 
+# Key navigation coordinates for Ghost House
+DOOR_CENTER_X = (13.5 + 0.5) * TILE_SIZE  # 280.0 px (horizontal center)
+DOOR_CENTER_Y = (11.0 + 0.5) * TILE_SIZE  # 230.0 px (row 11 corridor outside gate)
+HOUSE_CENTER_Y = (14.0 + 0.5) * TILE_SIZE # 290.0 px (row 14 altar inside house)
+
 class Ghost(Character):
+    _HOME_FLOW_FIELD: dict[tuple[int, int], tuple[int, int]] | None = None
+
     def __init__(self, ghost_id: int, start_col: float, start_row: float, scatter_col: int, scatter_row: int):
         super().__init__(start_col, start_row, GHOST_NORMAL_SPEED)
         self.ghost_id = ghost_id
@@ -43,11 +52,57 @@ class Ghost(Character):
         self.house_exit_timer = {
             GHOST_RED: 0.0,
             GHOST_PINK: 2.0,
-            GHOST_CYAN: 6.0,
-            GHOST_ORANGE: 10.0
+            GHOST_CYAN: 5.0,
+            GHOST_ORANGE: 8.0
         }[ghost_id]
 
         self.last_tile = (self.row, self.col)
+
+    @classmethod
+    def _build_home_flow_field(cls, maze: Maze) -> dict[tuple[int, int], tuple[int, int]]:
+        """Precomputes BFS shortest path directions from every tile to the ghost house entrance."""
+        doors = [(11, 13), (11, 14)]
+        queue = deque(doors)
+        visited = set(doors)
+        dist = {d: 0 for d in doors}
+
+        while queue:
+            r, c = queue.popleft()
+            for dc, dr in [DIR_UP, DIR_DOWN, DIR_LEFT, DIR_RIGHT]:
+                nr = r + dr
+                nc = c + dc
+                if nr == 14:
+                    if nc < 0:
+                        nc = MAZE_COLS - 1
+                    elif nc >= MAZE_COLS:
+                        nc = 0
+                if 0 <= nr < MAZE_ROWS and 0 <= nc < MAZE_COLS:
+                    if maze.is_passable(nr, nc, allow_gate=False) and (nr, nc) not in visited:
+                        visited.add((nr, nc))
+                        dist[(nr, nc)] = dist[(r, c)] + 1
+                        queue.append((nr, nc))
+
+        flow_field = {}
+        for (r, c) in visited:
+            if (r, c) in doors:
+                continue
+            best_dir = DIR_NONE
+            min_d = float("inf")
+            for d in [DIR_UP, DIR_LEFT, DIR_DOWN, DIR_RIGHT]:
+                dc, dr = d
+                nr = r + dr
+                nc = c + dc
+                if nr == 14:
+                    if nc < 0:
+                        nc = MAZE_COLS - 1
+                    elif nc >= MAZE_COLS:
+                        nc = 0
+                if (nr, nc) in dist and dist[(nr, nc)] < min_d:
+                    min_d = dist[(nr, nc)]
+                    best_dir = d
+            flow_field[(r, c)] = best_dir
+
+        return flow_field
 
     def reset(self):
         self.reset_position()
@@ -57,21 +112,37 @@ class Ghost(Character):
         self.house_exit_timer = {
             GHOST_RED: 0.0,
             GHOST_PINK: 2.0,
-            GHOST_CYAN: 6.0,
-            GHOST_ORANGE: 10.0
+            GHOST_CYAN: 5.0,
+            GHOST_ORANGE: 8.0
         }[self.ghost_id]
         self.last_tile = (self.row, self.col)
 
+        if not self.in_house:
+            self.direction = DIR_LEFT
+
     def become_frightened(self):
-        if self.state != GHOST_EATEN and not self.in_house:
+        # Only ghosts actively roaming the maze can become frightened
+        if self.state in (GHOST_CHASE, GHOST_SCATTER) and not self.in_house:
             self.state = GHOST_FRIGHTENED
             self.speed = GHOST_FRIGHT_SPEED
-            # Reverse direction on fright
+            # Immediate 180 reverse direction on fright
             self.desired_direction = OPPOSITE_DIR.get(self.direction, DIR_NONE)
 
     def become_eaten(self):
         self.state = GHOST_EATEN
         self.speed = GHOST_EATEN_SPEED
+        self.last_tile = (-1, -1)
+        if Ghost._HOME_FLOW_FIELD:
+            flow_dir = Ghost._HOME_FLOW_FIELD.get((self.row, self.col))
+            if flow_dir:
+                self.set_desired_direction(flow_dir)
+                self.direction = flow_dir
+            else:
+                self.direction = DIR_NONE
+                self.desired_direction = DIR_NONE
+        else:
+            self.direction = DIR_NONE
+            self.desired_direction = DIR_NONE
 
     def update(
         self,
@@ -80,53 +151,130 @@ class Ghost(Character):
         kapman_pos: tuple[float, float],
         kapman_dir: tuple[int, int],
         red_ghost_pos: tuple[float, float] = (0, 0),
-        global_mode: str = GHOST_SCATTER
+        global_mode: str = GHOST_SCATTER,
+        is_frightened: bool = False
     ):
-        # 1. Update in-house timer
+        if Ghost._HOME_FLOW_FIELD is None:
+            Ghost._HOME_FLOW_FIELD = Ghost._build_home_flow_field(maze)
+
+        # 1. Update in-house ghosts waiting to emerge
         if self.in_house:
-            self.house_exit_timer -= dt
-            # Bob up and down inside house
-            self.y += math.sin(self.house_exit_timer * 6.0) * 0.4
-            if self.house_exit_timer <= 0:
-                # Emerge through door at (row 12, col 13.5)
-                self.x = (13.5 + 0.5) * TILE_SIZE
-                self.y = (11.0 + 0.5) * TILE_SIZE
-                self.in_house = False
+            if self.house_exit_timer > 0:
+                self.house_exit_timer -= dt
+                # Gentle vertical bobbing at spawn location
+                self.y = self.start_y + math.sin(self.house_exit_timer * 6.0) * 3.0
+                return
+            else:
+                # Timer expired: align horizontally to door center (280 px), then step out
+                if abs(self.x - DOOR_CENTER_X) > 1.5:
+                    step = min(abs(DOOR_CENTER_X - self.x), GHOST_NORMAL_SPEED * dt)
+                    self.x += step if DOOR_CENTER_X > self.x else -step
+                    self.direction = DIR_RIGHT if DOOR_CENTER_X > self.x else DIR_LEFT
+                    return
+                else:
+                    self.x = DOOR_CENTER_X
+                    self.in_house = False
+                    self.state = GHOST_EXITING
+                    self.direction = DIR_UP
+                    self.speed = GHOST_NORMAL_SPEED
+                    return
+
+        # 2. Exiting the Ghost House through the gate
+        if self.state == GHOST_EXITING:
+            self.x = DOOR_CENTER_X
+            self.direction = DIR_UP
+            self.speed = GHOST_NORMAL_SPEED
+            self.y -= self.speed * dt
+            if self.y <= DOOR_CENTER_Y:
+                self.y = DOOR_CENTER_Y
+                self.state = global_mode
                 self.direction = DIR_LEFT
+                self.desired_direction = DIR_NONE
+                self.last_tile = (11, 13)
             return
 
-        # 2. Adjust state based on global cycle
-        if self.state not in (GHOST_FRIGHTENED, GHOST_EATEN):
+        # 3. Entering the Ghost House through the gate (eyes descending to altar)
+        if self.state == GHOST_ENTERING:
+            self.x = DOOR_CENTER_X
+            self.direction = DIR_DOWN
+            self.speed = GHOST_EATEN_SPEED
+            self.y += self.speed * dt
+            if self.y >= HOUSE_CENTER_Y:
+                self.y = HOUSE_CENTER_Y
+                # Regenerate mummy/ghost body and immediately exit!
+                self.state = GHOST_EXITING
+                self.direction = DIR_UP
+                self.speed = GHOST_NORMAL_SPEED
+            return
+
+        # 4. Eaten eyes navigating back to the ghost house entrance
+        if self.state == GHOST_EATEN:
+            # Check if arrived at doorway entrance
+            if self.row == 11 and self.col in (13, 14) and abs(self.x - DOOR_CENTER_X) <= 6.0:
+                self.x = DOOR_CENTER_X
+                self.y = DOOR_CENTER_Y
+                self.state = GHOST_ENTERING
+                self.direction = DIR_DOWN
+                return
+
+            curr_tile = (self.row, self.col)
+            dist_to_center = abs(self.x - self.center_tile_x) + abs(self.y - self.center_tile_y)
+            if curr_tile != self.last_tile or dist_to_center < 6.0 or self.direction == DIR_NONE:
+                flow_dir = Ghost._HOME_FLOW_FIELD.get(curr_tile)
+                if flow_dir:
+                    self.set_desired_direction(flow_dir)
+                    if self.direction == DIR_NONE:
+                        self.direction = flow_dir
+                self.last_tile = curr_tile
+
+            self.update_movement(dt, maze, allow_gate=False)
+            return
+
+        # 5. Handle frightened mode expiration and state synchronization
+        if self.state == GHOST_FRIGHTENED:
+            if not is_frightened:
+                self.state = global_mode
+                self.speed = GHOST_NORMAL_SPEED
+        elif self.state not in (GHOST_EATEN, GHOST_ENTERING, GHOST_EXITING):
             self.state = global_mode
             self.speed = GHOST_NORMAL_SPEED
 
-        # 3. Slow down in side warp tunnels
+        # 6. Slow down in side warp tunnels
         if self.row == 14 and (self.col <= 5 or self.col >= 22):
             self.speed = min(self.speed, GHOST_TUNNEL_SPEED)
 
-        # 4. Determine AI target tile
-        target_tile = self._calculate_target_tile(kapman_pos, kapman_dir, red_ghost_pos)
-
-        # 5. At intersection / new tile, choose optimal turn
+        # 7. Navigation & intersection turn decisions
         curr_tile = (self.row, self.col)
         dist_to_center = abs(self.x - self.center_tile_x) + abs(self.y - self.center_tile_y)
 
         if curr_tile != self.last_tile or (dist_to_center < 3.0 and self.desired_direction == DIR_NONE):
-            self._decide_next_turn(maze, target_tile)
+            if self.state == GHOST_FRIGHTENED:
+                self._decide_frightened_turn(maze)
+            else:
+                target_tile = self._calculate_target_tile(kapman_pos, kapman_dir, red_ghost_pos)
+                self._decide_next_turn(maze, target_tile)
             self.last_tile = curr_tile
 
-        # Allow gate passage only when returning home after being eaten
-        allow_gate = (self.state == GHOST_EATEN)
-        self.update_movement(dt, maze, allow_gate=allow_gate)
+        self.update_movement(dt, maze, allow_gate=False)
 
-        # 6. Eaten ghost reaches home -> revives!
-        if self.state == GHOST_EATEN:
-            gate_x = (13.5 + 0.5) * TILE_SIZE
-            gate_y = (14.0 + 0.5) * TILE_SIZE
-            if abs(self.x - gate_x) < 8.0 and abs(self.y - gate_y) < 8.0:
-                self.state = global_mode
-                self.speed = GHOST_NORMAL_SPEED
-                self.direction = DIR_UP
+    def _decide_frightened_turn(self, maze: Maze):
+        """Randomized turn at intersections while in frightened panic."""
+        candidates = [DIR_UP, DIR_LEFT, DIR_DOWN, DIR_RIGHT]
+        opposite = OPPOSITE_DIR.get(self.direction, DIR_NONE)
+        valid = []
+
+        for d in candidates:
+            if d == opposite and self.direction != DIR_NONE:
+                continue
+            nr = self.row + d[1]
+            nc = self.col + d[0]
+            if maze.is_passable(nr, nc, allow_gate=False):
+                valid.append(d)
+
+        if valid:
+            self.set_desired_direction(random.choice(valid))
+        elif opposite != DIR_NONE and maze.is_passable(self.row + opposite[1], self.col + opposite[0], allow_gate=False):
+            self.set_desired_direction(opposite)
 
     def _calculate_target_tile(
         self,
@@ -134,17 +282,9 @@ class Ghost(Character):
         kapman_dir: tuple[int, int],
         red_ghost_pos: tuple[float, float]
     ) -> tuple[int, int]:
-        # Eaten -> target ghost house door at (12, 13)
-        if self.state == GHOST_EATEN:
-            return (12, 13)
-
         # Scatter -> target designated corner
         if self.state == GHOST_SCATTER:
             return self.scatter_target
-
-        # Frightened -> pseudo-random
-        if self.state == GHOST_FRIGHTENED:
-            return (random.randint(0, 30), random.randint(0, 27))
 
         # Chase mode: personality-specific targeting
         k_col = int(kapman_pos[0] // TILE_SIZE)
@@ -196,8 +336,7 @@ class Ghost(Character):
             nr = self.row + d[1]
             nc = self.col + d[0]
 
-            allow_gate = (self.state == GHOST_EATEN)
-            if maze.is_passable(nr, nc, allow_gate=allow_gate):
+            if maze.is_passable(nr, nc, allow_gate=False):
                 dist_sq = (nr - target_tile[0]) ** 2 + (nc - target_tile[1]) ** 2
                 if dist_sq < min_dist_sq:
                     min_dist_sq = dist_sq
