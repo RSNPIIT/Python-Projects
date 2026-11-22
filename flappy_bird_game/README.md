@@ -1,6 +1,6 @@
 # 🐦 KFlapper // The OG Classic Flappy Bird (HD Edition)
 
-An authentic, arcade-grade remake of the classic **Flappy Bird** built for **widescreen desktop displays (1280 × 720 HD)** in Python using **Pygame**. Engineered from the ground up with clean **Object-Oriented Programming (OOP)**, procedural vector-grade pixel art, 5-layer parallax scrolling, procedural 8-bit sound effects, character skins, and tiered medals.
+An authentic, arcade-grade remake of the classic **Flappy Bird** built for **widescreen desktop displays (1280 × 720 HD)** in Python using **Pygame**. Engineered from the ground up with clean **Object-Oriented Programming (OOP)**, procedural vector-grade pixel art, 5-layer parallax scrolling, procedural 8-bit sound effects, character skins, interactive menu GUI, and dynamic progressive biomes.
 
 ---
 
@@ -17,78 +17,49 @@ Or run directly with the virtual environment Python:
 ../venv/bin/python3 main.py
 ```
 
-> **Terminal Protection**: [`run.sh`](file:///Users/ramrupsatpati/Desktop/Python/flappy_bird_game/run.sh) traps interrupt signals (`Ctrl+C`, `Ctrl+X`, `Ctrl+D`, `Ctrl+Z`) and preserves terminal sanity (`stty sane`) upon exit.
+> **Terminal Protection**: [`run.sh`](file:///Users/ramrupsatpati/Desktop/Python/flappy_bird_game/run.sh) traps interrupt signals (`Ctrl+C`, `Ctrl+X`, `Ctrl+D`, `Ctrl+Z`), locks terminal line keys, and preserves terminal sanity (`stty sane`) upon exit.
 
 ---
 
 ## 🎮 Controls & Shortcuts
 
-| Action | Key / Input | Description |
+| Action | Control | Description |
 | :--- | :--- | :--- |
-| **Flap** | `SPACE` / `▲` / `W` / `Left Click` | Flap wings upwards. Tap in rhythm to maintain altitude! |
+| **Flap** | `SPACE` / `▲` / `W` / `Left Click` / `Touch Tap` | Flap wings upwards. Tap in rhythm to navigate pipe gaps. |
+| **Clickable GUI Menu** | `Mouse Click` / `Trackpad Tap` | Direct point-and-click difficulty cards, skin arrows, and play button! |
 | **Pause / Resume** | `P` or `ESC` | Pauses the flight simulation and dims the screen. |
 | **Restart Game** | `R` or `ENTER` | Instantly resets and starts a fresh match. |
-| **Cycle Skin** | `C` | Cycles through 5 bird skins in real-time. |
-| **Switch Difficulty** | `D` | Toggles between **Classic**, **Chill**, and **Hardcore**. |
-| **Switch Time of Day** | `T` | Cycles sky themes: **Day**, **Sunset**, **Night**, or **Dynamic**. |
+| **Cycle Skin** | `C` or Menu Arrows | Cycles through all 5 character skins with live preview. |
+| **Switch Difficulty** | `D` or Menu Cards | Toggles between **Chill**, **Classic**, and **Hardcore**. |
+| **Switch Biomes** | `T` or Menu Button | Cycles between **Dynamic (Progressive)** or locked biomes. |
 | **Toggle Audio** | `M` | Mute / Unmute procedural 8-bit sound effects. |
 | **Toggle Fullscreen** | `F11` or `F` | Toggles borderless fullscreen arcade mode. |
+| **Quit** | `Q` | Exits the game cleanly. |
 
 ---
 
-## 🌟 Key Features
+## 🌟 Progressive Biome Evolution (Dynamic Map Shifting)
 
-1. **Widescreen 16:9 HD Display (1280 × 720)**:
-   - Designed specifically for larger desktop monitors.
-   - Smooth 60 FPS flight dynamics with crisp rendering and borderless fullscreen toggle (`F11`).
+As you survive and clear pipes, the environment dynamically evolves into new visual sectors:
 
-2. **Authentic OG Flight Dynamics**:
-   - Precise gravity acceleration (`0.50 px/f²`), flap impulse (`-9.2 px/f`), and velocity clamping.
-   - Realistic attitude pitch dynamics: snaps upwards to `+26°` upon flapping and smoothly tilts down to `-90°` nosedive during descents.
-   - Triple-frame wing flapping animation with smooth sinusoidal idle hover in the main menu.
+| Sector | Threshold | Environment & Visual Theme |
+| :--- | :--- | :--- |
+| **Sector 1: Earth Meadow** | `0 – 29 bars` | Classic sunny azure sky, fluffy white clouds, green hills, emerald green pipes, and lush grass. |
+| **Sector 2: Martian Wasteland** | `30 – 59 bars` | Alien crimson & copper rust sky, alien red dunes, copper metallic pipes, and drifting red dust motes. |
+| **Sector 3: Cyber Neon City** | `60 – 89 bars` | Synthwave purple/magenta sky, glowing digital skyscrapers, electric cyan/turquoise glowing laser pipes, and neon motes. |
+| **Sector 4: Cosmic Midnight** | `90+ bars` | Deep starry space void, shimmering aurora borealis, midnight blue silhouette hills, silver starlight pipes, and twinkling stars. |
 
-3. **5 Selectable Character Skins (`C` key)**:
-   - 🐤 **KFlapper (Classic)**: Iconic golden yellow body, fiery orange beak, and white belly.
-   - 🦅 **Cyber Falcon**: Electric cyan plumage, neon magenta wing, and cyber visor eye.
-   - 🔥 **Crimson Phoenix**: Ruby body, gold crest plume, and amber belly.
-   - 🪶 **Midnight Raven**: Obsidian navy feathers, royal violet wing, and ruby glint eye.
-   - 🦜 **Emerald Parakeet**: Lime green plumage, turquoise wing, and warm amber beak.
+> **Milestone Alerts**: Crossing bar 30, 60, and 90 triggers an animated arcade banner announcement (`✦ SECTOR SHIFT // MARTIAN RED DUST ✦`), a triumphant milestone fanfare, and celebratory particle bursts!
 
-4. **Multi-Layer Parallax Environment**:
-   - **Layer 1 (Atmosphere)**: Smooth vertical sky gradient with Day, Sunset, and Night color palettes.
-   - **Layer 2 (Drifting Clouds)**: Soft cumulus clouds drifting at `0.10×` parallax speed.
-   - **Layer 3 (City Skyline)**: Distant cityscape silhouette with radio towers at `0.22×` speed.
-   - **Layer 4 (Rolling Hills)**: Gentle green hills and roadside bushes at `0.45×` speed.
-   - **Layer 5 (Scrolling Ground)**: Iconic retro dirt ground with scrolling diagonal hash stripes in sync with pipes.
-   - **Dynamic Time Mode**: Sky seamlessly transitions from Day ➔ Sunset ➔ Night ➔ Dawn every 10 points!
+---
 
-5. **Obstacles & Fair Hitboxes**:
-   - Authentic retro green pipe shading with lip collar caps, inner shadows, and specular highlight stripes.
-   - Circular-vs-box collision algorithm with a 3-pixel inset margin so close-shave maneuvers feel fair and responsive.
+## 🕹️ Interactive Menu GUI
 
-6. **Procedural 8-bit Sound Synthesizer**:
-   - Zero external audio files required! Synthesizes 6 distinct retro WAV sounds directly in memory:
-     - `flap`: Light wing whoosh
-     - `point`: Crystal two-tone arcade chime (B5 + E6)
-     - `hit`: Crunchy pipe crash impact
-     - `die`: Falling pitch drop slide
-     - `swoosh`: Smooth UI transition whoosh
-     - `medal`: Triumphant 4-note victory fanfare
-
-7. **Tiered Medals & High Score Persistence**:
-   - Automatic record saving in `~/.kflapper_save.json` per difficulty tier.
-   - Post-game scoreboard card with animated counting score, high-score comparison, and unlocked medals:
-     - 🥉 **Bronze Medal** (10 – 19 points)
-     - 🥈 **Silver Medal** (20 – 29 points)
-     - 🥇 **Gold Medal** (30 – 39 points)
-     - 💎 **Platinum Diamond Medal** (40+ points)
-     - Animated glowing `NEW!` badge when setting a personal best.
-
-8. **Visual Juice & Effects**:
-   - Drifting feather particles emitted when flapping and upon collision.
-   - Diamond coin score sparkles when clearing pipes.
-   - Screen shake and flash on crash.
-   - Big arcade score digits with score pop bounce animation.
+Rather than passive text or hidden keys, the title screen features full point-and-click GUI controls:
+1. **Difficulty Cards**: 3 dedicated clickable cards (`CHILL`, `CLASSIC`, `HARDCORE`) with hover glows, active selection outlines, and detailed gap/speed metrics.
+2. **Skin Switcher**: Live animated flapping preview with clickable `< PREV` and `NEXT >` arrow controls.
+3. **Primary Play Button**: Large, pulsing `[ PLAY GAME (SPACE / TAP) ]` button.
+4. **Quick Toolbar**: Direct click buttons for Biome Mode, SFX toggle, and High Score display.
 
 ---
 
@@ -117,13 +88,13 @@ Or run directly with the virtual environment Python:
 ```
 
 ### Module Breakdown:
-- **[`src/config.py`](file:///Users/ramrupsatpati/Desktop/Python/flappy_bird_game/src/config.py)**: Central configuration, physics coefficients, difficulties, skin definitions, and color themes.
+- **[`src/config.py`](file:///Users/ramrupsatpati/Desktop/Python/flappy_bird_game/src/config.py)**: Central configuration, physics coefficients, difficulties, skin definitions, and 4-tier progressive biomes.
 - **[`src/audio.py`](file:///Users/ramrupsatpati/Desktop/Python/flappy_bird_game/src/audio.py)**: Pure procedural wave synthesizer and audio manager with asynchronous playback.
 - **[`src/entities/bird.py`](file:///Users/ramrupsatpati/Desktop/Python/flappy_bird_game/src/entities/bird.py)**: Physics simulation, rotation interpolation, wing animation cycles, and procedural skin rendering.
 - **[`src/entities/pipe.py`](file:///Users/ramrupsatpati/Desktop/Python/flappy_bird_game/src/entities/pipe.py)**: Top and bottom pipe generation, gap tracking, scoring triggers, and collision detection.
-- **[`src/entities/background.py`](file:///Users/ramrupsatpati/Desktop/Python/flappy_bird_game/src/entities/background.py)**: 5-layer parallax scenery and endless scrolling striped ground.
-- **[`src/entities/particles.py`](file:///Users/ramrupsatpati/Desktop/Python/flappy_bird_game/src/entities/particles.py)**: Feather drift, score sparkles, impact puffs, and screen shake effects.
-- **[`src/ui/hud.py`](file:///Users/ramrupsatpati/Desktop/Python/flappy_bird_game/src/ui/hud.py)**: In-game big score counter with bounce animation and status pills.
-- **[`src/ui/menu.py`](file:///Users/ramrupsatpati/Desktop/Python/flappy_bird_game/src/ui/menu.py)**: Title screen with 3D logo, floating bird, and animated post-match scoreboard card.
+- **[`src/entities/background.py`](file:///Users/ramrupsatpati/Desktop/Python/flappy_bird_game/src/entities/background.py)**: 5-layer parallax scenery and endless scrolling striped ground with biome styling.
+- **[`src/entities/particles.py`](file:///Users/ramrupsatpati/Desktop/Python/flappy_bird_game/src/entities/particles.py)**: Feather drift, score sparkles, impact puffs, ambient dust/sparks/stars, and screen shake effects.
+- **[`src/ui/hud.py`](file:///Users/ramrupsatpati/Desktop/Python/flappy_bird_game/src/ui/hud.py)**: In-game score counter, sector indicators, and milestone biome transition banners.
+- **[`src/ui/menu.py`](file:///Users/ramrupsatpati/Desktop/Python/flappy_bird_game/src/ui/menu.py)**: Clickable difficulty cards, skin switcher, primary play button, and animated scoreboard card.
 - **[`src/ui/medals.py`](file:///Users/ramrupsatpati/Desktop/Python/flappy_bird_game/src/ui/medals.py)**: Procedural vector drawing of Bronze, Silver, Gold, and Platinum medals.
 - **[`src/game.py`](file:///Users/ramrupsatpati/Desktop/Python/flappy_bird_game/src/game.py)**: Top-level state coordinator, event dispatcher, persistent records, and main game loop.
