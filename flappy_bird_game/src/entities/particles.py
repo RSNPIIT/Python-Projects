@@ -1,6 +1,6 @@
 """
 particles.py - Particle VFX system for KFlapper.
-Manages drifting feathers, coin score sparkles, ground impact puffs, and screen flash effects.
+Manages drifting feathers, coin score sparkles, ground impact puffs, ambient biome dust/stars, and screen flash effects.
 """
 
 import math
@@ -27,7 +27,7 @@ class Feather:
     def update(self, dt: float):
         self.sway_phase += self.sway_speed * dt
         self.vx = math.sin(self.sway_phase) * 1.8 - 1.2
-        self.vy += 2.0 * dt  # Gentle gravity
+        self.vy += 2.0 * dt
         if self.vy > 2.2:
             self.vy = 2.2
 
@@ -119,6 +119,67 @@ class DustPuff:
         surface.blit(surf, (self.x - r, self.y - r))
 
 
+class AmbientMote:
+    """Atmospheric drifting particle matching active biome (Mars dust, Cyber sparks, Cosmic stars)."""
+
+    def __init__(self, x: float, y: float, fx_type: str):
+        self.x = x
+        self.y = y
+        self.fx_type = fx_type
+        self.alive = True
+
+        if fx_type == "red_dust":
+            self.color = random.choice([(255, 100, 70), (220, 60, 45), (255, 150, 90)])
+            self.vx = random.uniform(-3.8, -1.8)
+            self.vy = random.uniform(-0.6, 0.6)
+            self.size = random.uniform(2.0, 4.5)
+            self.alpha = random.uniform(140, 240)
+            self.decay = random.uniform(0.6, 1.4)
+        elif fx_type == "cyber_sparks":
+            self.color = random.choice([(0, 240, 255), (255, 0, 180), (160, 255, 255)])
+            self.vx = random.uniform(-4.5, -2.0)
+            self.vy = random.uniform(-1.0, 1.0)
+            self.size = random.uniform(2.5, 4.0)
+            self.alpha = random.uniform(180, 255)
+            self.decay = random.uniform(1.0, 2.0)
+        elif fx_type == "stars":
+            self.color = random.choice([(255, 255, 255), (200, 220, 255), (255, 235, 160)])
+            self.vx = random.uniform(-1.2, -0.4)
+            self.vy = 0.0
+            self.size = random.uniform(1.5, 3.5)
+            self.alpha = random.uniform(120, 255)
+            self.decay = random.uniform(0.3, 0.8)
+        else:
+            self.color = (255, 255, 255)
+            self.vx = -1.0
+            self.vy = 0.0
+            self.size = 2.0
+            self.alpha = 200.0
+            self.decay = 1.0
+
+    def update(self, dt: float):
+        self.x += self.vx
+        self.y += self.vy
+        self.alpha -= self.decay
+        if self.alpha <= 0 or self.x < -20:
+            self.alive = False
+
+    def draw(self, surface: pygame.Surface):
+        if not self.alive:
+            return
+        sz = int(self.size)
+        if sz <= 0:
+            return
+        surf = pygame.Surface((sz * 2, sz * 2), pygame.SRCALPHA)
+        c = (*self.color[:3], max(0, min(255, int(self.alpha))))
+        if self.fx_type == "cyber_sparks":
+            # Square digital pixel
+            pygame.draw.rect(surf, c, (0, 0, sz * 2, sz * 2))
+        else:
+            pygame.draw.circle(surf, c, (sz, sz), sz)
+        surface.blit(surf, (int(self.x), int(self.y)))
+
+
 class ParticleManager:
     """Manages all active particles in the scene."""
 
@@ -126,6 +187,7 @@ class ParticleManager:
         self.particles = []
         self.screen_shake = 0.0
         self.screen_flash = 0.0
+        self.ambient_timer = 0.0
 
     def emit_flap_feathers(self, x: float, y: float, color: tuple, count: int = 3):
         for _ in range(count):
@@ -135,6 +197,15 @@ class ParticleManager:
         for _ in range(count):
             self.particles.append(Sparkle(x + random.uniform(-20, 20), y + random.uniform(-20, 20)))
 
+    def emit_biome_transition(self, accent_color: tuple):
+        """Massive milestone celebration burst when entering a new sector."""
+        self.screen_shake = 12.0
+        self.screen_flash = 0.8
+        import config
+        from ..config import SCREEN_WIDTH, SCREEN_HEIGHT
+        for _ in range(45):
+            self.particles.append(Sparkle(random.uniform(100, SCREEN_WIDTH - 100), random.uniform(80, 450), color=accent_color))
+
     def emit_crash_burst(self, x: float, y: float, body_color: tuple):
         self.screen_shake = 18.0
         self.screen_flash = 1.0
@@ -142,6 +213,16 @@ class ParticleManager:
             self.particles.append(Feather(x, y, body_color))
         for _ in range(20):
             self.particles.append(DustPuff(x, y))
+
+    def update_ambient(self, dt: float, fx_type: str, screen_w: int, screen_h: int):
+        if fx_type == "feathers":
+            return
+        self.ambient_timer += dt
+        if self.ambient_timer > 0.08:
+            self.ambient_timer = 0.0
+            spawn_x = screen_w + random.uniform(10, 50)
+            spawn_y = random.uniform(30, screen_h - 130)
+            self.particles.append(AmbientMote(spawn_x, spawn_y, fx_type))
 
     def update(self, dt: float):
         if self.screen_shake > 0:
