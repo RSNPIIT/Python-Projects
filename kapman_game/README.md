@@ -43,3 +43,9 @@ cd /Users/ramrupsatpati/Desktop/Python/kapman_game
 python3 main.py
 ```
 *(Or with virtualenv: `/Users/ramrupsatpati/Desktop/Python/venv/bin/python main.py`)*
+
+### 🧪 Running Automated Tests
+
+```bash
+PYTHONPATH=. pytest tests/test_kapman.py -v
+```
