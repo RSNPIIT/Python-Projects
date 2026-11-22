@@ -94,19 +94,31 @@ def test_game_state_machine():
     game = KFlapperGame()
     assert game.state == GameState.MENU
 
-    # Start game
-    game.start_game()
+    # Test drawing in MENU
+    game.draw()
+
+    # Start game via flap (simulate mouse click or tap)
+    game.trigger_flap()
     assert game.state == GameState.PLAYING
     assert game.score == 0
+
+    # Test drawing in PLAYING (verifies SKINS and badge rendering)
+    game.draw()
 
     # Step game
     game.update(1.0 / 60.0)
     assert game.state == GameState.PLAYING
 
+    # Test another flap during PLAYING
+    game.trigger_flap()
+
     # Trigger game over
     game.trigger_game_over()
     assert game.state == GameState.GAME_OVER
     assert not game.bird.alive
+
+    # Test drawing in GAME_OVER
+    game.draw()
     print("[PASS] Game state machine and lifecycle tests passed.")
 
 
