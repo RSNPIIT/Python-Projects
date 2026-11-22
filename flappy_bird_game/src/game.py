@@ -5,13 +5,14 @@ Integrates physics simulation, input dispatch, audio, HUD, persistent scores, an
 
 import json
 import os
+import signal
 import pygame
 from enum import Enum, auto
 
 from .config import (
     SCREEN_WIDTH, SCREEN_HEIGHT, FPS, TITLE, BIRD_X,
     PLAYABLE_HEIGHT, DIFFICULTIES, TIME_THEMES,
-    SKIN_KEYS, THEME_KEYS
+    SKINS, SKIN_KEYS, THEME_KEYS
 )
 from .audio import SoundManager
 from .entities.bird import Bird
@@ -21,6 +22,16 @@ from .entities.particles import ParticleManager
 from .ui.hud import HUD
 from .ui.menu import Menu
 from .ui.medals import get_medal_for_score
+
+
+def _trap_terminal_signals():
+    """Ignores Ctrl+C, Ctrl+Z, Ctrl+\\ in terminal while game is running."""
+    for sig_name in ("SIGINT", "SIGQUIT", "SIGTSTP"):
+        if hasattr(signal, sig_name):
+            try:
+                signal.signal(getattr(signal, sig_name), signal.SIG_IGN)
+            except Exception:
+                pass
 
 
 class GameState(Enum):
@@ -36,6 +47,7 @@ class KFlapperGame:
     SAVE_FILE = os.path.expanduser("~/.kflapper_save.json")
 
     def __init__(self):
+        _trap_terminal_signals()
         pygame.init()
         pygame.display.set_caption(TITLE)
 
@@ -202,6 +214,9 @@ class KFlapperGame:
                     elif self.state == GameState.PAUSED:
                         self.state = GameState.PLAYING
 
+                elif event.key == pygame.K_q:
+                    self.running = False
+
                 elif event.key in (pygame.K_r, pygame.K_RETURN):
                     if self.state in (GameState.GAME_OVER, GameState.PAUSED):
                         self.start_game()
@@ -223,8 +238,12 @@ class KFlapperGame:
                     self.toggle_fullscreen()
 
             elif event.type == pygame.MOUSEBUTTONDOWN:
-                if event.button == 1:  # Left click
+                if event.button in (1, 2, 3):  # Left click, middle, or right click
                     self.trigger_flap()
+
+            elif event.type == getattr(pygame, 'FINGERDOWN', -1):
+                # Touchpad / Touchscreen direct finger tap
+                self.trigger_flap()
 
     def update(self, dt: float):
         theme = self.get_current_theme()
