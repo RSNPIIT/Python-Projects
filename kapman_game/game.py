@@ -315,7 +315,8 @@ class KapmanGame:
                 kapman_pos=kapman_pos,
                 kapman_dir=kapman_dir,
                 red_ghost_pos=red_ghost_pos,
-                global_mode=self.global_ghost_mode
+                global_mode=self.global_ghost_mode,
+                is_frightened=is_energized
             )
 
         # 7. Ghost vs Kapman Collisions
