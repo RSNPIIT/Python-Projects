@@ -7,7 +7,7 @@ from core.constants import (
     THEME_EGYPTIAN, THEME_CLASSIC,
     EGYPT_WALL_BASE, EGYPT_WALL_LIGHT, EGYPT_WALL_DARK, EGYPT_PILL_COLOR, EGYPT_ENERGIZER_COLOR,
     CLASSIC_WALL_BASE, CLASSIC_WALL_LIGHT, CLASSIC_WALL_DARK, CLASSIC_PILL_COLOR, CLASSIC_ENERGIZER_COLOR,
-    GHOST_FRIGHTENED, GHOST_EATEN,
+    GHOST_FRIGHTENED, GHOST_EATEN, GHOST_ENTERING,
     DIR_UP, DIR_DOWN, DIR_LEFT, DIR_RIGHT,
     FRIGHTENED_FLASH_TIME
 )
@@ -217,7 +217,7 @@ class GameRenderer:
         cy = int(ghost.y + offset_y)
         r = int(TILE_SIZE * 0.65)
 
-        if ghost.state == GHOST_EATEN:
+        if ghost.state in (GHOST_EATEN, GHOST_ENTERING):
             # Floating Eyes returning to tomb
             self._draw_ghost_eyes(surface, cx, cy, ghost.direction)
             return
