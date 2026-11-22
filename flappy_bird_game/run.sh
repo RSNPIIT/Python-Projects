@@ -1,5 +1,4 @@
 #!/bin/bash
-set -e
 
 # Change directory to script root
 cd "$(dirname "$0")"
@@ -15,10 +14,13 @@ cleanup() {
     stty sane 2>/dev/null || true
 }
 
-# Trap termination signals to prevent terminal corruption
-trap cleanup EXIT INT TERM QUIT TSTP
+# Restore terminal on exit
+trap cleanup EXIT
 
-# Disable terminal interrupt keys while GUI is running so signals don't corrupt terminal
+# Ignore interrupt, quit, and suspend signals in launcher
+trap '' INT QUIT TSTP
+
+# Disable terminal interrupt keys while GUI is running
 if [ -t 0 ]; then
     stty intr undef quit undef susp undef eof undef 2>/dev/null || true
 fi
