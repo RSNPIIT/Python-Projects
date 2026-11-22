@@ -122,9 +122,53 @@ def test_game_state_machine():
     print("[PASS] Game state machine and lifecycle tests passed.")
 
 
+def test_dynamic_biomes_and_menu_gui():
+    game = KFlapperGame()
+    assert game.state == GameState.MENU
+
+    # 1. Test Menu GUI Difficulty Button Click
+    game.draw()
+    assert "diff_Chill" in game.menu.buttons
+    assert "diff_Hardcore" in game.menu.buttons
+    assert "btn_play" in game.menu.buttons
+
+    # Simulate click on Chill card
+    chill_rect = game.menu.buttons["diff_Chill"]
+    action, payload = game.menu.handle_click((chill_rect.centerx, chill_rect.centery), "MENU")
+    assert action == "set_diff" and payload == "Chill"
+    game.set_difficulty("Chill")
+    assert game.current_diff_key == "Chill"
+    assert game.diff_cfg["gap"] == 240
+
+    # Simulate click on Hardcore card
+    hardcore_rect = game.menu.buttons["diff_Hardcore"]
+    action, payload = game.menu.handle_click((hardcore_rect.centerx, hardcore_rect.centery), "MENU")
+    assert action == "set_diff" and payload == "Hardcore"
+    game.set_difficulty("Hardcore")
+    assert game.current_diff_key == "Hardcore"
+    assert game.diff_cfg["gap"] == 165
+
+    # 2. Test Dynamic Biome Evolution (0-29 Earth, 30-59 Mars, 60-89 Cyber, 90+ Cosmic)
+    game.theme_mode_index = 0  # Dynamic Progressive Biomes
+    game.score = 15
+    assert game.get_current_theme()["id"] == "earth"
+
+    game.score = 30
+    assert game.get_current_theme()["id"] == "martian", "Score 30 must transition to Martian Reds"
+
+    game.score = 65
+    assert game.get_current_theme()["id"] == "cyber", "Score 60+ must transition to Cyber Neon"
+
+    game.score = 95
+    assert game.get_current_theme()["id"] == "night", "Score 90+ must transition to Cosmic Night"
+
+    print("[PASS] Interactive Menu GUI & Dynamic Progressive Biomes tests passed.")
+
+
 if __name__ == "__main__":
     test_bird_physics_and_skins()
     test_pipe_manager_and_collisions()
     test_audio_synthesis()
     test_game_state_machine()
+    test_dynamic_biomes_and_menu_gui()
     print("\nALL KFLAPPER AUTOMATED TESTS PASSED!")
