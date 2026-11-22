@@ -45,6 +45,8 @@ GHOST_CHASE = "chase"
 GHOST_SCATTER = "scatter"
 GHOST_FRIGHTENED = "frightened"
 GHOST_EATEN = "eaten"
+GHOST_ENTERING = "entering"
+GHOST_EXITING = "exiting"
 
 # Scoring
 SCORE_PILL = 10
